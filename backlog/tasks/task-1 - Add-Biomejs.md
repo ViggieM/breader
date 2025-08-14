@@ -92,6 +92,15 @@ repos:
 - Install it with `pre-commit install`
 - Run it once with `pre-commit run --all-files`
 
+## Add the following lines to `pagage.json`
+
+```
+"format": "biome format --write .",
+"format:check": "biome format .",
+"lint": "biome lint .",
+"lint:fix": "biome lint --write ."
+```
+
 # Cleanup
 
 Add all files to git and then commit with the message "Add Biomejs".
