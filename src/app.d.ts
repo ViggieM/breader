@@ -8,6 +8,10 @@ declare global {
     // interface PageState {}
     // interface Platform {}
   }
+  interface Window {
+    storedTheme: string;
+    setTheme: callable;
+  }
 }
 
 export {};

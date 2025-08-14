@@ -1,13 +1,13 @@
-:root {
-  --foreground: black;
-  --background: rgb(255, 243, 220);
-  --primary: rgb(16, 44, 87);
-  --secondary: rgb(218, 192, 163);
-}
+/*:root {*/
+/*  --foreground: black;*/
+/*  --background: rgb(255, 243, 220);*/
+/*  --primary: rgb(16, 44, 87);*/
+/*  --secondary: rgb(218, 192, 163);*/
+/*}*/
 
-@theme {
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-}
+/*@theme {*/
+/*  --color-primary: var(--primary);*/
+/*  --color-secondary: var(--secondary);*/
+/*  --color-foreground: var(--foreground);*/
+/*  --color-background: var(--background);*/
+/*}*/

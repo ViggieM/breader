@@ -1,0 +1,8 @@
+---
+title: What is Breader?
+---
+
+# { title }
+
+You can think of Breader as a bookmark managing app.
+You can add bookmarks via the web extension, by installing the application on your phone, or by importing existing bookmarks from your browser.

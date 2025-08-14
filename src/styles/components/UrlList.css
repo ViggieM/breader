@@ -1,0 +1,47 @@
+.UrlList {
+  @apply space-y-2 lg:space-y-0;
+
+  > li {
+    @apply relative w-full pr-4;
+
+    details:first-of-type {
+      summary {
+        @apply flex items-center pt-1 cursor-pointer;
+
+        img {
+          @apply aspect-square inline w-4 h-4 mr-2 align-middle;
+        }
+
+        span {
+          @apply truncate mr-3;
+        }
+      }
+
+      summary::-webkit-details-marker {
+        display: none;
+      }
+
+      > article {
+        @apply py-1 text-base-content/80 text-sm;
+
+        > footer {
+          @apply mt-1 flex items-center justify-between text-xs;
+
+          a {
+            @apply link link-accent text-sm;
+          }
+        }
+      }
+    }
+
+    details.dropdown {
+      summary {
+        @apply btn btn-sm lg:btn-xs btn-ghost px-2 lg:px-1;
+      }
+
+      ul {
+        @apply bg-base-100 rounded-box z-1 min-w-52 p-2 shadow-sm;
+      }
+    }
+  }
+}

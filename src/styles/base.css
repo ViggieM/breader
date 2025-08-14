@@ -2,30 +2,52 @@ html {
   @apply scroll-smooth;
 
   ::selection {
-    background: var(--secondary);
+    @apply bg-secondary/50;
   }
 }
 
 body {
-  @apply bg-background text-foreground font-sans;
+  display: grid;
   grid-template-rows: auto 1fr auto;
   min-height: 100vh;
 }
 
 header {
-  @apply text-center py-2;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  @apply py-2 mx-auto max-w-2xl w-full;
 
-  > a {
-    @apply inline-flex items-center justify-center gap-4;
+  > div {
+    grid-column: 2;
+    @apply inline-flex relative items-center justify-center gap-4 cursor-pointer;
+
+    > a {
+      @apply absolute inset-0 z-10;
+    }
+  }
+
+  > nav {
+    grid-column: 3;
+    justify-self: end;
   }
 }
 
 main {
-  @apply mx-2 lg:mx-0;
+  @apply mx-auto px-2 lg:px-0 w-full max-w-2xl;
+
+  &.posts {
+    @apply space-y-4;
+  }
 }
 
-/*footer {}*/
+footer {
+  @apply text-center;
+}
 
-a {
-  @apply text-primary/80 hover:text-primary truncate;
+h1 {
+  @apply text-2xl mt-4;
+}
+
+h2 {
+  @apply text-xl mt-3;
 }
