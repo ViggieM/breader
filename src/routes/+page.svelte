@@ -1,2 +1,10 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation <span class="icon-[mdi-light--home]"></span></p>
+<script>
+let query = $state('');
+
+function performSearch() {}
+</script>
+
+<section class="mx-auto max-w-2xl">
+  <label for="search-input" class="sr-only">Search for content</label>
+  <input id="search-input" type="search" bind:value={query} oninput={performSearch} placeholder="Search..." class="w-full mb-4"/>
+</section>

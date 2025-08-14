@@ -12,7 +12,17 @@ body {
   min-height: 100vh;
 }
 
-/*header {}*/
+header {
+  @apply text-center py-2;
+
+  > a {
+    @apply inline-flex items-center justify-center gap-4;
+  }
+}
+
+main {
+  @apply mx-2 lg:mx-0;
+}
 
 /*footer {}*/
 
