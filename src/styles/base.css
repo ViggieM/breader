@@ -1,0 +1,21 @@
+html {
+  @apply scroll-smooth;
+
+  ::selection {
+    background: var(--secondary);
+  }
+}
+
+body {
+  @apply bg-background text-foreground font-sans;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+/*header {}*/
+
+/*footer {}*/
+
+a {
+  @apply text-primary/80 hover:text-primary truncate;
+}
