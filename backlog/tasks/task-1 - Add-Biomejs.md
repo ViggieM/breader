@@ -91,3 +91,9 @@ repos:
 
 - Install it with `pre-commit install`
 - Run it once with `pre-commit run --all-files`
+
+# Cleanup
+
+Add all files to git and then commit with the message "Add Biomejs".
+If the pre-commit hook for biomejs fails, try again a second time.
+If it also fails the second time, prompt the user for instructions
