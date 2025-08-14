@@ -1,5 +1,6 @@
 <script lang="ts">
 import '../styles/app.css';
+import { closeDetailsOnOutsideClick } from '$lib';
 
 let { children } = $props();
 </script>
@@ -16,6 +17,10 @@ let { children } = $props();
   <meta name="apple-mobile-web-app-title" content="Breader">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
 </svelte:head>
+
+<svelte:window
+  onclick={closeDetailsOnOutsideClick}
+/>
 
 <header>
   <a href="/">
