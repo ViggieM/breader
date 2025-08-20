@@ -5,7 +5,6 @@
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "theme_color": "rgb(218, 192, 163)",
   "background_color": "rgb(255, 243, 220)",
   "categories": ["productivity", "utilities"],
   "share_target": {
