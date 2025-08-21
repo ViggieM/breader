@@ -1,5 +1,5 @@
 <script lang="ts">
-import Filter from '$lib/components/filter.svelte';
+import SearchFilter from '$lib/components/SearchFilter.svelte';
 import UrlList from '$lib/components/UrlList.svelte';
 import type { PageProps } from './$types';
 
@@ -17,7 +17,7 @@ function performSearch() {}
   <input id="search-input" type="search" bind:value={query} oninput={performSearch} placeholder="Search..."
          class="input w-full"/>
   <div class="my-2">
-    <Filter></Filter>
+    <SearchFilter></SearchFilter>
   </div>
 
   <UrlList items={data.items}></UrlList>
