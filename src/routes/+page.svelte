@@ -1,88 +1,39 @@
 <script lang="ts">
 import { onMount } from 'svelte';
+import { browser } from '$app/environment';
+import { replaceState } from '$app/navigation';
 import SearchFilter from '$lib/components/SearchFilter.svelte';
 import UrlList from '$lib/components/UrlList.svelte';
-import { createSearchEngine, type FuseSearchEngine } from '$lib/search';
+import {
+  bookmarkStore,
+  type SearchOptions,
+} from '$lib/stores/bookmarks.svelte';
 import type { Bookmark } from '$lib/types';
 import type { PageProps } from './$types';
 
 let { data }: PageProps = $props();
 
 let query = $state('');
-let engine: FuseSearchEngine | null = $state(null);
+let searchOptions: SearchOptions = $state({
+  reviewed: false,
+});
 let results: Bookmark[] = $state([]);
-let showUnreviewedOnly = $state(false);
-let allResults: Bookmark[] = $state([]);
 
-// Initialize search functionality
-onMount(() => {
-  const init = async () => {
-    // todo: this is somehow cached. for a long time i still got to see the content.json from the previous implementation
-    engine = await createSearchEngine();
-
-    // Read initial query from URL parameter
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search);
-      const initialQuery = urlParams.get('q') || '';
-      query = initialQuery;
-
-      // Perform initial search
-      if (initialQuery.trim()) {
-        allResults = engine.search(initialQuery);
-      } else {
-        allResults = engine.getAllUrlItems();
-      }
-
-      filterResults();
-
-      // Handle browser navigation (back/forward)
-      const handlePopState = () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        const newQuery = urlParams.get('q') || '';
-        query = newQuery;
-        performSearch();
-      };
-
-      window.addEventListener('popstate', handlePopState);
-
-      return () => {
-        window.removeEventListener('popstate', handlePopState);
-      };
-    }
-  };
-
-  init();
+// Effect to update search engine when bookmarks change (moved out of derived)
+$effect(() => {
+  results = [...bookmarkStore.searchBookmarks(query, searchOptions)];
 });
 
-function performSearch() {
-  if (!engine) return;
-
-  if (!query.trim()) {
-    allResults = engine.getAllUrlItems();
-    // Update URL to remove query parameter
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
+// Update URL when query changes (for bookmarking/sharing)
+function updateURL() {
+  if (browser) {
+    const url = new URL(window.location.href);
+    if (!query.trim()) {
       url.searchParams.delete('q');
-      history.replaceState({}, '', url);
-    }
-  } else {
-    allResults = engine.search(query);
-    // Update URL with current query
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
+    } else {
       url.searchParams.set('q', query);
-      history.replaceState({}, '', url);
     }
-  }
-
-  filterResults();
-}
-
-function filterResults() {
-  if (showUnreviewedOnly) {
-    results = allResults.filter((item) => !item.reviewed);
-  } else {
-    results = allResults;
+    replaceState(url, {});
   }
 }
 </script>
@@ -91,12 +42,16 @@ function filterResults() {
 <main>
 <section>
   <label for="search-input" class="sr-only">Search for content</label>
-  <input id="search-input" type="search" bind:value={query} oninput={performSearch} placeholder="Search..."
+  <input id="search-input" type="search" bind:value={query} oninput={updateURL} placeholder="Search..."
          class="input w-full"/>
   <div class="my-2">
-    <SearchFilter></SearchFilter>
+    <SearchFilter bind:searchOptions></SearchFilter>
   </div>
 
-  <UrlList items={results}></UrlList>
+  {#if results}
+    <UrlList items={results}></UrlList>
+  {:else}
+    <p class="flex items-center justify-center gap-2"><span class="loading loading-spinner loading-lg"></span> Loading bookmarks...</p>
+  {/if}
 </section>
 </main>

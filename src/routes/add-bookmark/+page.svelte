@@ -1,6 +1,6 @@
 <script lang="ts">
 import { goto } from '$app/navigation';
-import { bookmarkStore } from '$lib/stores/bookmarks';
+import { bookmarkStore } from '$lib/stores/bookmarks.svelte';
 import type { PageProps } from './$types';
 
 const { data }: PageProps = $props();

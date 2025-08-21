@@ -69,7 +69,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `src/app.html` - HTML template
 - `src/app.css` - Global styles (Tailwind imports)
 - `src/routes/+layout.svelte` - Root layout component
-- `src/lib/stores/bookmarks.ts` - Main data store for bookmark management
+- `src/lib/stores/bookmarks.svelte.ts` - Main data store for bookmark management
 - `src/lib/search.ts` - Fuse.js search engine implementation
 - `src/lib/types/bookmark.ts` - Bookmark data model
 - `vite.config.ts` - Vite configuration with dual test environments

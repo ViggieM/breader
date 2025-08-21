@@ -1,7 +1,7 @@
 <script lang="ts">
 import { goto } from '$app/navigation';
 import { formatDate } from '$lib';
-import { bookmarkStore } from '$lib/stores/bookmarks';
+import { bookmarkStore } from '$lib/stores/bookmarks.svelte';
 import type { Bookmark } from '$lib/types';
 
 let { items } = $props();

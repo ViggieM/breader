@@ -7,12 +7,11 @@ export interface SearchOptions {
 }
 
 export class FuseSearchEngine {
-  private fuse: Fuse<Bookmark>;
-  private readonly urlItems: Bookmark[];
+  private urlItems: Bookmark[] = [];
+  private readonly fuse: Fuse<Bookmark> | null = null;
+  private readonly searchOptions: SearchOptions;
 
-  constructor(urlItems: Bookmark[], options: SearchOptions = {}) {
-    this.urlItems = urlItems;
-
+  constructor(bookmarks: Bookmark[] = [], options: SearchOptions = {}) {
     const defaultOptions = {
       threshold: 0.3,
       keys: [
@@ -23,12 +22,12 @@ export class FuseSearchEngine {
       ],
     };
 
-    const fuseOptions = { ...defaultOptions, ...options };
-    this.fuse = new Fuse(urlItems, fuseOptions);
+    this.searchOptions = { ...defaultOptions, ...options };
+    this.fuse = new Fuse(bookmarks, this.searchOptions);
   }
 
   search(query: string): Bookmark[] {
-    if (!query.trim()) {
+    if (!query.trim() || !this.fuse) {
       return [];
     }
 
@@ -47,14 +46,4 @@ export class FuseSearchEngine {
     });
     return Array.from(tagSet);
   }
-}
-
-export async function createSearchEngine(): Promise<FuseSearchEngine> {
-  // Import BookmarkStore to access localStorage bookmarks
-  const { bookmarkStore } = await import('$lib/stores/bookmarks');
-
-  // Get bookmarks from localStorage
-  const bookmarks = Object.values(bookmarkStore.getAllBookmarks());
-
-  return new FuseSearchEngine(bookmarks);
 }
