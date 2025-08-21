@@ -3,7 +3,7 @@ import '../styles/app.css';
 import { browser } from '$app/environment';
 import { closeDetailsOnOutsideClick } from '$lib';
 import Logo from '$lib/assets/logo.svg?raw';
-import Menu from '$lib/components/menu.svelte';
+import MainMenu from '$lib/components/MainMenu.svelte';
 import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
 import { getTheme } from '$lib/stores/theme.svelte';
 
@@ -44,7 +44,7 @@ $effect(() => {
       {@html Logo}
     </div>
   </div>
-  <Menu></Menu>
+  <MainMenu></MainMenu>
 </header>
 
 {@render children?.()}

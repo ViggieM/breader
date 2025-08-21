@@ -7,7 +7,7 @@ import { installPWA } from '$lib/stores/installPWA.svelte.js';
     <summary class="btn btn-ghost btn-square">
       <span class="icon-[hugeicons--menu-11]"></span>
     </summary>
-    <ul class="menu dropdown-content rounded-box bg-base-100 z-1 w-52 shadow p-2">
+    <ul class="menu dropdown-content rounded-box bg-base-100 z-1 w-52 shadow p-2 space-y-1">
       <li>
         <a href="/settings" class="flex justify-between">Settings <span class="icon-[ri--settings-3-line]"></span></a>
       </li>
