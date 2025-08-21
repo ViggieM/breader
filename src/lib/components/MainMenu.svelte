@@ -1,5 +1,12 @@
 <script lang="ts">
+import { afterNavigate } from '$app/navigation';
 import { installPWA } from '$lib/stores/installPWA.svelte.js';
+
+// Close dropdown after navigation
+afterNavigate(() => {
+  const openDetails = document.querySelectorAll('details[open]');
+  openDetails.forEach((details) => details.removeAttribute('open'));
+});
 </script>
 
 <nav aria-label="Main navigation">
