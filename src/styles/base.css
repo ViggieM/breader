@@ -39,6 +39,10 @@ main {
   &.posts {
     @apply space-y-4;
   }
+
+  &.add {
+    @apply flex flex-col;
+  }
 }
 
 footer {

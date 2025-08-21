@@ -1,11 +1,12 @@
 <script lang="ts">
 import { goto } from '$app/navigation';
 import { formatDate } from '$lib';
-import type { Article } from '$lib/types';
+import { bookmarkStore } from '$lib/stores/bookmarks';
+import type { Bookmark } from '$lib/types';
 
 let { items } = $props();
 
-function handleDoubleClick(evt: MouseEvent, item: Article) {
+function handleDoubleClick(evt: MouseEvent, item: Bookmark) {
   evt.preventDefault();
   if (item.hasBody) {
     goto(item.localUrl);
@@ -14,11 +15,16 @@ function handleDoubleClick(evt: MouseEvent, item: Article) {
     (window as Window).location = item.url;
   }
 }
+
+function markAsRead(event: Event, bookmarkId: string) {
+  const target = event.target as HTMLInputElement;
+  bookmarkStore.updateBookmark(bookmarkId, { reviewed: target.checked });
+}
 </script>
 
 <ul class="UrlList">
   {#each items as item (item.id)}
-    <li>
+    <li id={item.id}>
       <details >
         <summary class="{item.reviewed ? '' : 'font-bold'}" ondblclick={(evt) => handleDoubleClick(evt, item)}>
             <img
@@ -49,6 +55,8 @@ function handleDoubleClick(evt: MouseEvent, item: Article) {
               <input
                 type="checkbox"
                 class="checkbox checkbox-xs"
+                checked={item.reviewed}
+                onchange={event => markAsRead(event, item.id)}
               >
             </label>
           </li>

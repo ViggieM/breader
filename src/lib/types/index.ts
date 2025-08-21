@@ -1,1 +1,1 @@
-export type { Article } from './article';
+export { Bookmark } from './bookmark';
