@@ -1,15 +1,17 @@
 <script lang="ts">
 import { goto } from '$app/navigation';
 import { formatDate } from '$lib';
+import type { Article } from '$lib/types';
 
 let { items } = $props();
 
-function handleDoubleClick(evt, item) {
+function handleDoubleClick(evt: MouseEvent, item: Article) {
   evt.preventDefault();
   if (item.hasBody) {
     goto(item.localUrl);
   } else {
-    window.location = item.url;
+    // https://stackoverflow.com/a/78836355
+    (window as Window).location = item.url;
   }
 }
 </script>
@@ -30,7 +32,7 @@ function handleDoubleClick(evt, item) {
           <p>{item.description}</p>
           <footer>
             <span>Added on <time datetime={item.created}>{formatDate(item.created)}</time></span>
-            {#if item.hasBody && item.localUrl}
+            {#if item.hasBody}
               <a href={item.localUrl}>See more →</a>
             {:else}
               <a href={item.url}>Go to page →</a>
@@ -49,6 +51,14 @@ function handleDoubleClick(evt, item) {
                 class="checkbox checkbox-xs"
               >
             </label>
+          </li>
+          <li>
+            <a
+              href={item.localUrl}
+              class="flex justify-between"
+            >
+              Edit <span class="size-4 icon-[ri--pencil-line]"></span>
+            </a>
           </li>
           <li>
             <button
