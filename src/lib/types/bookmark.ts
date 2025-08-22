@@ -6,23 +6,28 @@ function getDomainFromUrl(url: string): string {
   }
 }
 
+// Type for data stored in the database (excludes computed properties)
+export type BookmarkData = Omit<
+  Bookmark,
+  'faviconUrl' | 'localUrl' | 'hasBody'
+>;
+
 export class Bookmark {
   // automatically generated
   id: string; // UUID v4
   created: string;
-  modified: string;
+  modified: string | null;
   keywords: string[]; // used for search
 
   // editable
-  title: string;
+  title: string; // used for search
   url: string;
   description: string;
-  reviewed: boolean;
-  starred: boolean;
-  tags: string[];
-  hasBody: boolean; // todo: this should be determined, whether or not there are notes
+  isReviewed: boolean;
+  isStarred: boolean;
+  tags: string[]; // used for search
 
-  constructor(data: Omit<Bookmark, 'faviconUrl' | 'localUrl'>) {
+  constructor(data: BookmarkData) {
     this.id = data.id;
     this.created = data.created;
     this.modified = data.modified;
@@ -30,10 +35,9 @@ export class Bookmark {
     this.title = data.title;
     this.url = data.url;
     this.description = data.description;
-    this.reviewed = data.reviewed;
-    this.starred = data.starred;
+    this.isReviewed = data.isReviewed;
+    this.isStarred = data.isStarred;
     this.tags = data.tags;
-    this.hasBody = data.hasBody;
   }
 
   get faviconUrl(): string {
@@ -43,5 +47,10 @@ export class Bookmark {
 
   get localUrl(): string {
     return `/${this.id}`;
+  }
+
+  get hasBody(): boolean {
+    // todo: this should be determined, whether or not there are notes or article was saved for offline reading
+    return true;
   }
 }

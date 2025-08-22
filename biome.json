@@ -39,6 +39,10 @@
         "rules": {
           "style": {
             "useConst": "off"
+          },
+          "correctness": {
+            "noUnusedImports": "off",
+            "noUnusedVariables": "off"
           }
         }
       }

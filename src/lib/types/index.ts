@@ -1,1 +1,1 @@
-export { Bookmark } from './bookmark';
+export { Bookmark, type BookmarkData } from './bookmark';

@@ -4,7 +4,7 @@ export const load: PageLoad = () => {
   const items = [
     {
       id: 1,
-      reviewed: false,
+      isReviewed: false,
       faviconUrl: '/icons/icon-48.png',
       title: 'What is Breader?',
       description:
@@ -17,7 +17,7 @@ export const load: PageLoad = () => {
     },
     {
       id: 2,
-      reviewed: false,
+      isReviewed: false,
       faviconUrl: '/icons/icon-48.png',
       title:
         'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Autem deleniti dolorem doloremque',
@@ -31,7 +31,7 @@ export const load: PageLoad = () => {
     },
     {
       id: 3,
-      reviewed: false,
+      isReviewed: false,
       faviconUrl: '/icons/icon-48.png',
       title: 'What is Breader?',
       description: 'asgasd',

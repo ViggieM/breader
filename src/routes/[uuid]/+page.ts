@@ -1,13 +1,22 @@
 import { error } from '@sveltejs/kit';
-import { bookmarkStore } from '$lib/stores/bookmarks.svelte';
+import { db } from '$lib/db';
+import { Bookmark } from '$lib/types';
+import type { BookmarkData } from '$lib/types/bookmark';
 import type { PageLoad } from './$types';
 
-export const load: PageLoad = ({ params }) => {
-  const bookmark = bookmarkStore.getBookmark(params.uuid);
+export const load: PageLoad = async ({ params }) => {
+  let data: BookmarkData | undefined;
+  try {
+    data = await db.bookmarks.get(params.uuid);
+  } catch (err) {
+    console.log(err);
+  }
 
-  if (!bookmark) {
+  if (!data) {
     error(404, 'Bookmark not found');
   }
+
+  const bookmark = new Bookmark(data);
 
   return {
     bookmark,
