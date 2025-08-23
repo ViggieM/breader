@@ -12,11 +12,5 @@
 @plugin "@tailwindcss/forms";
 @plugin "@iconify/tailwind4";
 @plugin "daisyui" {
-	themes:
-		light --default,
-		dark --prefersdark,
-		retro,
-		cyberpunk,
-		aqua,
-		valentine;
+	themes: all;
 }
