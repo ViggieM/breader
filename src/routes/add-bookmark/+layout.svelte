@@ -1,11 +1,11 @@
 <script lang="ts">
-let { children } = $props();
+	let { children } = $props();
 </script>
 
 <svelte:head>
-  <title>Add Bookmark - Breader</title>
+	<title>Add Bookmark - Breader</title>
 </svelte:head>
 
 <main class="add">
-  {@render children?.()}
+	{@render children?.()}
 </main>

@@ -18,12 +18,12 @@ dependencies: []
 The contents of the file should look like this:
 
 ```css
-@import "tailwindcss";
+@import 'tailwindcss';
 
-@import "./theme.css" layer(theme);
-@import "./base.css" layer(base);
-@import "./components" layer(components);
-@import "./utilities.css" layer(utilities);
+@import './theme.css' layer(theme);
+@import './base.css' layer(base);
+@import './components' layer(components);
+@import './utilities.css' layer(utilities);
 
 /* Custom variants */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -38,17 +38,17 @@ The contents of the file should look like this:
 
 ```css
 :root {
-  --foreground: black;
-  --background: rgb(255, 243, 220);
-  --primary: rgb(16, 44, 87);
-  --secondary: rgb(218, 192, 163);
+	--foreground: black;
+	--background: rgb(255, 243, 220);
+	--primary: rgb(16, 44, 87);
+	--secondary: rgb(218, 192, 163);
 }
 
 @theme {
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
+	--color-primary: var(--primary);
+	--color-secondary: var(--secondary);
+	--color-foreground: var(--foreground);
+	--color-background: var(--background);
 }
 ```
 
@@ -58,17 +58,17 @@ Note: Theme colors are derived from https://colorhunt.co/palette/fefaf6eadbc8dac
 
 ```css
 html {
-  @apply scroll-smooth;
+	@apply scroll-smooth;
 
-  ::selection {
-    background: var(--secondary);
-  }
+	::selection {
+		background: var(--secondary);
+	}
 }
 
 body {
-  @apply bg-background text-foreground font-sans;
-  grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
+	@apply bg-background text-foreground font-sans;
+	grid-template-rows: auto 1fr auto;
+	min-height: 100vh;
 }
 
 /*header {}*/
@@ -76,7 +76,7 @@ body {
 /*footer {}*/
 
 a {
-  @apply text-primary/80 hover:text-primary truncate;
+	@apply text-primary/80 hover:text-primary truncate;
 }
 ```
 

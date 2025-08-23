@@ -1,58 +1,58 @@
 html {
-  @apply scroll-smooth;
+	@apply scroll-smooth;
 
-  ::selection {
-    @apply bg-secondary/50;
-  }
+	::selection {
+		@apply bg-secondary/50;
+	}
 }
 
 body {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  min-height: 100vh;
-  grid-template-columns: 1fr;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+	min-height: 100vh;
+	grid-template-columns: 1fr;
 }
 
 header {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  @apply py-2 mx-auto max-w-2xl w-full;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	@apply py-2 mx-auto max-w-2xl w-full;
 
-  > div {
-    grid-column: 2;
-    @apply inline-flex relative items-center justify-center gap-4 cursor-pointer;
+	> div {
+		grid-column: 2;
+		@apply inline-flex relative items-center justify-center gap-4 cursor-pointer;
 
-    > a {
-      @apply absolute inset-0 z-10;
-    }
-  }
+		> a {
+			@apply absolute inset-0 z-10;
+		}
+	}
 
-  > nav {
-    grid-column: 3;
-    justify-self: end;
-  }
+	> nav {
+		grid-column: 3;
+		justify-self: end;
+	}
 }
 
 main {
-  @apply mx-auto px-2 lg:px-0 w-full max-w-2xl min-w-0;
+	@apply mx-auto px-2 lg:px-0 w-full max-w-2xl min-w-0;
 
-  &.posts {
-    @apply space-y-4;
-  }
+	&.posts {
+		@apply space-y-4;
+	}
 
-  &.add {
-    @apply flex flex-col;
-  }
+	&.add {
+		@apply flex flex-col;
+	}
 }
 
 footer {
-  @apply text-center;
+	@apply text-center;
 }
 
 h1 {
-  @apply text-2xl mt-4;
+	@apply text-2xl mt-4;
 }
 
 h2 {
-  @apply text-xl mt-3;
+	@apply text-xl mt-3;
 }
