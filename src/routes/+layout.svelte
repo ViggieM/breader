@@ -23,8 +23,6 @@
 	<link rel="manifest" href="/manifest.json" />
 
 	<!-- Additional meta tags for better PWA support -->
-	<meta name="theme-color" content="var(--color-secondary)" />
-	<!-- todo: what is the theme color? -->
 	<meta name="mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta name="apple-mobile-web-app-title" content="Breader" />
@@ -35,6 +33,14 @@
 	onclick={closeDetailsOnOutsideClick}
 	onbeforeinstallprompt={handleBeforeInstallPrompt}
 />
+
+<!-- Skip navigation for accessibility -->
+<a
+	href="#main-content"
+	class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 btn btn-primary"
+>
+	Skip to main content
+</a>
 
 <header>
 	<div>

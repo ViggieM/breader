@@ -2,18 +2,24 @@
 	@apply space-y-1 lg:space-y-0;
 
 	> li {
-		@apply relative w-full pr-4;
+		@apply relative w-full;
 
 		details:first-of-type {
 			summary {
 				@apply flex items-center pt-1 cursor-pointer;
 
 				img {
-					@apply aspect-square inline w-4 h-4 mr-2 align-middle;
+					@apply inline mr-2 align-middle;
+					min-width: 1rem;
+					min-height: 1rem;
+					max-width: 1rem;
+					max-height: 1rem;
+					object-fit: contain;
 				}
 
 				span {
 					@apply truncate mr-3;
+					min-width: 0; /* Critical for flex items */
 				}
 			}
 
@@ -37,6 +43,9 @@
 		details.dropdown {
 			summary {
 				@apply btn btn-sm lg:btn-xs btn-ghost px-2 lg:px-1;
+				min-width: 24px; /* Minimum touch target */
+				min-height: 24px;
+				@apply flex items-center justify-center;
 			}
 
 			ul {

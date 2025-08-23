@@ -32,7 +32,7 @@
 	}
 </script>
 
-<main>
+<main id="main-content">
 	<section>
 		<label for="search-input" class="sr-only">Search for content</label>
 		<input

@@ -94,15 +94,25 @@
 	</div>
 
 	<div class="form-group">
-		<label class="flex items-center gap-2 text-sm">
-			<input type="checkbox" class="checkbox checkbox-sm" bind:checked={isReviewed} />
+		<label class="flex items-center gap-2 text-sm" for="reviewed-checkbox">
+			<input
+				id="reviewed-checkbox"
+				type="checkbox"
+				class="checkbox checkbox-sm"
+				bind:checked={isReviewed}
+			/>
 			<span>Mark as reviewed</span>
 		</label>
 	</div>
 
 	<div class="form-group">
-		<label class="flex items-center gap-2 text-sm">
-			<input type="checkbox" class="checkbox checkbox-sm" bind:checked={isStarred} />
+		<label class="flex items-center gap-2 text-sm" for="starred-checkbox">
+			<input
+				id="starred-checkbox"
+				type="checkbox"
+				class="checkbox checkbox-sm"
+				bind:checked={isStarred}
+			/>
 			<span>Mark as starred</span>
 		</label>
 	</div>
@@ -122,7 +132,10 @@
 	</div>
 </form>
 
-<div class="fixed bottom-0 left-0 right-0 p-2 md:static md:p-0">
+<div
+	class="sticky bottom-0 left-0 right-0 p-2 md:static md:p-0 bg-base-100 border-t border-base-300 md:border-0"
+	style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));"
+>
 	<div class="form-actions flex gap-2">
 		<a href="/" type="button" class="btn btn-error flex-1 md:flex-none"> Cancel </a>
 		<button

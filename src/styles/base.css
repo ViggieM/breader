@@ -1,5 +1,6 @@
 html {
 	@apply scroll-smooth;
+	scrollbar-gutter: stable; /* Prevent layout shift */
 
 	::selection {
 		@apply bg-secondary/50;
@@ -11,11 +12,12 @@ body {
 	grid-template-rows: auto 1fr auto;
 	min-height: 100vh;
 	grid-template-columns: 1fr;
+	overscroll-behavior: contain; /* Prevent scroll chaining */
 }
 
 header {
 	display: grid;
-	grid-template-columns: 1fr auto 1fr;
+	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 	@apply py-2 mx-auto max-w-2xl w-full;
 
 	> div {
@@ -46,7 +48,10 @@ main {
 }
 
 footer {
-	@apply text-center;
+}
+
+img {
+    object-fit: cover;
 }
 
 h1 {
