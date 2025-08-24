@@ -6,7 +6,10 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"preview": "vite preview",
+		"preview": "pnpm run build && wrangler dev",
+		"deploy": "pnpm run build && wrangler deploy",
+		"deploy:dev": "wrangler dev",
+		"cf-typegen": "wrangler types ./src/worker-configuration.d.ts",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig tsconfig.json --watch",
@@ -25,6 +28,7 @@
 		"@iconify/tailwind4": "^1.0.6",
 		"@playwright/test": "^1.49.1",
 		"@sveltejs/adapter-auto": "^6.0.0",
+		"@sveltejs/adapter-cloudflare": "^7.2.2",
 		"@sveltejs/kit": "^2.22.0",
 		"@sveltejs/vite-plugin-svelte": "^6.0.0",
 		"@tailwindcss/forms": "^0.5.9",
@@ -47,7 +51,8 @@
 		"vite": "^7.0.4",
 		"vite-plugin-devtools-json": "^0.2.0",
 		"vitest": "^3.2.3",
-		"vitest-browser-svelte": "^0.1.0"
+		"vitest-browser-svelte": "^0.1.0",
+		"wrangler": "^4.32.0"
 	},
 	"pnpm": {
 		"onlyBuiltDependencies": [

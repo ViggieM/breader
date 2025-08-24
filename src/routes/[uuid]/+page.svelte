@@ -16,7 +16,7 @@
 
 <div class="container mx-auto max-w-2xl p-4">
 	<header class="flex items-center gap-3">
-    <img src={bookmark.faviconUrl} alt="Favicon" />
+		<img src={bookmark.faviconUrl} alt="Favicon" />
 		<h1 class="text-lg font-medium flex-1 mt-0">{bookmark.title}</h1>
 		{#if bookmark.isStarred}
 			<div class="text-warning">⭐</div>
@@ -27,7 +27,12 @@
 		<div>
 			<dt class="text-sm font-medium opacity-70 mb-1">URL</dt>
 			<dd class="flex gap-2">
-				<input type="text" value={bookmark.url} class="input input-sm input-bordered flex-1" readonly />
+				<input
+					type="text"
+					value={bookmark.url}
+					class="input input-sm input-bordered flex-1"
+					readonly
+				/>
 				<button onclick={openUrl} class="btn btn-sm btn-primary">Open</button>
 			</dd>
 		</div>
