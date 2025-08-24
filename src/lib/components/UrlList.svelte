@@ -20,6 +20,10 @@
 		const target = event.target as HTMLInputElement;
 		db.bookmarks.update(bookmarkId, { isReviewed: target.checked });
 	}
+
+	function deleteBookmark(event: Event, bookmarkId: string) {
+		db.bookmarks.delete(bookmarkId);
+	}
 </script>
 
 <ul class="UrlList">
@@ -67,7 +71,10 @@
 							<a href={bookmark.localUrl} class="link text-sm flex items-center gap-1.5">
 								<span class="size-4 icon-[ri--pencil-line]"></span> Edit
 							</a>
-							<button class="link link-error text-sm flex items-center gap-1.5" onclick={() => {}}>
+							<button
+								class="link link-error text-sm flex items-center gap-1.5"
+								onclick={(event) => deleteBookmark(event, bookmark.id)}
+							>
 								<span class="size-4 icon-[ri--delete-bin-6-line]"></span> Delete
 							</button>
 						</div>
