@@ -1,6 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { BookmarkData } from '$lib/types/bookmark.js';
-import './dexie-uuid-plugin.js';
 import dexieCloud from 'dexie-cloud-addon';
 
 class Database extends Dexie {
