@@ -1,19 +1,32 @@
 <script lang="ts">
 	import '../styles/app.css';
 	import { browser } from '$app/environment';
+	import { invalidate } from '$app/navigation';
+	import { onMount } from 'svelte';
 	import { closeDetailsOnOutsideClick } from '$lib';
 	import Logo from '$lib/assets/logo.svg?raw';
 	import MainMenu from '$lib/components/MainMenu.svelte';
 	import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
 	import { getTheme } from '$lib/stores/theme.svelte';
 
-	let { children } = $props();
+	let { children, data } = $props();
+	let { session, supabase } = data;
 	const theme = getTheme();
 
 	$effect(() => {
 		if (browser) {
 			document.documentElement.setAttribute('data-theme', theme.current);
 		}
+	});
+
+	onMount(() => {
+		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
+			if (newSession?.expires_at !== session?.expires_at) {
+				invalidate('supabase:auth');
+			}
+		});
+
+		return () => data.subscription.unsubscribe();
 	});
 </script>
 

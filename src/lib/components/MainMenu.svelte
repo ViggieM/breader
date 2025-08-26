@@ -1,6 +1,9 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { installPWA, canInstall } from '$lib/stores/installPWA.svelte.js';
+
+	let session = $derived($page.data.session);
 
 	// Close dropdown after navigation
 	afterNavigate(() => {
@@ -15,11 +18,19 @@
 			<span class="icon-[hugeicons--menu-11]"></span>
 		</summary>
 		<ul class="menu dropdown-content rounded-box bg-base-100 z-1 w-52 shadow p-2 space-y-1">
+			{#if !session}
+				<li>
+					<a href="/auth" class="flex justify-between"
+						>Login <span class="icon-[ri--login-box-line]"></span></a
+					>
+				</li>
+			{/if}
 			<li>
 				<a href="/settings" class="flex justify-between"
 					>Settings <span class="icon-[ri--settings-3-line]"></span></a
 				>
 			</li>
+
 			{#if $canInstall}
 				<li>
 					<button class="btn btn-primary btn-sm" onclick={installPWA}>
