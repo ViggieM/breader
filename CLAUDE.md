@@ -14,7 +14,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Building**:
 
 - `pnpm run build` or `pnpm build` - Build production version
-- `pnpm run preview` or `pnpm preview` - Preview production build
+- `pnpm run preview` or `pnpm preview` - Build and preview with Wrangler (Cloudflare)
+
+**Deployment**:
+
+- `pnpm run deploy` or `pnpm deploy` - Build and deploy to Cloudflare Workers
+- `pnpm run deploy:dev` or `pnpm deploy:dev` - Deploy to Cloudflare Workers dev environment
+- `pnpm run cf-typegen` - Generate Cloudflare Worker types
 
 **Code Quality**:
 
@@ -51,13 +57,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - Vite with SvelteKit plugin and TailwindCSS integration
 - TypeScript with strict mode enabled
-- Auto-adapter for deployment flexibility
+- Cloudflare Workers adapter for serverless deployment
+- Wrangler for Cloudflare deployment and development
 - **Linting/Formatting**: ESLint + Prettier with Svelte plugin support
 - **Service Worker**: PWA support with manifest
 
 **Data Layer**:
 
-- **Database**: Dexie (IndexedDB wrapper) with UUID plugin for client-side storage
+- **Database**: Dexie (IndexedDB wrapper) with Dexie Cloud addon for sync capabilities
+- **Backend**: Supabase integration with SSR support
 - **Search**: Fuse.js fuzzy search engine with weighted keys (title, keywords, tags)
 - **State Management**: Svelte 5 runes (`$state`) for reactive stores
 - **Data Architecture**:

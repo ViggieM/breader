@@ -1,6 +1,7 @@
 import Dexie, { type EntityTable } from 'dexie';
 import type { BookmarkData } from '$lib/types/bookmark.js';
 import dexieCloud from 'dexie-cloud-addon';
+import { PUBLIC_DEXIE_CLOUD_DB_URL } from '$env/static/public';
 
 class Database extends Dexie {
 	bookmarks!: EntityTable<BookmarkData, 'id'>;
@@ -16,6 +17,13 @@ class Database extends Dexie {
 export const db = new Database();
 
 db.cloud.configure({
-	databaseUrl: 'https://z6n1slc6l.dexie.cloud',
-	requireAuth: true // optional
+	databaseUrl: PUBLIC_DEXIE_CLOUD_DB_URL,
+	requireAuth: true,
+	fetchTokens: (tokenParams) =>
+		fetch('/dexie-cloud-tokens', {
+			method: 'post',
+			credentials: 'same-origin',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(tokenParams)
+		}).then((res) => res.json())
 });
