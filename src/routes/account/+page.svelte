@@ -1,13 +1,43 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { getTheme, themes } from '$lib/stores/theme.svelte';
+	import type { SubmitFunction } from '@sveltejs/kit';
+	import { enhance } from '$app/forms';
+
+	let { data } = $props();
+	let { session } = data;
 
 	const theme = getTheme();
+	let loading = $state(false);
+
+	const handleSignOut: SubmitFunction = () => {
+		loading = true;
+		return async ({ update }) => {
+			loading = false;
+			await update();
+		};
+	};
 </script>
 
-<h1>Settings</h1>
+<h2>Account Details</h2>
 
-<h2>Theme</h2>
+<p class="my-2">
+	Email: {session.user.email}
+</p>
+
+<form method="post" action="?/signout" use:enhance={handleSignOut}>
+	<button
+		type="submit"
+		disabled={loading}
+		class="inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+	>
+		Sign Out
+	</button>
+</form>
+
+<h2>Settings</h2>
+
+<h3>Theme</h3>
 
 <div>
 	<fieldset class="fieldset">

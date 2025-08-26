@@ -24,13 +24,13 @@
 						>Login <span class="icon-[ri--login-box-line]"></span></a
 					>
 				</li>
+			{:else}
+				<li>
+					<a href="/account" class="flex justify-between"
+						>Account <span class="icon-[ri--user-settings-line]"></span></a
+					>
+				</li>
 			{/if}
-			<li>
-				<a href="/settings" class="flex justify-between"
-					>Settings <span class="icon-[ri--settings-3-line]"></span></a
-				>
-			</li>
-
 			{#if $canInstall}
 				<li>
 					<button class="btn btn-primary btn-sm" onclick={installPWA}>
