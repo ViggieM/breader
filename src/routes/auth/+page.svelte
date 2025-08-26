@@ -22,7 +22,7 @@
 	<title>Login - Breader</title>
 </svelte:head>
 
-<main id="main-content" class="hero bg-base-200 min-h-screen">
+<main id="auth" class="hero">
 	<div class="hero-content flex-col">
 		<div class="text-center mb-8">
 			<img
@@ -30,11 +30,13 @@
 				alt="Breader"
 				class="w-24 h-24 mx-auto mb-6 rounded-2xl shadow-lg"
 			/>
-			<h1 class="text-4xl font-bold">Welcome to Breader</h1>
-			<p class="mt-4 text-lg text-base-content/70">Sign in via magic link with your email below</p>
+			<h1 class="text-2xl md:text-4xl font-bold">Welcome to Breader</h1>
+			<p class="mt-4 text-base md:text-lg text-base-content/70">
+				Sign in via magic link with your email below
+			</p>
 		</div>
 
-		<div class="card bg-base-100 w-full max-w-md shadow-2xl">
+		<div class="card bg-base-100 w-full md:w-md shadow-2xl">
 			<div class="card-body">
 				{#if form?.message}
 					<div class="alert {form?.success ? 'alert-success' : 'alert-error'} mb-4">
@@ -42,51 +44,28 @@
 					</div>
 				{/if}
 
-				<form method="POST" use:enhance={handleSubmit}>
+				<form method="POST" use:enhance={handleSubmit} novalidate>
 					<fieldset class="fieldset">
-						<label class="label">
-							<span class="label-text font-medium">Email address</span>
-						</label>
-						<label
-							class="input input-bordered validator {form?.errors?.email ? 'input-error' : ''}"
-						>
-							<svg
-								class="h-[1em] opacity-50"
-								xmlns="http://www.w3.org/2000/svg"
-								viewBox="0 0 24 24"
-							>
-								<g
-									stroke-linejoin="round"
-									stroke-linecap="round"
-									stroke-width="2.5"
-									fill="none"
-									stroke="currentColor"
-								>
-									<rect width="20" height="16" x="2" y="4" rx="2"></rect>
-									<path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-								</g>
-							</svg>
+						<label class="input validator w-full {form?.errors?.email ? 'input-error' : ''}">
+							<span class="icon-[ri--mail-line] h-[1em] opacity-50"></span>
 							<input
 								id="email"
+								autocomplete="email"
 								name="email"
 								type="email"
 								required
+								class="w-full"
 								placeholder="your@email.com"
 								value={form?.email ?? ''}
 							/>
 						</label>
 						{#if form?.errors?.email}
-							<div class="validator-hint text-error mt-1">
+							<div class="text-error">
 								{form.errors.email}
 							</div>
 						{/if}
 
-						<button
-							type="submit"
-							disabled={loading}
-							class="btn btn-primary btn-block mt-6"
-							class:loading
-						>
+						<button type="submit" disabled={loading} class="btn btn-primary btn-block mt-6">
 							{#if loading}
 								<span class="loading loading-spinner loading-sm"></span>
 								Sending...
