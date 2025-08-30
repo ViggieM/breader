@@ -11,6 +11,10 @@ dependencies: []
 
 # Add Biomejs
 
+NOTE:
+
+Biomejs does not yet fully support Svelte projects, so it was replaced with prettier and eslint
+
 ## Install
 
 ```
