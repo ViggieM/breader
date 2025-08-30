@@ -18,7 +18,7 @@ export const db = new Database();
 
 db.cloud.configure({
 	databaseUrl: PUBLIC_DEXIE_CLOUD_DB_URL,
-	requireAuth: true,
+	requireAuth: false,
 	fetchTokens: (tokenParams) =>
 		fetch('/dexie-cloud-tokens', {
 			method: 'post',
