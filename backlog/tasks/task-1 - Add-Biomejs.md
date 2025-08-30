@@ -1,13 +1,15 @@
 ---
 id: task-1
 title: Add Biomejs
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-08-14'
-updated_date: '2025-08-14'
+updated_date: '2025-08-30 18:00'
 labels: []
 dependencies: []
 ---
+
+## Description
 
 # Add Biomejs
 

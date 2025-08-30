@@ -1,12 +1,15 @@
 ---
 id: task-2
 title: Set up TailwindCSS
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-08-14'
+updated_date: '2025-08-30 18:00'
 labels: []
 dependencies: []
 ---
+
+## Description
 
 # Instructions
 
