@@ -38,7 +38,8 @@
 			});
 
 			// navigate to the newly created bookmark
-			await goto(`/#${id}`);
+			// use replaceState to prevent browser back button from returning to this form
+			await goto(`/#${id}`, { replaceState: true });
 		} catch (error) {
 			console.error('Error saving bookmark:', error);
 		} finally {
