@@ -6,10 +6,10 @@
 
 		details:first-of-type {
 			summary {
-				@apply flex items-center pt-1 cursor-pointer;
+				@apply grid grid-cols-[auto_1fr_auto] gap-2 pt-1 items-start cursor-pointer;
 
 				img {
-					@apply inline mr-2 align-middle;
+					@apply inline self-start justify-self-start mt-1;
 					min-width: 1rem;
 					min-height: 1rem;
 					max-width: 1rem;
@@ -18,7 +18,6 @@
 				}
 
 				span {
-					@apply truncate mr-3;
 					min-width: 0; /* Critical for flex items */
 				}
 			}

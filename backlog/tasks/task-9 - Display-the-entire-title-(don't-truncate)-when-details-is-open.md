@@ -1,10 +1,10 @@
 ---
 id: task-9
 title: Display the entire title (don't truncate) when details is open
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-08-30 18:07'
-updated_date: '2025-08-30 18:14'
+updated_date: '2025-08-31 13:58'
 labels: []
 dependencies: []
 ordinal: 7000

@@ -29,9 +29,9 @@
 <ul class="UrlList">
 	{#each items as bookmark (bookmark.id)}
 		<li id={bookmark.id}>
-			<details>
+			<details class="group">
 				<summary
-					class={bookmark.isReviewed ? '' : 'font-bold'}
+					class={`${bookmark.isReviewed ? '' : 'font-bold'}`}
 					ondblclick={(evt) => handleDoubleClick(evt, bookmark)}
 				>
 					<img
@@ -41,7 +41,7 @@
 						onerror={(e) => ((e.target as HTMLImageElement).style.display = 'none')}
 						loading="lazy"
 					/>
-					<span>{bookmark.title}</span>
+					<span class="group-not-open:truncate">{bookmark.title}</span>
 				</summary>
 				<article>
 					<p>{bookmark.description}</p>
