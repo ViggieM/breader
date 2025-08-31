@@ -13,6 +13,7 @@ ordinal: 3000
 ## Description
 
 When adding a bookmark, especially on mobile, a CORS request needs to be made to extract following informations from a website:
+
 - title
 - description (meta:description) OR create a summary
 - extract keywords
