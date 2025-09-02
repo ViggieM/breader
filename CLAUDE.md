@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Development**:
 
-- `pnpm run dev` or `pnpm dev` - Start development server
+- `pnpm run dev` or `pnpm dev` - Start development server (runs on port 3000)
 - `pnpm run dev -- --open` - Start dev server and open in browser
 
 **Building**:

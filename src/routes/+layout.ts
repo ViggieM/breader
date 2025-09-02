@@ -47,9 +47,5 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 		await db.cloud.login();
 	}
 
-	if (!user && isBrowser()) {
-		await db.cloud.logout();
-	}
-
 	return { session, supabase, user };
 };

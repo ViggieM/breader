@@ -1,16 +1,14 @@
 import Dexie, { type EntityTable } from 'dexie';
-import type { BookmarkData } from '$lib/types/bookmark.js';
+import type { BookmarkData, TagData } from '$lib/types';
 import dexieCloud from 'dexie-cloud-addon';
 import { PUBLIC_DEXIE_CLOUD_DB_URL } from '$env/static/public';
 
 class Database extends Dexie {
 	bookmarks!: EntityTable<BookmarkData, 'id'>;
+	tags!: EntityTable<TagData, 'id'>;
 
 	constructor() {
 		super('BookmarkManager', { addons: [dexieCloud] });
-		this.version(1).stores({
-			bookmarks: '@id, title, url, *tags, *keywords, isStarred, isReviewed, created, modified'
-		});
 	}
 }
 
@@ -26,4 +24,9 @@ db.cloud.configure({
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify(tokenParams)
 		}).then((res) => res.json())
+});
+
+db.version(2).stores({
+	bookmarks: '@id, title, url, *tags, *keywords, isStarred, isReviewed, created, modified',
+	tags: '@id, parentId, name, order'
 });

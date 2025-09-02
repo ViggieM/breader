@@ -2,7 +2,7 @@ import { liveQuery } from 'dexie';
 import Fuse, { type FuseIndex, type FuseSearchOptions } from 'fuse.js';
 import { derived, readable, writable } from 'svelte/store';
 import { db } from '$lib/db';
-import type { BookmarkData } from '$lib/types';
+import type { BookmarkData, TagData } from '$lib/types';
 
 class FuseSearchEngine {
 	public data: BookmarkData[];
@@ -32,6 +32,15 @@ class FuseSearchEngine {
 
 const bookmarksData = readable<BookmarkData[]>([], (set) => {
 	const observable = liveQuery(() => db.bookmarks.toArray());
+	const subscription = observable.subscribe((data) => {
+		if (data) set(data);
+	});
+
+	return () => subscription.unsubscribe();
+});
+
+export const tagsData = readable<TagData[]>([], (set) => {
+	const observable = liveQuery(() => db.tags.toArray());
 	const subscription = observable.subscribe((data) => {
 		if (data) set(data);
 	});

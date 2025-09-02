@@ -67,3 +67,7 @@ h1 {
 h2 {
 	@apply text-xl mt-3;
 }
+
+/*details summary::marker {*/
+/*  content: "";*/
+/*}*/
