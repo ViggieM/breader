@@ -12,23 +12,23 @@
 	{#each sections as section (section.tag?.id || 'untagged')}
 		<section>
 			{#if section.level === 1}
-				<h2 class="text-base font-medium text-base-content/70">
+				<h2 class="text-base font-medium text-base-content/70 mt-2">
 					{section.tag.getDisplayName()}
 				</h2>
 			{:else if section.level === 2}
-				<h3 class="text-sm font-normal text-base-content/70 mt-1">
+				<h3 class="text-sm font-normal text-base-content/70 mt-2">
 					{section.tag.getDisplayName()}
 				</h3>
 			{:else if section.level === 3}
-				<h4 class="text-sm font-normal text-base-content/70 mt-1">
+				<h4 class="text-sm font-normal text-base-content/70 mt-2">
 					{section.tag.getDisplayName()}
 				</h4>
 			{:else if section.level === 4}
-				<h5 class="text-sm font-normal text-base-content/60 mt-1">
+				<h5 class="text-sm font-normal text-base-content/60 mt-2">
 					{section.tag.getDisplayName()}
 				</h5>
 			{:else if section.level >= 5}
-				<h6 class="text-xs font-normal text-base-content/60 mt-1">
+				<h6 class="text-xs font-normal text-base-content/60 mt-2">
 					{section.tag.getDisplayName()}
 				</h6>
 			{/if}

@@ -13,6 +13,7 @@
 	let hasUnsavedChanges = $state(false);
 	let saving = $state(false);
 	let initialTagsSet = $state(new Set<string>());
+	let multiSelectDetails = $state() as HTMLDetailsElement;
 
 	$effect(() => {
 		selectedTags.clear();
@@ -40,6 +41,9 @@
 
 			initialTagsSet = new Set(tagsArray);
 			hasUnsavedChanges = false;
+			if (multiSelectDetails) {
+				multiSelectDetails.open = false;
+			}
 		} catch (error) {
 			console.error('Error saving tags:', error);
 		} finally {
@@ -117,7 +121,7 @@
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
 				<dd class="text-sm">
-					<MultiSelectTags tags={$tagsData} {selectedTags} />
+					<MultiSelectTags tags={$tagsData} {selectedTags} bind:multiSelectDetails />
 				</dd>
 			</div>
 		</dl>

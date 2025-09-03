@@ -13,7 +13,15 @@
 		children: RenderNode[];
 	}
 
-	let { tags, selectedTags }: { tags: TagData[]; selectedTags: SvelteSet<string> } = $props();
+	let {
+		tags,
+		selectedTags,
+		multiSelectDetails = $bindable()
+	}: {
+		tags: TagData[];
+		selectedTags: SvelteSet<string>;
+		multiSelectDetails?: HTMLDetailsElement;
+	} = $props();
 
 	let addTagModal = $state() as HTMLDialogElement;
 
@@ -162,7 +170,7 @@
 {/snippet}
 
 <div class="w-full mt-2">
-	<details class="w-full">
+	<details class="w-full" bind:this={multiSelectDetails}>
 		<summary class="no-marker btn-xs" class:btn={selectedTags.size === 0}>
 			{#if selectedTags.size === 0}
 				Select Tags
