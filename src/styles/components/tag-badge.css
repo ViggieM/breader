@@ -1,0 +1,7 @@
+.tag-badge {
+	@apply badge gap-1 badge-primary pr-0 border-0;
+
+	button {
+		@apply btn btn-xs btn-primary shadow-none ml-0.5 border-0;
+	}
+}

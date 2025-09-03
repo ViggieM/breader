@@ -165,10 +165,9 @@
 			{:else}
 				<div class="flex flex-wrap gap-1 items-center">
 					{#each getSelectedTagsDisplay() as tag (tag.id)}
-						<div class="badge gap-1 badge-primary pr-0">
+						<div class="tag-badge">
 							{tag.name}
 							<button
-								class="btn btn-xs btn-primary"
 								onclick={(e) => {
 									e.stopPropagation();
 									toggleTag(tag.id);
