@@ -24,12 +24,28 @@
 	function deleteBookmark(event: Event, bookmarkId: string) {
 		db.bookmarks.delete(bookmarkId);
 	}
+
+	function handleToggle(event: Event) {
+		const currentDetails = event.target as HTMLDetailsElement;
+		if (currentDetails.open) {
+			// Close all other details elements
+			const allDetails = document.querySelectorAll('.UrlList details');
+			allDetails.forEach((details) => {
+				if (details !== currentDetails) {
+					details.removeAttribute('open');
+				}
+			});
+
+			// Scroll the opened details into view
+			currentDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+	}
 </script>
 
 <ul class="UrlList">
 	{#each items as bookmark (bookmark.id)}
 		<li id={bookmark.id}>
-			<details class="group">
+			<details class="group" ontoggle={handleToggle}>
 				<summary
 					class={`${bookmark.isReviewed ? '' : 'font-bold'}`}
 					ondblclick={(evt) => handleDoubleClick(evt, bookmark)}

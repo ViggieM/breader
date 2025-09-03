@@ -30,7 +30,7 @@ class FuseSearchEngine {
 	}
 }
 
-const bookmarksData = readable<BookmarkData[]>([], (set) => {
+export const bookmarksData = readable<BookmarkData[]>([], (set) => {
 	const observable = liveQuery(() => db.bookmarks.toArray());
 	const subscription = observable.subscribe((data) => {
 		if (data) set(data);

@@ -3,7 +3,6 @@
 	import { browser } from '$app/environment';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import { closeDetailsOnOutsideClick } from '$lib';
 	import Logo from '$lib/assets/logo.svg?raw';
 	import MainMenu from '$lib/components/MainMenu.svelte';
 	import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
@@ -42,10 +41,7 @@
 	<link rel="apple-touch-icon" href="/icons/icon-192.png" />
 </svelte:head>
 
-<svelte:window
-	onclick={closeDetailsOnOutsideClick}
-	onbeforeinstallprompt={handleBeforeInstallPrompt}
-/>
+<svelte:window onbeforeinstallprompt={handleBeforeInstallPrompt} />
 
 <!-- Skip navigation for accessibility -->
 <a
