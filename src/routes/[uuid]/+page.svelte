@@ -14,6 +14,7 @@
 	let saving = $state(false);
 	let initialTagsSet = $state(new Set<string>());
 	let multiSelectDetails = $state() as HTMLDetailsElement;
+	let copied = $state(false);
 
 	$effect(() => {
 		selectedTags.clear();
@@ -60,6 +61,16 @@
 	function openUrl() {
 		window.open(bookmark.url, '_blank');
 	}
+
+	async function copyUrl() {
+		try {
+			await navigator.clipboard.writeText(bookmark.url);
+			copied = true;
+			setTimeout(() => (copied = false), 2000);
+		} catch (error) {
+			console.error('Failed to copy URL:', error);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -80,12 +91,20 @@
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">URL</dt>
 				<dd class="flex gap-2">
-					<input
-						type="text"
-						value={bookmark.url}
-						class="input input-sm input-bordered flex-1"
-						readonly
-					/>
+					<label class="input input-sm input-bordered flex-1 flex items-center pl-0">
+						<input type="text" value={bookmark.url} class="flex-1 input-sm" readonly />
+						<button
+							onclick={copyUrl}
+							class="opacity-50 hover:opacity-100 transition-opacity cursor-pointer flex items-center gap-1"
+							class:text-success={copied}
+							>Copy URL
+							<div
+								class="{copied
+									? 'icon-[material-symbols--check] '
+									: 'icon-[material-symbols--content-copy]'} size-4"
+							></div>
+						</button>
+					</label>
 					<button onclick={openUrl} class="btn btn-sm btn-primary">Open</button>
 				</dd>
 			</div>
