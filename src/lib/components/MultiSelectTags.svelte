@@ -211,7 +211,12 @@
 	<div class="modal-box">
 		<h3 class="text-lg font-bold">Add a new Tag</h3>
 		<div class="mt-2">
-			<TagForm onSuccess={() => addTagModal.close()} />
+			<TagForm
+				onSuccess={(newTagId) => {
+					addTagModal.close();
+					selectedTags.add(newTagId);
+				}}
+			/>
 		</div>
 		<div class="modal-action">
 			<form method="dialog">

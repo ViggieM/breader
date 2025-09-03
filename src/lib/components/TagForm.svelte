@@ -2,7 +2,7 @@
 	import { db } from '$lib/db';
 
 	interface Props {
-		onSuccess?: () => void;
+		onSuccess?: (newTagId: string) => void;
 	}
 
 	const { onSuccess }: Props = $props();
@@ -19,7 +19,7 @@
 		saving = true;
 
 		try {
-			await db.tags.add({
+			const newTagId = await db.tags.add({
 				name: (formData.get('name') as string) || 'Untitled',
 				parentId: null,
 				order: 0
@@ -30,7 +30,7 @@
 
 			// Call success callback if provided (for closing modal, etc.)
 			if (onSuccess) {
-				onSuccess();
+				onSuccess(newTagId);
 			}
 		} catch (error) {
 			console.error('Error saving tag:', error);
