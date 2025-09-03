@@ -4,8 +4,10 @@ title: Add "Starred" bookmarks
 status: To Do
 assignee: []
 created_date: '2025-08-30 18:23'
+updated_date: '2025-09-03 19:18'
 labels: []
 dependencies: []
+ordinal: 9000
 ---
 
 ## Description
