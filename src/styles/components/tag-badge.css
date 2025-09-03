@@ -3,5 +3,6 @@
 
 	button {
 		@apply btn btn-xs btn-primary shadow-none ml-0.5 border-0;
+		border-radius: 0 var(--radius-selector) var(--radius-selector) 0;
 	}
 }
