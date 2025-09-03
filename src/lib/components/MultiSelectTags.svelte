@@ -66,14 +66,18 @@
 		return map;
 	});
 
+	function selectTag(tagId: string) {
+		selectedTags.add(tagId);
+		descendantMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
+		ancestorMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
+	}
+
 	function toggleTag(tagId: string) {
 		if (selectedTags.has(tagId)) {
 			selectedTags.delete(tagId);
 			descendantMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
 		} else {
-			selectedTags.add(tagId);
-			descendantMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
-			ancestorMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
+			selectTag(tagId);
 		}
 	}
 
@@ -113,7 +117,7 @@
 	{#if node.children.length > 0}
 		<li>
 			<details>
-				<summary class={node.level === 0 ? 'font-medium' : 'text-sm'}>
+				<summary class="p-1">
 					<span class="flex items-center gap-2">
 						<label class="label cursor-pointer justify-start gap-2 p-0">
 							<input
@@ -140,7 +144,7 @@
 		</li>
 	{:else}
 		<li>
-			<label class="label cursor-pointer justify-start gap-2 p-2">
+			<label class="label cursor-pointer justify-start gap-2 p-1">
 				<input
 					type="checkbox"
 					class="checkbox checkbox-xs"
@@ -214,7 +218,7 @@
 			<TagForm
 				onSuccess={(newTagId) => {
 					addTagModal.close();
-					selectedTags.add(newTagId);
+					selectTag(newTagId);
 				}}
 			/>
 		</div>

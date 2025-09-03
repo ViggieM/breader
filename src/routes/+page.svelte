@@ -2,9 +2,10 @@
 	import { derived } from 'svelte/store';
 	import { replaceState } from '$app/navigation';
 	import SearchFilter from '$lib/components/SearchFilter.svelte';
-	import UrlList from '$lib/components/UrlList.svelte';
-	import { engine, filters } from '$lib/stores/search.svelte';
+	import SectionedUrlList from '$lib/components/SectionedUrlList.svelte';
+	import { engine, filters, tagsData } from '$lib/stores/search.svelte';
 	import { Bookmark } from '$lib/types';
+	import { organizeBookmarksIntoSections } from '$lib/utils/sectionUtils';
 
 	let results = derived([engine, filters], ([$engine, $filters]) => {
 		if (!$engine) return [];
@@ -18,6 +19,11 @@
 		}
 
 		return results?.map((b) => new Bookmark(b));
+	});
+
+	let sections = derived([results, tagsData], ([$results, $tagsData]) => {
+		if (!$results || !$tagsData) return [];
+		return organizeBookmarksIntoSections($results, $tagsData);
 	});
 
 	// Update URL when query changes (for bookmarking/sharing)
@@ -47,8 +53,12 @@
 			<SearchFilter></SearchFilter>
 		</div>
 
-		{#if $results}
-			<UrlList items={$results}></UrlList>
+		{#if $sections.length > 0}
+			<SectionedUrlList sections={$sections}></SectionedUrlList>
+		{:else if $results}
+			<p class="flex items-center justify-center gap-2 text-base-content/60">
+				No bookmarks found matching your search criteria.
+			</p>
 		{:else}
 			<p class="flex items-center justify-center gap-2">
 				<span class="loading loading-spinner loading-lg"></span> Loading bookmarks...

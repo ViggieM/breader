@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { db } from '$lib/db';
+	import SelectTag from './SelectTag.svelte';
 
 	interface Props {
 		onSuccess?: (newTagId: string) => void;
@@ -8,6 +9,7 @@
 	const { onSuccess }: Props = $props();
 
 	let name = $state('');
+	let selectedParentId = $state<string | null>(null);
 	let saving = $state(false);
 
 	async function _handleSubmit(
@@ -21,12 +23,13 @@
 		try {
 			const newTagId = await db.tags.add({
 				name: (formData.get('name') as string) || 'Untitled',
-				parentId: null,
+				parentId: selectedParentId,
 				order: 0
 			});
 
 			// Clear form after successful submission
 			name = '';
+			selectedParentId = null;
 
 			// Call success callback if provided (for closing modal, etc.)
 			if (onSuccess) {
@@ -57,6 +60,13 @@
 			/>
 		</label>
 	</div>
+
+	<div class="form-group">
+		<div class="label">
+			<span class="label-text">Parent Tag</span>
+		</div>
+		<SelectTag bind:selectedParentId />
+	</div>
 </form>
 
 <div
@@ -64,7 +74,7 @@
 	style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));"
 >
 	<div class="form-actions flex gap-2">
-		<button type="button" class="btn btn-error flex-1 md:flex-none" onclick={() => onSuccess?.()}>
+		<button type="button" class="btn btn-error flex-1 md:flex-none" onclick={() => onSuccess?.('')}>
 			Cancel
 		</button>
 		<button
