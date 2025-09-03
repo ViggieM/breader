@@ -97,3 +97,4 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Dexie liveQuery observables must be converted to Svelte readable stores using `readable()` wrapper for compatibility with `derived()` stores
 - Search store uses derived stores pattern to automatically rebuild search index when bookmark data changes
 - Theme switching happens immediately via localStorage and DOM data-theme attribute
+- No need to install new icon sets like '@iconify-json/material-symbols' since '@iconify/json' includes all
