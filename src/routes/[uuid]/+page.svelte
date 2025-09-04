@@ -91,7 +91,7 @@
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">URL</dt>
 				<dd class="flex gap-2">
-					<label class="input input-sm input-bordered flex-1 flex items-center pl-0">
+					<label class="input input-sm input-bordered w-full">
 						<input type="text" value={bookmark.url} class="flex-1 input-sm" readonly />
 						<button
 							onclick={copyUrl}

@@ -13,7 +13,6 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* Plugins */
-@plugin "@tailwindcss/forms";
 @plugin "@iconify/tailwind4";
 @plugin "daisyui" {
 	themes: all;
