@@ -1,9 +1,6 @@
 import type { Bookmark } from '$lib/types/bookmark';
 import type { PageLoad } from './$types';
 
-// Disable SSR to ensure this page works offline via client-side rendering
-export const ssr = false;
-
 export const load: PageLoad = ({ url }) => {
 	const urlParams = url.searchParams;
 
