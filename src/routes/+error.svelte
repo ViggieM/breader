@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { browser } from '$app/environment';
 	import svg404 from '$lib/assets/404.svg?raw';
 	import svg500 from '$lib/assets/500.svg?raw';
 
@@ -21,6 +22,148 @@
 				? 'Our servers are having trouble processing your request. Please try again later.'
 				: message
 	);
+
+	// Capture console logs and errors
+	let consoleLogs = $state<Array<{ type: string; message: string; timestamp: Date }>>([]);
+
+	if (browser) {
+		// Store original console methods
+		const originalLog = console.log;
+		const originalError = console.error;
+		const originalWarn = console.warn;
+
+		// Override console methods to capture logs
+		console.log = (...args) => {
+			consoleLogs.push({
+				type: 'log',
+				message: args
+					.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
+					.join(' '),
+				timestamp: new Date()
+			});
+			originalLog.apply(console, args);
+		};
+
+		console.error = (...args) => {
+			consoleLogs.push({
+				type: 'error',
+				message: args
+					.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
+					.join(' '),
+				timestamp: new Date()
+			});
+			originalError.apply(console, args);
+		};
+
+		console.warn = (...args) => {
+			consoleLogs.push({
+				type: 'warn',
+				message: args
+					.map((arg) => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg)))
+					.join(' '),
+				timestamp: new Date()
+			});
+			originalWarn.apply(console, args);
+		};
+
+		// Listen for global JavaScript errors
+		window.addEventListener('error', (event) => {
+			let errorMessage = '';
+
+			if (event.error) {
+				errorMessage = `${event.error.name || 'Error'}: ${event.error.message}`;
+				if (event.error.stack) {
+					errorMessage += `\n\nStack trace:\n${event.error.stack}`;
+				}
+				if (event.filename) {
+					errorMessage += `\n\nLocation: ${event.filename}:${event.lineno}:${event.colno}`;
+				}
+			} else {
+				errorMessage = `${event.message} at ${event.filename}:${event.lineno}:${event.colno}`;
+			}
+
+			consoleLogs.push({
+				type: 'error',
+				message: errorMessage,
+				timestamp: new Date()
+			});
+		});
+
+		// Listen for unhandled promise rejections
+		window.addEventListener('unhandledrejection', (event) => {
+			let errorMessage = 'Unhandled Promise Rejection: ';
+
+			if (event.reason && typeof event.reason === 'object') {
+				if (event.reason.message) {
+					errorMessage += event.reason.message;
+				} else {
+					errorMessage += JSON.stringify(event.reason, null, 2);
+				}
+
+				if (event.reason.stack) {
+					errorMessage += `\n\nStack trace:\n${event.reason.stack}`;
+				}
+			} else {
+				errorMessage += String(event.reason);
+			}
+
+			consoleLogs.push({
+				type: 'error',
+				message: errorMessage,
+				timestamp: new Date()
+			});
+		});
+
+		// Intercept WebSocket constructor to track WebSocket connections
+		const OriginalWebSocket = window.WebSocket;
+		window.WebSocket = class extends OriginalWebSocket {
+			constructor(url, protocols) {
+				super(url, protocols);
+
+				consoleLogs.push({
+					type: 'log',
+					message: `WebSocket connecting to: ${url}${protocols ? ` (protocols: ${JSON.stringify(protocols)})` : ''}`,
+					timestamp: new Date()
+				});
+
+				this.addEventListener('open', () => {
+					consoleLogs.push({
+						type: 'log',
+						message: `WebSocket connected successfully to: ${url}`,
+						timestamp: new Date()
+					});
+				});
+
+				this.addEventListener('close', (event) => {
+					consoleLogs.push({
+						type: 'warn',
+						message: `WebSocket closed: ${url}\nCode: ${event.code}\nReason: ${event.reason || 'No reason provided'}\nWas Clean: ${event.wasClean}`,
+						timestamp: new Date()
+					});
+				});
+
+				this.addEventListener('error', (event) => {
+					consoleLogs.push({
+						type: 'error',
+						message: `WebSocket error for: ${url}\nEvent: ${JSON.stringify(
+							{
+								type: event.type,
+								target: event.target
+									? {
+											readyState: event.target.readyState,
+											url: event.target.url
+										}
+									: 'Unknown target'
+							},
+							null,
+							2
+						)}`,
+						timestamp: new Date()
+					});
+				});
+			}
+		};
+	}
 </script>
 
 <svelte:head>
@@ -81,6 +224,42 @@
 						)}</pre>
 				</div>
 			</details>
+
+			<!-- Console logs section -->
+			{#if consoleLogs.length > 0}
+				<details class="collapse collapse-arrow bg-base-200">
+					<summary class="collapse-title text-sm font-medium">
+						Console Logs ({consoleLogs.length})
+					</summary>
+					<div class="collapse-content text-xs text-left space-y-2 max-h-96 overflow-auto">
+						{#each consoleLogs.slice(-20) as log}
+							<div
+								class="p-2 rounded border-l-4 {log.type === 'error'
+									? 'border-error bg-error/10'
+									: log.type === 'warn'
+										? 'border-warning bg-warning/10'
+										: 'border-info bg-info/10'}"
+							>
+								<div class="flex justify-between items-start gap-2 mb-1">
+									<span
+										class="text-xs font-mono px-2 py-1 rounded {log.type === 'error'
+											? 'bg-error text-error-content'
+											: log.type === 'warn'
+												? 'bg-warning text-warning-content'
+												: 'bg-info text-info-content'}"
+									>
+										{log.type.toUpperCase()}
+									</span>
+									<span class="text-xs opacity-60">
+										{log.timestamp.toLocaleTimeString()}
+									</span>
+								</div>
+								<pre class="whitespace-pre-wrap text-xs font-mono">{log.message}</pre>
+							</div>
+						{/each}
+					</div>
+				</details>
+			{/if}
 		{/if}
 	</div>
 </main>
