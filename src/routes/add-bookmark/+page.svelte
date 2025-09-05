@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { db } from '$lib/db';
+	import { fetchUrlMetadata, MetadataFetchError } from '$lib/utils/metadata';
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
@@ -12,6 +13,83 @@
 	let saving = $state(false);
 	let isReviewed = $state(false);
 	let isStarred = $state(false);
+	let fetchingMetadata = $state(false);
+
+	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+	let lastFetchedUrl = $state('');
+
+	async function handleMetadataFetch() {
+		if (!url || url === lastFetchedUrl || fetchingMetadata) {
+			return;
+		}
+
+		let validUrl: URL;
+		try {
+			validUrl = new URL(url);
+		} catch {
+			return; // Invalid URL, skip metadata fetching
+		}
+
+		if (!['http:', 'https:'].includes(validUrl.protocol)) {
+			return; // Only HTTP/HTTPS URLs
+		}
+
+		// Don't fetch if user has already entered a title
+		if (title.trim()) {
+			return;
+		}
+
+		lastFetchedUrl = url;
+		fetchingMetadata = true;
+
+		try {
+			const metadata = await fetchUrlMetadata(url);
+
+			// Only populate if fields are still empty (user might have typed while fetching)
+			if (!title.trim() && metadata.title) {
+				title = metadata.title;
+			}
+
+			if (!description.trim() && metadata.description) {
+				description = metadata.description;
+			}
+
+			if (metadata.keywords.length > 0) {
+				const existingTags = tags
+					.split(',')
+					.map((t) => t.trim())
+					.filter((t) => t);
+				const newKeywords = metadata.keywords.filter((k) => !existingTags.includes(k));
+				if (newKeywords.length > 0) {
+					tags = existingTags.concat(newKeywords).join(', ');
+				}
+			}
+		} catch (error) {
+			if (error instanceof MetadataFetchError) {
+				console.warn('Failed to fetch metadata:', error.message);
+			} else {
+				console.error('Unexpected error fetching metadata:', error);
+			}
+		} finally {
+			fetchingMetadata = false;
+		}
+	}
+
+	$effect(() => {
+		if (debounceTimer) {
+			clearTimeout(debounceTimer);
+		}
+
+		debounceTimer = setTimeout(() => {
+			handleMetadataFetch();
+		}, 500);
+
+		return () => {
+			if (debounceTimer) {
+				clearTimeout(debounceTimer);
+			}
+		};
+	});
 
 	async function _handleSubmit(
 		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
@@ -69,14 +147,21 @@
 	<div class="form-group">
 		<label class="floating-label">
 			<span>URL</span>
-			<input
-				name="url"
-				type="text"
-				bind:value={url}
-				placeholder="https://example.com"
-				class="input input-md w-full"
-				required
-			/>
+			<div class="relative">
+				<input
+					name="url"
+					type="text"
+					bind:value={url}
+					placeholder="https://example.com"
+					class="input input-md w-full {fetchingMetadata ? 'pr-10' : ''}"
+					required
+				/>
+				{#if fetchingMetadata}
+					<div class="absolute right-3 top-1/2 -translate-y-1/2">
+						<span class="loading loading-spinner loading-xs"></span>
+					</div>
+				{/if}
+			</div>
 		</label>
 	</div>
 
