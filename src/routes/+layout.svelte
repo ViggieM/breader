@@ -3,7 +3,7 @@
 	import { browser } from '$app/environment';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import Logo from '$lib/assets/logo.svg?raw';
+	import Logo from '$lib/components/Logo.svelte';
 	import MainMenu from '$lib/components/MainMenu.svelte';
 	import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
 	import { getTheme } from '$lib/stores/theme.svelte';
@@ -87,15 +87,8 @@
 </a>
 
 <header>
-	<div>
-		<a href="/" class="text-transparent" title="Breader home">Breader home</a>
-		<img src="/icons/icon-48.png" alt="" class="size-8" role="presentation" />
-		<div class="h-6 w-auto [&>svg]:h-full [&>svg]:w-auto">
-			<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-			{@html Logo}
-		</div>
-	</div>
-	<MainMenu></MainMenu>
+	<Logo class="col-2"></Logo>
+	<MainMenu class="col-3 justify-self-end"></MainMenu>
 </header>
 
 {@render children?.()}

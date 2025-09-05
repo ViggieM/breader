@@ -21,20 +21,6 @@ header {
 	padding-left: max(0.5rem, env(safe-area-inset-bottom));
 	padding-right: max(0.5rem, env(safe-area-inset-bottom));
 	@apply py-2 mx-auto max-w-2xl w-full;
-
-	> div {
-		grid-column: 2;
-		@apply inline-flex relative items-center justify-center gap-4 cursor-pointer;
-
-		> a {
-			@apply absolute inset-0 z-10;
-		}
-	}
-
-	> nav {
-		grid-column: 3;
-		justify-self: end;
-	}
 }
 
 main {

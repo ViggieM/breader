@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { installPWA, canInstall } from '$lib/stores/installPWA.svelte.js';
 
-	let session = $derived($page.data.session);
+	let props = $props();
+	let session = $derived(page.data.session);
 
 	// Close dropdown after navigation
 	afterNavigate(() => {
@@ -12,7 +13,7 @@
 	});
 </script>
 
-<nav aria-label="Main navigation">
+<nav aria-label="Main navigation" class={props.class}>
 	<details class="dropdown dropdown-end">
 		<summary class="btn btn-ghost btn-square">
 			<span class="icon-[hugeicons--menu-11]"></span>
