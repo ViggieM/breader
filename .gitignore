@@ -32,3 +32,6 @@ vite.config.ts.timestamp-*
 
 # Supabase
 supabase/
+
+# Personal
+sandbox/
