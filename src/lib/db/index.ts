@@ -26,7 +26,8 @@ db.cloud.configure({
 		}).then((res) => res.json())
 });
 
-db.version(2).stores({
-	bookmarks: '@id, title, url, *tags, *keywords, isStarred, isReviewed, created, modified',
+db.version(3).stores({
+	bookmarks:
+		'@id, title, url, description, *tags, *keywords, isStarred, isReviewed, created, modified',
 	tags: '@id, parentId, name, order'
 });

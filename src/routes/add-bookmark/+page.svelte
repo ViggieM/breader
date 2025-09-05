@@ -94,10 +94,6 @@
 		}
 	}
 
-	async function manualFetchMetadata() {
-		await handleMetadataFetch();
-	}
-
 	// Update canFetchMetadata based on URL and network state
 	$effect(() => {
 		let validUrl: URL;
@@ -185,50 +181,32 @@
 	<div class="form-group">
 		<label class="floating-label">
 			<span>URL</span>
-			<div class="relative">
-				<input
-					name="url"
-					type="text"
-					bind:value={url}
-					placeholder="https://example.com"
-					class="input input-md w-full {fetchingMetadata
-						? 'pr-10'
-						: canFetchMetadata
-							? 'pr-20'
-							: ''}"
-					required
-					aria-describedby="url-status"
-				/>
-				{#if fetchingMetadata}
-					<div class="absolute right-3 top-1/2 -translate-y-1/2" aria-hidden="true">
-						<span class="loading loading-spinner loading-xs"></span>
-					</div>
-				{:else if canFetchMetadata && url && !title.trim()}
-					<button
-						type="button"
-						onclick={manualFetchMetadata}
-						class="absolute right-2 top-1/2 -translate-y-1/2 btn btn-ghost btn-xs"
-						title="Fetch page metadata"
-						aria-label="Fetch page metadata"
-					>
-						<span
-							class="icon-[iconify--material-symbols--refresh] text-base-content/70"
-							aria-hidden="true"
-						></span>
-					</button>
-				{:else if networkState.isOffline && url}
-					<div
-						class="absolute right-3 top-1/2 -translate-y-1/2 tooltip tooltip-left"
-						data-tip="Offline"
-						aria-label="Currently offline"
-					>
-						<span
-							class="icon-[iconify--material-symbols--wifi-off] text-warning text-sm"
-							aria-hidden="true"
-						></span>
-					</div>
-				{/if}
-			</div>
+			<input
+				name="url"
+				type="text"
+				bind:value={url}
+				placeholder="https://example.com"
+				class="input input-md w-full"
+				class:pr-9={fetchingMetadata}
+				required
+				aria-describedby="url-status"
+			/>
+			{#if fetchingMetadata}
+				<div class="absolute right-3 top-1.5" aria-hidden="true">
+					<span class="loading loading-spinner loading-xs"></span>
+				</div>
+			{:else if networkState.isOffline && url}
+				<div
+					class="absolute right-3 top-1/2 -translate-y-1/2 tooltip tooltip-left"
+					data-tip="Offline"
+					aria-label="Currently offline"
+				>
+					<span
+						class="icon-[iconify--material-symbols--wifi-off] text-warning text-sm"
+						aria-hidden="true"
+					></span>
+				</div>
+			{/if}
 		</label>
 		<div id="url-status" aria-live="polite" class="mt-1">
 			{#if fetchingMetadata}
