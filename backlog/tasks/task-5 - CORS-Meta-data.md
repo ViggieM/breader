@@ -1,10 +1,10 @@
 ---
 id: task-5
 title: CORS Meta data
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-08-30 18:03'
-updated_date: '2025-09-03 19:18'
+updated_date: '2025-09-05 11:01'
 labels: []
 dependencies: []
 ordinal: 2000
