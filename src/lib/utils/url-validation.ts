@@ -53,15 +53,13 @@ export function validateUrl(urlString: string): URL {
 		}
 	}
 
-	// Block non-standard ports that might be used for internal services
-	if (
-		url.port &&
-		['22', '23', '25', '53', '80', '443', '993', '995'].includes(url.port) === false
-	) {
-		// Allow common ports, block others that might be internal services
+	// Only allow specific safe ports for HTTP/HTTPS
+	if (url.port) {
 		const portNum = parseInt(url.port, 10);
-		if (portNum < 1024 && !['80', '443'].includes(url.port)) {
-			throw new UrlValidationError('Access to privileged ports is not allowed');
+		const allowedPorts = [80, 443, 8080, 8443, 3000, 3001, 5000, 8000];
+
+		if (!allowedPorts.includes(portNum)) {
+			throw new UrlValidationError('Access to this port is not allowed');
 		}
 	}
 

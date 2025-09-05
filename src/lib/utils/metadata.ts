@@ -13,14 +13,27 @@ export interface UrlMetadata {
 export class MetadataFetchError extends Error {
 	constructor(
 		message: string,
-		public readonly status?: number
+		public readonly status?: number,
+		public readonly isNetworkError: boolean = false
 	) {
 		super(message);
 		this.name = 'MetadataFetchError';
 	}
 }
 
+export class NetworkUnavailableError extends MetadataFetchError {
+	constructor() {
+		super('No internet connection available', undefined, true);
+		this.name = 'NetworkUnavailableError';
+	}
+}
+
 export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
+	// Check if we're offline first
+	if (typeof navigator !== 'undefined' && !navigator.onLine) {
+		throw new NetworkUnavailableError();
+	}
+
 	// Use shared validation logic
 	try {
 		validateUrl(url);
@@ -61,9 +74,24 @@ export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
 
 		if (error instanceof Error) {
 			if (error.name === 'AbortError') {
-				throw new MetadataFetchError('Request timeout - URL took too long to respond');
+				throw new MetadataFetchError(
+					'Request timeout - URL took too long to respond',
+					undefined,
+					true
+				);
 			}
-			throw new MetadataFetchError(`Network error: ${error.message}`);
+			// More specific network error detection
+			if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+				throw new NetworkUnavailableError();
+			}
+			if (
+				error.message.includes('NetworkError') ||
+				error.message.includes('ERR_NETWORK') ||
+				error.message.includes('ERR_INTERNET_DISCONNECTED')
+			) {
+				throw new NetworkUnavailableError();
+			}
+			throw new MetadataFetchError(`Network error: ${error.message}`, undefined, true);
 		}
 
 		throw new MetadataFetchError('Unknown error occurred while fetching metadata');

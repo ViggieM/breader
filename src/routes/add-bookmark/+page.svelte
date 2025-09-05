@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { db } from '$lib/db';
-	import { fetchUrlMetadata, MetadataFetchError } from '$lib/utils/metadata';
+	import {
+		fetchUrlMetadata,
+		MetadataFetchError,
+		NetworkUnavailableError
+	} from '$lib/utils/metadata';
+	import { networkState } from '$lib/stores/network.svelte';
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
@@ -17,9 +22,12 @@
 
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 	let lastFetchedUrl = $state('');
+	let metadataError = $state('');
+	let canFetchMetadata = $state(false);
+	let metadataPromise: Promise<void> | null = null;
 
 	async function handleMetadataFetch() {
-		if (!url || url === lastFetchedUrl || fetchingMetadata) {
+		if (!url || url === lastFetchedUrl || fetchingMetadata || metadataPromise) {
 			return;
 		}
 
@@ -42,47 +50,77 @@
 		lastFetchedUrl = url;
 		fetchingMetadata = true;
 
-		try {
-			const metadata = await fetchUrlMetadata(url);
+		metadataPromise = (async () => {
+			try {
+				const metadata = await fetchUrlMetadata(url);
 
-			// Only populate if fields are still empty (user might have typed while fetching)
-			if (!title.trim() && metadata.title) {
-				title = metadata.title;
-			}
-
-			if (!description.trim() && metadata.description) {
-				description = metadata.description;
-			}
-
-			if (metadata.keywords.length > 0) {
-				const existingTags = tags
-					.split(',')
-					.map((t) => t.trim())
-					.filter((t) => t);
-				const newKeywords = metadata.keywords.filter((k) => !existingTags.includes(k));
-				if (newKeywords.length > 0) {
-					tags = existingTags.concat(newKeywords).join(', ');
+				// Only populate if fields are still empty (user might have typed while fetching)
+				if (!title.trim() && metadata.title) {
+					title = metadata.title;
 				}
+
+				if (!description.trim() && metadata.description) {
+					description = metadata.description;
+				}
+
+				if (metadata.keywords.length > 0) {
+					const existingTags = tags
+						.split(',')
+						.map((t) => t.trim())
+						.filter((t) => t);
+					const newKeywords = metadata.keywords.filter((k) => !existingTags.includes(k));
+					if (newKeywords.length > 0) {
+						tags = existingTags.concat(newKeywords).join(', ');
+					}
+				}
+			} catch (error) {
+				if (error instanceof NetworkUnavailableError) {
+					metadataError = 'No internet connection - please enter details manually';
+					console.warn('Network unavailable for metadata fetching');
+				} else if (error instanceof MetadataFetchError) {
+					console.warn('Failed to fetch metadata:', error.message);
+				} else {
+					console.error('Unexpected error fetching metadata:', error);
+				}
+			} finally {
+				fetchingMetadata = false;
 			}
-		} catch (error) {
-			if (error instanceof MetadataFetchError) {
-				console.warn('Failed to fetch metadata:', error.message);
-			} else {
-				console.error('Unexpected error fetching metadata:', error);
-			}
+		})();
+
+		try {
+			await metadataPromise;
 		} finally {
-			fetchingMetadata = false;
+			metadataPromise = null;
 		}
 	}
 
+	async function manualFetchMetadata() {
+		await handleMetadataFetch();
+	}
+
+	// Update canFetchMetadata based on URL and network state
+	$effect(() => {
+		let validUrl: URL;
+		try {
+			validUrl = new URL(url);
+			canFetchMetadata = ['http:', 'https:'].includes(validUrl.protocol) && networkState.isOnline;
+		} catch {
+			canFetchMetadata = false;
+		}
+	});
+
+	// Auto-fetch metadata with debouncing
 	$effect(() => {
 		if (debounceTimer) {
 			clearTimeout(debounceTimer);
 		}
 
-		debounceTimer = setTimeout(() => {
-			handleMetadataFetch();
-		}, 500);
+		// Only auto-fetch if online
+		if (networkState.isOnline) {
+			debounceTimer = setTimeout(() => {
+				handleMetadataFetch();
+			}, 500);
+		}
 
 		return () => {
 			if (debounceTimer) {
@@ -153,16 +191,58 @@
 					type="text"
 					bind:value={url}
 					placeholder="https://example.com"
-					class="input input-md w-full {fetchingMetadata ? 'pr-10' : ''}"
+					class="input input-md w-full {fetchingMetadata
+						? 'pr-10'
+						: canFetchMetadata
+							? 'pr-20'
+							: ''}"
 					required
+					aria-describedby="url-status"
 				/>
 				{#if fetchingMetadata}
-					<div class="absolute right-3 top-1/2 -translate-y-1/2">
+					<div class="absolute right-3 top-1/2 -translate-y-1/2" aria-hidden="true">
 						<span class="loading loading-spinner loading-xs"></span>
+					</div>
+				{:else if canFetchMetadata && url && !title.trim()}
+					<button
+						type="button"
+						onclick={manualFetchMetadata}
+						class="absolute right-2 top-1/2 -translate-y-1/2 btn btn-ghost btn-xs"
+						title="Fetch page metadata"
+						aria-label="Fetch page metadata"
+					>
+						<span
+							class="icon-[iconify--material-symbols--refresh] text-base-content/70"
+							aria-hidden="true"
+						></span>
+					</button>
+				{:else if networkState.isOffline && url}
+					<div
+						class="absolute right-3 top-1/2 -translate-y-1/2 tooltip tooltip-left"
+						data-tip="Offline"
+						aria-label="Currently offline"
+					>
+						<span
+							class="icon-[iconify--material-symbols--wifi-off] text-warning text-sm"
+							aria-hidden="true"
+						></span>
 					</div>
 				{/if}
 			</div>
 		</label>
+		<div id="url-status" aria-live="polite" class="mt-1">
+			{#if fetchingMetadata}
+				<small class="text-base-content/60">Fetching page metadata...</small>
+			{:else if metadataError}
+				<small class="text-warning">{metadataError}</small>
+			{:else if networkState.isOffline}
+				<small class="text-base-content/60"
+					>Offline - Please enter title and description manually</small
+				>
+			{:else if url && canFetchMetadata && !title.trim()}
+				<small class="text-base-content/60">Click refresh button to fetch page metadata</small>
+			{/if}
+		</div>
 	</div>
 
 	<div class="form-group">

@@ -25,6 +25,41 @@
 			}
 		});
 
+		// Service worker error handling
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.ready
+				.then((registration) => {
+					console.log('Service worker registered successfully:', registration);
+
+					// Listen for service worker updates
+					registration.addEventListener('updatefound', () => {
+						const newWorker = registration.installing;
+						if (newWorker) {
+							newWorker.addEventListener('statechange', () => {
+								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+									console.log('New service worker available');
+								}
+							});
+						}
+					});
+				})
+				.catch((error) => {
+					console.warn('Service worker registration failed:', error);
+				});
+
+			// Handle service worker errors
+			navigator.serviceWorker.addEventListener('error', (error) => {
+				console.error('Service worker error:', error);
+			});
+
+			// Handle service worker messages
+			navigator.serviceWorker.addEventListener('message', (event) => {
+				if (event.data && event.data.type === 'CACHE_ERROR') {
+					console.warn('Service worker cache error:', event.data.message);
+				}
+			});
+		}
+
 		return () => data.subscription.unsubscribe();
 	});
 </script>
