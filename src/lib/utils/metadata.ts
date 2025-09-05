@@ -1,6 +1,8 @@
 //ABOUTME: Utility functions for fetching URL metadata from external websites
 //ABOUTME: Provides clean interface for bookmark form to get title, description, and keywords
 
+import { validateUrl } from './url-validation';
+
 export interface UrlMetadata {
 	title: string;
 	description: string;
@@ -19,19 +21,14 @@ export class MetadataFetchError extends Error {
 }
 
 export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
-	if (!url || typeof url !== 'string') {
-		throw new MetadataFetchError('URL is required and must be a string');
-	}
-
-	let validatedUrl: URL;
+	// Use shared validation logic
 	try {
-		validatedUrl = new URL(url);
-	} catch {
-		throw new MetadataFetchError('Invalid URL format');
-	}
-
-	if (!['http:', 'https:'].includes(validatedUrl.protocol)) {
-		throw new MetadataFetchError('Only HTTP and HTTPS URLs are supported');
+		validateUrl(url);
+	} catch (error) {
+		if (error instanceof Error) {
+			throw new MetadataFetchError(error.message);
+		}
+		throw new MetadataFetchError('Invalid URL');
 	}
 
 	const controller = new AbortController();

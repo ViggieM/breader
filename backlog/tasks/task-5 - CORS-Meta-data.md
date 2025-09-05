@@ -52,6 +52,7 @@ When adding a bookmark, especially on mobile, a CORS request needs to be made to
 
 - **Created**: `src/routes/api/fetch-metadata/+server.ts` - CORS proxy endpoint with metadata extraction
 - **Created**: `src/lib/utils/metadata.ts` - Frontend utility for fetching URL metadata
+- **Created**: `src/lib/utils/url-validation.ts` - Shared URL validation utilities with SSRF protection
 - **Modified**: `src/routes/add-bookmark/+page.svelte` - Integrated auto-metadata fetching with debouncing
 
 ### Technical Decisions
@@ -70,3 +71,13 @@ When adding a bookmark, especially on mobile, a CORS request needs to be made to
 - Loading indicator during metadata fetching
 - Graceful timeout handling (10 seconds) with proper error messages
 - Non-intrusive integration that preserves existing form functionality
+
+### Security Improvements Applied
+
+- **SSRF Protection**: Blocks access to private IP ranges (127.x.x.x, 10.x.x.x, 172.16-31.x.x, 192.168.x.x) and localhost
+- **Response Size Limits**: 1MB maximum response size with streaming processing to prevent DoS attacks
+- **ReDoS Protection**: Limited regex processing to 50KB of HTML with bounded quantifiers
+- **Input Sanitization**: Comprehensive HTML entity decoding with validation
+- **Error Message Sanitization**: Generic error responses to prevent information leakage
+- **Content Security Policy**: Added CSP headers to prevent XSS from extracted metadata
+- **Content Length Validation**: Limits on title (500 chars), description (1000 chars), and keywords (20 max, 50 chars each)
