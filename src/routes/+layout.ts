@@ -6,7 +6,7 @@ import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/publi
 import type { LayoutLoad } from './$types';
 import { db } from '$lib/db';
 
-export const ssr = false;
+export const ssr = true;
 
 export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 	/**
