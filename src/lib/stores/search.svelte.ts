@@ -31,7 +31,9 @@ class FuseSearchEngine {
 }
 
 export const bookmarksData = readable<BookmarkData[]>([], (set) => {
-	const observable = liveQuery(() => db.bookmarks.toArray());
+	// sort by created.
+	// this might be later replaced with sorting via JS, to make sorting flexible. but for now it's fine
+	const observable = liveQuery(() => db.bookmarks.orderBy('created').toArray());
 	const subscription = observable.subscribe((data) => {
 		if (data) set(data);
 	});

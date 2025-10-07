@@ -2,10 +2,9 @@
 	import { derived } from 'svelte/store';
 	import { replaceState } from '$app/navigation';
 	import SearchFilter from '$lib/components/SearchFilter.svelte';
-	import SectionedUrlList from '$lib/components/SectionedUrlList.svelte';
-	import { engine, filters, tagsData } from '$lib/stores/search.svelte';
+	import { engine, filters } from '$lib/stores/search.svelte';
 	import { Bookmark } from '$lib/types';
-	import { organizeBookmarksIntoSections } from '$lib/utils/sectionUtils';
+	import UrlList from '$lib/components/UrlList.svelte';
 
 	let results = derived([engine, filters], ([$engine, $filters]) => {
 		if (!$engine) return [];
@@ -19,11 +18,6 @@
 		}
 
 		return results?.map((b) => new Bookmark(b));
-	});
-
-	let sections = derived([results, tagsData], ([$results, $tagsData]) => {
-		if (!$results || !$tagsData) return [];
-		return organizeBookmarksIntoSections($results, $tagsData);
 	});
 
 	// Update URL when query changes (for bookmarking/sharing)
@@ -53,8 +47,8 @@
 			<SearchFilter></SearchFilter>
 		</div>
 
-		{#if $sections.length > 0}
-			<SectionedUrlList sections={$sections}></SectionedUrlList>
+		{#if $results.length > 0}
+			<UrlList items={$results} />
 		{:else if $results}
 			<p class="flex items-center justify-center gap-2 text-base-content/60">
 				No bookmarks found matching your search criteria.
