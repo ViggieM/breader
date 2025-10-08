@@ -4,9 +4,11 @@
 	import { tagsData } from '$lib/stores/search.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { db } from '$lib/db';
+	import { onMount } from 'svelte';
+	import OverType, { type OverTypeInstance } from 'overtype';
 
 	const { data } = $props();
-	const bookmark: Bookmark = data.bookmark;
+	const bookmark: Bookmark = $derived(data.bookmark);
 
 	const selectedTags = new SvelteSet<string>();
 	let hasUnsavedChanges = $state(false);
@@ -18,7 +20,22 @@
 	let copied = $state(false);
 
 	let title = $state(bookmark.title);
+	let description = $state(bookmark.description);
 	let isReviewed = $state(bookmark.isReviewed);
+
+	let editor = $state() as HTMLDivElement;
+	let overtype = $state() as OverTypeInstance;
+
+	onMount(() => {
+		[overtype] = OverType.init(editor, {
+			value: bookmark.description,
+			padding: '0',
+			autoResize: true,
+			onChange: (value) => {
+				description = value;
+			}
+		});
+	});
 
 	$effect(() => {
 		selectedTags.clear();
@@ -31,6 +48,7 @@
 		const currentTagsSet = new Set(selectedTags);
 		const hasChanges =
 			title !== bookmark.title ||
+			description !== bookmark.description ||
 			currentTagsSet.size !== initialTagsSet.size ||
 			[...currentTagsSet].some((tag) => !initialTagsSet.has(tag));
 		hasUnsavedChanges = hasChanges;
@@ -42,6 +60,7 @@
 			const tagsArray = Array.from(selectedTags);
 			await db.bookmarks.update(bookmark.id, {
 				title: title,
+				description: description,
 				tags: tagsArray,
 				modified: new Date().toISOString()
 			});
@@ -61,6 +80,8 @@
 	function cancelChanges() {
 		// reset title
 		title = bookmark.title;
+		// reset description
+		overtype.setValue(bookmark.description);
 		// reset tags
 		selectedTags.clear();
 		initialTagsSet.forEach((tagId) => selectedTags.add(tagId));
@@ -162,6 +183,13 @@
 				<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
 				<dd class="text-sm">
 					<MultiSelectTags tags={$tagsData} {selectedTags} bind:multiSelectDetails />
+				</dd>
+			</div>
+
+			<div>
+				<dt class="text-sm font-medium opacity-70 mb-1">Description</dt>
+				<dd class="text-sm">
+					<div bind:this={editor}></div>
 				</dd>
 			</div>
 		</dl>

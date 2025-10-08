@@ -23,6 +23,9 @@ importers:
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
+      overtype:
+        specifier: ^1.2.7
+        version: 1.2.7
     devDependencies:
       '@eslint/compat':
         specifier: ^1.2.5
@@ -1710,6 +1713,9 @@ packages:
   magic-string@0.30.17:
     resolution: {integrity: sha512-sNPKHvyjVf7gyjwS4xGTaW/mCnF8wnjtifKBEhxfZ7E/S8tQ0rssrwGNn6q8JH/ohItJfSQp9mBtQYuTlH5QnA==}
 
+  markdown-actions@1.1.2:
+    resolution: {integrity: sha512-U7rmgTvUP3neh3XaVblikslRWWhfpzF2SiI1A6z3az7IpYuAiVvdqtZrFCArV22TSj2Ht+r0ResohlsJ8/ntbw==}
+
   mdsvex@0.12.6:
     resolution: {integrity: sha512-pupx2gzWh3hDtm/iDW4WuCpljmyHbHi34r7ktOqpPGvyiM4MyfNgdJ3qMizXdgCErmvYC9Nn/qyjePy+4ss9Wg==}
     peerDependencies:
@@ -1785,6 +1791,9 @@ packages:
   optionator@0.9.4:
     resolution: {integrity: sha512-6IpQ7mKUxRcZNLIObR0hz7lxsapSSIYNZJwXPGeF0mTVqGKFIXj1DQcMoT22S3ROcLyY/rz0PWaWZ9ayWmad9g==}
     engines: {node: '>= 0.8.0'}
+
+  overtype@1.2.7:
+    resolution: {integrity: sha512-h4rEAKE+MegxMR7+c2LFYdWWNgPMoV92GENC32Rt+GlIImKy/Qms7d5UejMsEU1PdgpefWRcgVY0Rvmfq8DUcw==}
 
   p-limit@3.1.0:
     resolution: {integrity: sha512-TYOanM3wGwNGsZN2cVTYPArw454xnXj5qmWF1bEoAc4+cU/ol7GVh7odevjp1FNHduHc3KZMcFduxU5Xc6uJRQ==}
@@ -3746,6 +3755,8 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  markdown-actions@1.1.2: {}
+
   mdsvex@0.12.6(svelte@5.38.1):
     dependencies:
       '@types/mdast': 4.0.4
@@ -3828,6 +3839,10 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
       word-wrap: 1.2.5
+
+  overtype@1.2.7:
+    dependencies:
+      markdown-actions: 1.1.2
 
   p-limit@3.1.0:
     dependencies:

@@ -63,6 +63,7 @@
 		"@supabase/supabase-js": "^2.56.0",
 		"dexie": "^4.2.0",
 		"dexie-cloud-addon": "^4.2.0",
-		"fuse.js": "^7.1.0"
+		"fuse.js": "^7.1.0",
+		"overtype": "^1.2.7"
 	}
 }
