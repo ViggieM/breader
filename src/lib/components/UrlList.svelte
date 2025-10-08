@@ -42,9 +42,9 @@
 	}
 </script>
 
-<ul class="UrlList">
+<ul class="space-y-1 lg:space-y-0">
 	{#each items as bookmark (bookmark.id)}
-		<li id={bookmark.id}>
+		<li id={bookmark.id} class="url-list-item">
 			<details class="group" ontoggle={handleToggle}>
 				<summary
 					class={`${bookmark.isReviewed ? '' : 'font-bold'}`}

@@ -1,0 +1,51 @@
+.url-list-item {
+	@apply relative w-full;
+
+	details:first-of-type {
+		summary {
+			@apply grid grid-cols-[auto_1fr_auto] gap-2 pt-1 items-start cursor-pointer;
+
+			img {
+				@apply inline self-start justify-self-start mt-1;
+				min-width: 1rem;
+				min-height: 1rem;
+				max-width: 1rem;
+				max-height: 1rem;
+				object-fit: contain;
+			}
+
+			span {
+				min-width: 0; /* Critical for flex items */
+			}
+		}
+
+		summary::-webkit-details-marker {
+			display: none;
+		}
+
+		> article {
+			@apply py-1 text-base-content/80 text-sm;
+
+			> footer {
+				@apply mt-1 flex items-center justify-between text-xs;
+
+				a {
+					@apply link link-accent text-sm;
+				}
+			}
+		}
+	}
+
+	details.dropdown {
+		summary {
+			@apply btn btn-sm lg:btn-xs btn-ghost px-2 lg:px-1;
+			min-width: 24px; /* Minimum touch target */
+			min-height: 24px;
+			@apply flex items-center justify-center;
+		}
+
+		ul {
+			@apply bg-base-100 rounded-box z-1 min-w-52 p-2 shadow-sm;
+		}
+	}
+}
