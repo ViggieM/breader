@@ -145,13 +145,6 @@
 				</dd>
 			</div>
 
-			{#if bookmark.description}
-				<div>
-					<dt class="text-sm font-medium opacity-70 mb-1">Description</dt>
-					<dd class="text-sm opacity-75 break-words">{bookmark.description}</dd>
-				</div>
-			{/if}
-
 			<!--fixme: (low) need some nice place to put the created and modified date-->
 			<!--<div>-->
 			<!--	<dt class="text-sm font-medium opacity-70 mb-1">Created</dt>-->
