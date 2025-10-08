@@ -1,0 +1,25 @@
+{
+	"manifest_version": 3,
+	"name": "Breader",
+	"version": "1.0",
+	"description": "Save your bookmarks for reading later",
+	"icons": {
+		"16": "icon.png",
+		"48": "icon.png",
+		"128": "icon.png"
+	},
+	"background": {
+		"service_worker": "background.js"
+	},
+	"commands": {
+		"save-bookmark": {
+			"suggested_key": {
+				"default": "Ctrl+Period",
+				"mac": "Command+Period"
+			},
+			"description": "Save bookmark"
+		}
+	},
+	"permissions": ["activeTab"],
+	"host_permissions": ["http://localhost:3000/*", "https://breader.app/*"]
+}
