@@ -1,6 +1,5 @@
 <script lang="ts">
 	import type { Bookmark } from '$lib/types';
-	import { formatDate } from '$lib';
 	import MultiSelectTags from '$lib/components/MultiSelectTags.svelte';
 	import { tagsData } from '$lib/stores/search.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
@@ -13,8 +12,13 @@
 	let hasUnsavedChanges = $state(false);
 	let saving = $state(false);
 	let initialTagsSet = $state(new Set<string>());
+	// fixme: (low) multiSelectDetails only exists for closing the MultiSelectTags after saving.
+	//  would be nice to have it more concentrated in one place
 	let multiSelectDetails = $state() as HTMLDetailsElement;
 	let copied = $state(false);
+
+	let title = $state(bookmark.title);
+	let isReviewed = $state(bookmark.isReviewed);
 
 	$effect(() => {
 		selectedTags.clear();
@@ -26,16 +30,18 @@
 	$effect(() => {
 		const currentTagsSet = new Set(selectedTags);
 		const hasChanges =
+			title !== bookmark.title ||
 			currentTagsSet.size !== initialTagsSet.size ||
 			[...currentTagsSet].some((tag) => !initialTagsSet.has(tag));
 		hasUnsavedChanges = hasChanges;
 	});
 
-	async function saveTags() {
+	async function saveChanges() {
 		saving = true;
 		try {
 			const tagsArray = Array.from(selectedTags);
 			await db.bookmarks.update(bookmark.id, {
+				title: title,
 				tags: tagsArray,
 				modified: new Date().toISOString()
 			});
@@ -52,10 +58,12 @@
 		}
 	}
 
-	function cancelTagChanges() {
+	function cancelChanges() {
+		// reset title
+		title = bookmark.title;
+		// reset tags
 		selectedTags.clear();
 		initialTagsSet.forEach((tagId) => selectedTags.add(tagId));
-		hasUnsavedChanges = false;
 	}
 
 	function openUrl() {
@@ -81,7 +89,11 @@
 	<div class="container mx-auto max-w-2xl">
 		<header class="flex items-center gap-3">
 			<img src={bookmark.faviconUrl} class="size-4" alt="Favicon" />
-			<h1 class="text-lg font-medium flex-1 mt-0">{bookmark.title}</h1>
+			<h1
+				class="text-lg font-medium flex-1 mt-0"
+				contenteditable="true"
+				bind:innerText={title}
+			></h1>
 			{#if bookmark.isStarred}
 				<div class="text-warning">⭐</div>
 			{/if}
@@ -116,24 +128,33 @@
 				</div>
 			{/if}
 
-			<div>
-				<dt class="text-sm font-medium opacity-70 mb-1">Created</dt>
-				<dd class="text-sm">{formatDate(bookmark.created)}</dd>
-			</div>
+			<!--fixme: (low) need some nice place to put the created and modified date-->
+			<!--<div>-->
+			<!--	<dt class="text-sm font-medium opacity-70 mb-1">Created</dt>-->
+			<!--	<dd class="text-sm">{formatDate(bookmark.created)}</dd>-->
+			<!--</div>-->
 
-			{#if bookmark.modified}
-				<div>
-					<dt class="text-sm font-medium opacity-70 mb-1">Modified</dt>
-					<dd class="text-sm">{formatDate(bookmark.modified)}</dd>
-				</div>
-			{/if}
+			<!--{#if bookmark.modified}-->
+			<!--	<div>-->
+			<!--		<dt class="text-sm font-medium opacity-70 mb-1">Modified</dt>-->
+			<!--		<dd class="text-sm">{formatDate(bookmark.modified)}</dd>-->
+			<!--	</div>-->
+			<!--{/if}-->
 
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Status</dt>
 				<dd>
-					<div class="badge {bookmark.isReviewed ? 'badge-success' : 'badge-warning'}">
-						{bookmark.isReviewed ? 'Reviewed' : 'Unreviewed'}
-					</div>
+					<button
+						class="badge cursor-pointer {isReviewed ? 'badge-success' : 'badge-warning'}"
+						onclick={() => {
+							db.bookmarks.update(bookmark.id, {
+								isReviewed: !isReviewed
+							});
+							isReviewed = !isReviewed;
+						}}
+					>
+						{isReviewed ? 'Reviewed' : 'Unreviewed'}
+					</button>
 				</dd>
 			</div>
 
@@ -152,13 +173,13 @@
 			style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));"
 		>
 			<div class="form-actions flex gap-2">
-				<button type="button" onclick={cancelTagChanges} class="btn btn-error flex-1 md:flex-none">
+				<button type="button" onclick={cancelChanges} class="btn btn-error flex-1 md:flex-none">
 					Cancel
 				</button>
 				<button
 					type="button"
 					disabled={saving}
-					onclick={saveTags}
+					onclick={saveChanges}
 					class="btn btn-success flex-1 md:flex-none"
 				>
 					{saving ? 'Saving...' : 'Save Changes'}
