@@ -22,7 +22,9 @@
 	}
 
 	function deleteBookmark(event: Event, bookmarkId: string) {
-		db.bookmarks.delete(bookmarkId);
+		if (confirm('Are you sure you want to delete this bookmark?')) {
+			db.bookmarks.delete(bookmarkId);
+		}
 	}
 
 	function handleToggle(event: Event) {
