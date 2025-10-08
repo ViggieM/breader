@@ -6,6 +6,7 @@
 	import { db } from '$lib/db';
 	import { onMount } from 'svelte';
 	import OverType, { type OverTypeInstance } from 'overtype';
+	import { invalidateAll } from '$app/navigation';
 
 	const { data } = $props();
 	const bookmark: Bookmark = $derived(data.bookmark);
@@ -64,6 +65,8 @@
 				tags: tagsArray,
 				modified: new Date().toISOString()
 			});
+
+			await invalidateAll();
 
 			initialTagsSet = new Set(tagsArray);
 			hasUnsavedChanges = false;
