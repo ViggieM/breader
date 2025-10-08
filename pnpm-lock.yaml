@@ -23,6 +23,9 @@ importers:
       fuse.js:
         specifier: ^7.1.0
         version: 7.1.0
+      marked:
+        specifier: ^16.4.0
+        version: 16.4.0
       overtype:
         specifier: ^1.2.7
         version: 1.2.7
@@ -1715,6 +1718,11 @@ packages:
 
   markdown-actions@1.1.2:
     resolution: {integrity: sha512-U7rmgTvUP3neh3XaVblikslRWWhfpzF2SiI1A6z3az7IpYuAiVvdqtZrFCArV22TSj2Ht+r0ResohlsJ8/ntbw==}
+
+  marked@16.4.0:
+    resolution: {integrity: sha512-CTPAcRBq57cn3R8n3hwc2REddc28hjR7RzDXQ+lXLmMJYqn20BaI2cGw6QjgZGIgVfp2Wdfw4aMzgNteQ6qJgQ==}
+    engines: {node: '>= 20'}
+    hasBin: true
 
   mdsvex@0.12.6:
     resolution: {integrity: sha512-pupx2gzWh3hDtm/iDW4WuCpljmyHbHi34r7ktOqpPGvyiM4MyfNgdJ3qMizXdgCErmvYC9Nn/qyjePy+4ss9Wg==}
@@ -3756,6 +3764,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   markdown-actions@1.1.2: {}
+
+  marked@16.4.0: {}
 
   mdsvex@0.12.6(svelte@5.38.1):
     dependencies:

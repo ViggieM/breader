@@ -3,6 +3,7 @@
 	import { formatDate } from '$lib';
 	import { db } from '$lib/db';
 	import type { Bookmark } from '$lib/types';
+	import { marked } from 'marked';
 
 	let { items } = $props();
 
@@ -62,7 +63,8 @@
 					<span class="group-not-open:truncate">{bookmark.title}</span>
 				</summary>
 				<article>
-					<p>{bookmark.description}</p>
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+					<p class="prose">{@html marked(bookmark.description)}</p>
 					<div class="flex items-center justify-end mt-2">
 						{#if bookmark.hasBody}
 							<a href={bookmark.localUrl} class="link">See more →</a>

@@ -48,4 +48,11 @@
 			@apply bg-base-100 rounded-box z-1 min-w-52 p-2 shadow-sm;
 		}
 	}
+
+	.prose {
+		ul {
+			list-style-type: disc;
+			margin-left: 1rem;
+		}
+	}
 }
