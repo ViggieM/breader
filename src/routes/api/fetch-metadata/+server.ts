@@ -4,7 +4,7 @@
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import type { UrlMetadata } from '$lib/utils/metadata';
-import { validateUrl, UrlValidationError } from '$lib/utils/url-validation';
+import { isValidHttpUrl } from '$lib/utils/url-validation';
 
 const MAX_RESPONSE_SIZE = 1024 * 1024; // 1MB limit
 
@@ -126,14 +126,8 @@ export const GET: RequestHandler = async ({ url }) => {
 	}
 
 	// Validate URL and check for SSRF vulnerabilities
-	let validatedUrl: URL;
-	try {
-		validatedUrl = validateUrl(targetUrl);
-	} catch (err) {
-		if (err instanceof UrlValidationError) {
-			return error(400, 'Invalid or unsafe URL');
-		}
-		return error(400, 'URL validation failed');
+	if (!isValidHttpUrl(targetUrl)) {
+		return error(400, 'Invalid or unsafe URL');
 	}
 
 	try {

@@ -56,18 +56,13 @@ export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
 			signal: controller.signal
 		});
 
-		clearTimeout(timeoutId);
+		if (response.ok) return response.json();
 
 		if (!response.ok) {
 			const errorText = await response.text().catch(() => 'Unknown error');
 			throw new MetadataFetchError(`Failed to fetch metadata: ${errorText}`, response.status);
 		}
-
-		const metadata: UrlMetadata = await response.json();
-		return metadata;
 	} catch (error) {
-		clearTimeout(timeoutId);
-
 		if (error instanceof MetadataFetchError) {
 			throw error;
 		}
@@ -95,5 +90,7 @@ export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
 		}
 
 		throw new MetadataFetchError('Unknown error occurred while fetching metadata');
+	} finally {
+		clearTimeout(timeoutId);
 	}
 }

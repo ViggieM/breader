@@ -8,6 +8,7 @@
 	} from '$lib/utils/metadata';
 	import { networkState } from '$lib/stores/network.svelte';
 	import type { PageProps } from './$types';
+	import { isValidHttpUrl } from '$lib/utils/url-validation';
 
 	const { data }: PageProps = $props();
 
@@ -31,15 +32,8 @@
 			return;
 		}
 
-		let validUrl: URL;
-		try {
-			validUrl = new URL(url);
-		} catch {
-			return; // Invalid URL, skip metadata fetching
-		}
-
-		if (!['http:', 'https:'].includes(validUrl.protocol)) {
-			return; // Only HTTP/HTTPS URLs
+		if (!isValidHttpUrl(url)) {
+			return;
 		}
 
 		// Don't fetch if user has already entered a title
