@@ -3,7 +3,6 @@
 	import { getTheme, themes } from '$lib/stores/theme.svelte';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { enhance } from '$app/forms';
-	import TagManager from '$lib/components/TagManager.svelte';
 
 	let { data } = $props();
 	let { session } = data;
@@ -33,12 +32,6 @@
 </div>
 
 <h2 class="mt-8">Settings</h2>
-
-<h3 class="mt-4">Manage Tags</h3>
-
-<div class="mt-2">
-	<TagManager />
-</div>
 
 <h3 class="mt-4">Theme</h3>
 

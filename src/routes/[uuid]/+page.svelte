@@ -9,7 +9,7 @@
 	import { invalidateAll } from '$app/navigation';
 
 	const { data } = $props();
-	const bookmark: Bookmark = $derived(data.bookmark);
+	const bookmark: Bookmark = data.bookmark;
 
 	const selectedTags = new SvelteSet<string>();
 	let hasUnsavedChanges = $state(false);

@@ -32,6 +32,11 @@
 					>
 				</li>
 			{/if}
+			<li>
+				<a href="/tags" class="flex justify-between"
+					>Tags <span class="icon-[ri--price-tag-3-fill]"></span></a
+				>
+			</li>
 			{#if $canInstall}
 				<li>
 					<button class="btn btn-primary btn-sm" onclick={installPWA}>
