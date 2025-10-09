@@ -7,16 +7,16 @@
 	let props = $props();
 	let session = $derived(page.data.session);
 	let themeDialog = $state() as HTMLDialogElement;
+	let menuDropdown = $state() as HTMLDetailsElement;
 
 	// Close dropdown after navigation
 	afterNavigate(() => {
-		const openDetails = document.querySelectorAll('details[open]');
-		openDetails.forEach((details) => details.removeAttribute('open'));
+		menuDropdown.removeAttribute('open');
 	});
 </script>
 
 <nav aria-label="Main navigation" class={props.class}>
-	<details class="dropdown dropdown-end">
+	<details bind:this={menuDropdown} class="dropdown dropdown-end">
 		<summary class="btn btn-ghost btn-square">
 			<span class="icon-[hugeicons--menu-11]"></span>
 		</summary>
@@ -27,8 +27,12 @@
 				>
 			</li>
 			<li>
-				<button class="flex justify-between" onclick={() => themeDialog.showModal()}
-					>Change Theme <span class="icon-[ri--sparkling-2-fill]"></span></button
+				<button
+					class="flex justify-between"
+					onclick={() => {
+						menuDropdown.removeAttribute('open');
+						themeDialog.showModal();
+					}}>Change Theme <span class="icon-[ri--sparkling-2-fill]"></span></button
 				>
 			</li>
 			{#if !session}
