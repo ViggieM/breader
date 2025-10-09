@@ -4,6 +4,8 @@
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { PageProps } from './$types';
 	import { db } from '$lib/db';
+	import { getFavicon } from '$lib/utils/favicon';
+	import OvertypeEditor from '$lib/components/OvertypeEditor.svelte';
 
 	const { data }: PageProps = $props();
 
@@ -37,18 +39,10 @@
 </script>
 
 <form onsubmit={_handleSubmit} class="flex-1 md:flex-none space-y-4 pb-20 p-2" id="add-bookmark">
-	<div class="form-group">
-		<label class="floating-label">
-			<span>Title</span>
-			<input
-				name="title"
-				type="text"
-				bind:value={title}
-				placeholder="Bookmark title"
-				class="input input-md w-full"
-			/>
-		</label>
-	</div>
+	<header class="flex items-center gap-3">
+		<img src={getFavicon(url)} class="size-4" alt="Favicon" />
+		<h1 class="text-lg font-medium flex-1 mt-0" contenteditable="true" bind:innerText={title}></h1>
+	</header>
 
 	<div class="form-group">
 		<label class="floating-label">
@@ -64,18 +58,8 @@
 			/>
 		</label>
 	</div>
-
-	<div class="form-group">
-		<label class="floating-label">
-			<span>Description</span>
-			<textarea
-				name="description"
-				bind:value={description}
-				placeholder="Description (optional)"
-				rows="3"
-				class="textarea input-md w-full"
-			></textarea>
-		</label>
+	<div class="shadow">
+		<OvertypeEditor content={description} padding="0.5rem" />
 	</div>
 
 	<div class="form-group">

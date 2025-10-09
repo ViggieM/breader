@@ -32,7 +32,7 @@
 		const currentDetails = event.target as HTMLDetailsElement;
 		if (currentDetails.open) {
 			// Close all other details elements
-			const allDetails = document.querySelectorAll('.UrlList details');
+			const allDetails = document.querySelectorAll('.url-list-item details');
 			allDetails.forEach((details) => {
 				if (details !== currentDetails) {
 					details.removeAttribute('open');
@@ -64,7 +64,7 @@
 				</summary>
 				<article>
 					<!-- eslint-disable-next-line svelte/no-at-html-tags -->
-					<p class="prose">{@html marked(bookmark.description)}</p>
+					<p class="prose">{@html marked(bookmark.description || '')}</p>
 					<div class="flex items-center justify-end mt-2">
 						{#if bookmark.hasBody}
 							<a href={bookmark.localUrl} class="link">See more →</a>

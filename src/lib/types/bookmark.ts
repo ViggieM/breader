@@ -1,10 +1,4 @@
-function getDomainFromUrl(url: string): string {
-	try {
-		return new URL(url).hostname;
-	} catch {
-		return url;
-	}
-}
+import { getFavicon } from '$lib/utils/favicon';
 
 // Type for data stored in the database (excludes computed properties)
 export type BookmarkData = Omit<Bookmark, 'faviconUrl' | 'localUrl' | 'hasBody'>;
@@ -38,8 +32,7 @@ export class Bookmark {
 	}
 
 	get faviconUrl(): string {
-		const domain = getDomainFromUrl(this.url);
-		return `https://www.google.com/s2/favicons?domain=${domain}`;
+		return getFavicon(this.url);
 	}
 
 	get localUrl(): string {

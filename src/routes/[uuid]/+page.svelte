@@ -4,12 +4,11 @@
 	import { tagsData } from '$lib/stores/search.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { db } from '$lib/db';
-	import { onMount } from 'svelte';
-	import OverType, { type OverTypeInstance } from 'overtype';
 	import { invalidateAll } from '$app/navigation';
+	import OvertypeEditor from '$lib/components/OvertypeEditor.svelte';
 
 	const { data } = $props();
-	const bookmark: Bookmark = data.bookmark;
+	let bookmark: Bookmark = $derived(data.bookmark);
 
 	const selectedTags = new SvelteSet<string>();
 	let hasUnsavedChanges = $state(false);
@@ -24,19 +23,7 @@
 	let description = $state(bookmark.description);
 	let isReviewed = $state(bookmark.isReviewed);
 
-	let editor = $state() as HTMLDivElement;
-	let overtype = $state() as OverTypeInstance;
-
-	onMount(() => {
-		[overtype] = OverType.init(editor, {
-			value: bookmark.description,
-			padding: '0',
-			autoResize: true,
-			onChange: (value) => {
-				description = value;
-			}
-		});
-	});
+	let descriptionEditor = $state() as OvertypeEditor;
 
 	$effect(() => {
 		selectedTags.clear();
@@ -84,7 +71,7 @@
 		// reset title
 		title = bookmark.title;
 		// reset description
-		overtype.setValue(bookmark.description);
+		descriptionEditor.resetEditor();
 		// reset tags
 		selectedTags.clear();
 		initialTagsSet.forEach((tagId) => selectedTags.add(tagId));
@@ -184,8 +171,14 @@
 
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Description</dt>
-				<dd class="text-sm">
-					<div bind:this={editor}></div>
+				<dd class="shadow">
+					{#key bookmark.description}
+						<OvertypeEditor
+							bind:this={descriptionEditor}
+							bind:content={description}
+							padding="0.5rem"
+						/>
+					{/key}
 				</dd>
 			</div>
 		</dl>
