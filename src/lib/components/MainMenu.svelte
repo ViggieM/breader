@@ -13,6 +13,18 @@
 	afterNavigate(() => {
 		menuDropdown.removeAttribute('open');
 	});
+
+	// Close dropdown when clicking outside
+	$effect(() => {
+		const handleClickOutside = (event: MouseEvent) => {
+			if (menuDropdown && !menuDropdown.contains(event.target as Node)) {
+				menuDropdown.removeAttribute('open');
+			}
+		};
+
+		document.addEventListener('click', handleClickOutside);
+		return () => document.removeEventListener('click', handleClickOutside);
+	});
 </script>
 
 <nav aria-label="Main navigation" class={props.class}>
