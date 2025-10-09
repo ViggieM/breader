@@ -1,21 +1,17 @@
 <script lang="ts">
 	import '../styles/app.css';
-	import { browser } from '$app/environment';
 	import { invalidate } from '$app/navigation';
 	import { onMount } from 'svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import MainMenu from '$lib/components/MainMenu.svelte';
 	import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
-	import { getTheme } from '$lib/stores/theme.svelte';
+	import { initializeTheme } from '$lib/stores/theme.svelte';
 
 	let { children, data } = $props();
 	let { session, supabase } = data;
-	const theme = getTheme();
 
 	$effect(() => {
-		if (browser) {
-			document.documentElement.setAttribute('data-theme', theme.current);
-		}
+		initializeTheme();
 	});
 
 	onMount(() => {

@@ -1,57 +1,62 @@
-import { browser } from '$app/environment';
+export const themes = ['light', 'dark', 'cupcake', 'retro', 'cyberpunk', 'dracula'];
 
-export const themes = [
-	{ value: 'light', label: 'Light' },
-	{ value: 'dark', label: 'Dark' },
-	{ value: 'cupcake', label: 'Cupcake' },
-	{ value: 'bumblebee', label: 'Bumblebee' },
-	{ value: 'emerald', label: 'Emerald' },
-	{ value: 'corporate', label: 'Corporate' },
-	{ value: 'synthwave', label: 'Synthwave' },
-	{ value: 'retro', label: 'Retro' },
-	{ value: 'cyberpunk', label: 'Cyberpunk' },
-	{ value: 'valentine', label: 'Valentine' },
-	{ value: 'halloween', label: 'Halloween' },
-	{ value: 'garden', label: 'Garden' },
-	{ value: 'forest', label: 'Forest' },
-	{ value: 'aqua', label: 'Aqua' },
-	{ value: 'lofi', label: 'LoFi' },
-	{ value: 'pastel', label: 'Pastel' },
-	{ value: 'fantasy', label: 'Fantasy' },
-	{ value: 'wireframe', label: 'Wireframe' },
-	{ value: 'black', label: 'Black' },
-	{ value: 'luxury', label: 'Luxury' },
-	{ value: 'dracula', label: 'Dracula' },
-	{ value: 'cmyk', label: 'CMYK' },
-	{ value: 'autumn', label: 'Autumn' },
-	{ value: 'business', label: 'Business' },
-	{ value: 'acid', label: 'Acid' },
-	{ value: 'lemonade', label: 'Lemonade' },
-	{ value: 'night', label: 'Night' },
-	{ value: 'coffee', label: 'Coffee' },
-	{ value: 'winter', label: 'Winter' },
-	{ value: 'dim', label: 'Dim' },
-	{ value: 'nord', label: 'Nord' },
-	{ value: 'sunset', label: 'Sunset' },
-	{ value: 'abyss', label: 'Abyss' },
-	{ value: 'silk', label: 'Silk' }
-];
+export type Theme = (typeof themes)[number];
 
-let theme = $state(browser ? localStorage.getItem('theme') || 'light' : 'light');
+export const DEFAULT_THEME: Theme = 'light';
 
-export function getTheme() {
-	return {
-		get current() {
-			return theme;
-		},
-		set(newTheme: string) {
-			theme = newTheme;
-			if (browser) {
-				localStorage.setItem('theme', newTheme);
-			}
-		},
-		toggle() {
-			this.set(theme === 'light' ? 'dark' : 'light');
+export function isValidTheme(theme: string): theme is Theme {
+	return themes.includes(theme as Theme);
+}
+
+let currentTheme = $state<Theme>(DEFAULT_THEME);
+
+export function getTheme(): Theme {
+	return currentTheme;
+}
+
+export function setTheme(newTheme: Theme): void {
+	if (!isValidTheme(newTheme)) {
+		console.warn(`Invalid theme: ${newTheme}`);
+		return;
+	}
+
+	currentTheme = newTheme;
+
+	if (typeof window !== 'undefined') {
+		// Update DOM attribute immediately
+		document.documentElement.setAttribute('data-theme', newTheme);
+
+		// Save to localStorage
+		window.localStorage.setItem('theme', newTheme);
+
+		// Save to cookie with 1 year expiration
+		const oneYear = 60 * 60 * 24 * 365;
+		document.cookie = `theme=${newTheme}; max-age=${oneYear}; path=/; SameSite=Strict;`;
+	}
+}
+
+export function initializeTheme(): void {
+	if (typeof window === 'undefined') return;
+
+	try {
+		// Try to get theme from localStorage first
+		const savedTheme = window.localStorage.getItem('theme');
+		if (savedTheme && isValidTheme(savedTheme)) {
+			currentTheme = savedTheme;
+			return;
 		}
-	};
+
+		// Fall back to DOM attribute (server-rendered theme)
+		const domTheme = document.documentElement.getAttribute('data-theme');
+		if (domTheme && isValidTheme(domTheme)) {
+			currentTheme = domTheme;
+			return;
+		}
+
+		// Final fallback to default theme
+		currentTheme = DEFAULT_THEME;
+	} catch (error) {
+		console.error('Error initializing theme:', error);
+		currentTheme = DEFAULT_THEME;
+	}
 }
