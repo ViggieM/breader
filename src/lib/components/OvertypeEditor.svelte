@@ -10,7 +10,7 @@
 
 	onMount(() => {
 		[editor] = OverType.init(node, {
-			toolbar: true,
+			toolbar: false,
 			value: initialValue,
 			padding: '0',
 			autoResize: true,
