@@ -28,7 +28,7 @@ export class NetworkUnavailableError extends MetadataFetchError {
 	}
 }
 
-export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
+export async function fetchUrlMetadata(bookmarkId: string, url: string): Promise<UrlMetadata> {
 	// Check if we're offline first
 	if (typeof navigator !== 'undefined' && !navigator.onLine) {
 		throw new NetworkUnavailableError();
@@ -48,8 +48,9 @@ export async function fetchUrlMetadata(url: string): Promise<UrlMetadata> {
 	const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
 	try {
-		const response = await fetch(`/api/fetch-metadata?url=${encodeURIComponent(url)}`, {
-			method: 'GET',
+		const response = await fetch(`/api/fetch-metadata`, {
+			method: 'POST',
+			body: JSON.stringify({ bookmarkId, url }),
 			headers: {
 				'Content-Type': 'application/json'
 			},

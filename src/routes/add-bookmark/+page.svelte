@@ -8,116 +8,15 @@
 	} from '$lib/utils/metadata';
 	import { networkState } from '$lib/stores/network.svelte';
 	import type { PageProps } from './$types';
-	import { isValidHttpUrl } from '$lib/utils/url-validation';
 
 	const { data }: PageProps = $props();
 
-	let title = $state(data.articleData.title || '');
 	let url = $state(data.articleData.url || '');
-	let description = $state(data.articleData.description || '');
 	let tags = $state('');
 	let saving = $state(false);
 	let isReviewed = $state(false);
 	let isStarred = $state(false);
 	let fetchingMetadata = $state(false);
-
-	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-	let lastFetchedUrl = $state('');
-	let metadataError = $state('');
-	let canFetchMetadata = $state(false);
-	let metadataPromise: Promise<void> | null = null;
-
-	async function handleMetadataFetch() {
-		if (!url || url === lastFetchedUrl || fetchingMetadata || metadataPromise) {
-			return;
-		}
-
-		if (!isValidHttpUrl(url)) {
-			return;
-		}
-
-		// Don't fetch if user has already entered a title
-		if (title.trim()) {
-			return;
-		}
-
-		lastFetchedUrl = url;
-		fetchingMetadata = true;
-
-		metadataPromise = (async () => {
-			try {
-				const metadata = await fetchUrlMetadata(url);
-
-				// Only populate if fields are still empty (user might have typed while fetching)
-				if (!title.trim() && metadata.title) {
-					title = metadata.title;
-				}
-
-				if (!description.trim() && metadata.description) {
-					description = metadata.description;
-				}
-
-				if (metadata.keywords.length > 0) {
-					const existingTags = tags
-						.split(',')
-						.map((t) => t.trim())
-						.filter((t) => t);
-					const newKeywords = metadata.keywords.filter((k) => !existingTags.includes(k));
-					if (newKeywords.length > 0) {
-						tags = existingTags.concat(newKeywords).join(', ');
-					}
-				}
-			} catch (error) {
-				if (error instanceof NetworkUnavailableError) {
-					metadataError = 'No internet connection - please enter details manually';
-					console.warn('Network unavailable for metadata fetching');
-				} else if (error instanceof MetadataFetchError) {
-					console.warn('Failed to fetch metadata:', error.message);
-				} else {
-					console.error('Unexpected error fetching metadata:', error);
-				}
-			} finally {
-				fetchingMetadata = false;
-			}
-		})();
-
-		try {
-			await metadataPromise;
-		} finally {
-			metadataPromise = null;
-		}
-	}
-
-	// Update canFetchMetadata based on URL and network state
-	$effect(() => {
-		let validUrl: URL;
-		try {
-			validUrl = new URL(url);
-			canFetchMetadata = ['http:', 'https:'].includes(validUrl.protocol) && networkState.isOnline;
-		} catch {
-			canFetchMetadata = false;
-		}
-	});
-
-	// Auto-fetch metadata with debouncing
-	$effect(() => {
-		if (debounceTimer) {
-			clearTimeout(debounceTimer);
-		}
-
-		// Only auto-fetch if online
-		if (networkState.isOnline) {
-			debounceTimer = setTimeout(() => {
-				handleMetadataFetch();
-			}, 500);
-		}
-
-		return () => {
-			if (debounceTimer) {
-				clearTimeout(debounceTimer);
-			}
-		};
-	});
 
 	async function _handleSubmit(
 		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
@@ -125,13 +24,13 @@
 		event.preventDefault();
 		const formData = new FormData(event.currentTarget);
 
+		const url = formData.get('url') as string;
+
 		saving = true;
 
 		try {
 			const id = await db.bookmarks.add({
-				title: (formData.get('title') as string) || 'Untitled',
-				url: formData.get('url') as string,
-				description: (formData.get('description') as string) || '',
+				url,
 				tags: ((formData.get('tags') as string) || '')
 					.split(',')
 					.map((tag) => tag.trim())
@@ -143,10 +42,21 @@
 				isStarred
 			});
 
+			// trigger a fetch of the metadata.
+			// This request is intercepted and handled by the service worker, so we don't need to await here
+			fetch(`/api/fetch-metadata`, {
+				method: 'POST',
+				body: JSON.stringify({ id, url }),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			});
+
 			// navigate to the newly created bookmark
 			// use replaceState to prevent browser back button from returning to this form
-			await goto(`/#${id}`, { replaceState: true });
+			await goto(`/${id}`, { replaceState: true });
 		} catch (error) {
+			// todo: add a notification here instead of just a console error
 			console.error('Error saving bookmark:', error);
 		} finally {
 			saving = false;
@@ -159,19 +69,6 @@
 	class="flex-1 md:flex-none space-y-4 pb-20 md:pb-4"
 	id="add-bookmark"
 >
-	<div class="form-group">
-		<label class="floating-label">
-			<span>Title</span>
-			<input
-				name="title"
-				type="text"
-				bind:value={title}
-				placeholder="Bookmark title"
-				class="input input-md w-full"
-			/>
-		</label>
-	</div>
-
 	<div class="form-group">
 		<label class="floating-label">
 			<span>URL</span>
@@ -202,33 +99,6 @@
 				</div>
 			{/if}
 		</label>
-		<div id="url-status" aria-live="polite" class="mt-1">
-			{#if fetchingMetadata}
-				<small class="text-base-content/60">Fetching page metadata...</small>
-			{:else if metadataError}
-				<small class="text-warning">{metadataError}</small>
-			{:else if networkState.isOffline}
-				<small class="text-base-content/60"
-					>Offline - Please enter title and description manually</small
-				>
-			{:else if url && canFetchMetadata && !title.trim()}
-				<small class="text-base-content/60">Click refresh button to fetch page metadata</small>
-			{/if}
-		</div>
-	</div>
-
-	<div class="form-group">
-		<label class="floating-label">
-			<span>Description</span>
-			<textarea
-				name="description"
-				bind:value={description}
-				placeholder="Description (optional)"
-				rows="3"
-				class="textarea input-md w-full"
-			></textarea>
-		</label>
-		<small>This is the description shown when you click on a bookmark on the index page</small>
 	</div>
 
 	<div class="form-group">

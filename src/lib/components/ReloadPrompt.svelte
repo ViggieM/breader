@@ -1,0 +1,89 @@
+<!-- ABOUTME: PWA reload prompt component that notifies users when the app is ready offline or when new content is available -->
+<!-- ABOUTME: Uses virtual:pwa-register/svelte to handle service worker registration and updates -->
+<script lang="ts">
+	import { useRegisterSW } from 'virtual:pwa-register/svelte';
+	import { dev } from '$app/environment';
+
+	const intervalMS = 60 * 60 * 1000;
+	const { needRefresh, updateServiceWorker, offlineReady } = useRegisterSW({
+		onRegisteredSW(swScriptUrl, registration) {
+			console.log(`SW Registered: ${registration}`);
+
+			/* Periodically check for updates */
+			if (registration) {
+				setInterval(
+					() => {
+						console.log('SW Checking for updates');
+						registration.update();
+					},
+					dev ? 3000 : intervalMS
+				);
+			}
+		},
+		onRegisterError(error) {
+			console.log('SW registration error', error);
+		},
+		onNeedRefresh() {
+			console.log(`SW needs refresh`);
+		},
+		onOfflineReady() {
+			console.log(`SW was installed and is now ready to serve offline requests`);
+		}
+	});
+
+	const close = () => {
+		offlineReady.set(false);
+		needRefresh.set(false);
+	};
+
+	// Derived state using $derived rune
+	const toast = $derived($offlineReady || $needRefresh);
+</script>
+
+{#if toast}
+	<div class="pwa-toast" role="alert">
+		<div class="message">
+			{#if $offlineReady}
+				<span> App ready to work offline </span>
+			{:else}
+				<span> New content available, click on reload button to update. </span>
+			{/if}
+		</div>
+		{#if $needRefresh}
+			<button
+				onclick={() => {
+					updateServiceWorker(true);
+				}}
+			>
+				Reload
+			</button>
+		{/if}
+		<button onclick={close}> Close </button>
+	</div>
+{/if}
+
+<style>
+	.pwa-toast {
+		position: fixed;
+		right: 0;
+		bottom: 0;
+		margin: 16px;
+		padding: 12px;
+		border: 1px solid #8885;
+		border-radius: 4px;
+		z-index: 2;
+		text-align: left;
+		box-shadow: 3px 4px 5px 0 #8885;
+		background-color: white;
+	}
+	.pwa-toast .message {
+		margin-bottom: 8px;
+	}
+	.pwa-toast button {
+		border: 1px solid #8885;
+		outline: none;
+		margin-right: 5px;
+		border-radius: 2px;
+		padding: 3px 10px;
+	}
+</style>

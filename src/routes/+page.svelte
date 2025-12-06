@@ -32,6 +32,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Breader</title>
+</svelte:head>
+
 <main id="main-content">
 	<section>
 		<label for="search-input" class="sr-only">Search for content</label>
@@ -44,7 +48,8 @@
 			class="input w-full"
 		/>
 		<div class="my-2">
-			<SearchFilter></SearchFilter>
+			<a href="/add-bookmark" class="btn btn-primary">Add Bookmark</a>
+			<!-- <SearchFilter></SearchFilter> -->
 		</div>
 
 		{#if $results.length > 0}

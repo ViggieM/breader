@@ -1,30 +1,54 @@
 // ABOUTME: Self-destructing service worker that unregisters itself and clears all caches
 // ABOUTME: This service worker will remove itself and clean up on activation
+/// <reference lib="webworker" />
+
+import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
+import { clientsClaim } from 'workbox-core';
+import { Queue } from 'workbox-background-sync';
+import { db } from '../lib/db';
 
 // This gives `self` the correct types
-const self = globalThis.self as unknown as ServiceWorkerGlobalScope;
+declare let self: ServiceWorkerGlobalScope;
 
-self.addEventListener('install', (event) => {
-	// Skip waiting to activate immediately
-	self.skipWaiting();
-});
+// this makes sure all other assets are saved for offline use
+cleanupOutdatedCaches();
+precacheAndRoute(self.__WB_MANIFEST || []);
 
-self.addEventListener('activate', (event) => {
-	async function selfDestruct() {
-		// Delete all caches
-		const cacheNames = await caches.keys();
-		await Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)));
-		console.log('Service worker: All caches cleared');
-
-		// Unregister this service worker
-		await self.registration.unregister();
-		console.log('Service worker: Unregistered successfully');
+// You need to include on your service worker at least this code
+// https://vite-pwa-org.netlify.app/guide/inject-manifest.html#service-worker-code-2
+self.addEventListener('message', (event) => {
+	if (event.data && event.data.type === 'SKIP_WAITING') {
+		self.skipWaiting();
+		clientsClaim();
 	}
-
-	event.waitUntil(selfDestruct());
 });
+
+const queue = new Queue('FetchMetadata');
 
 self.addEventListener('fetch', (event) => {
-	// Pass through all requests without intercepting
-	return;
+	const url = new URL(event.request.url);
+	if (event.request.method !== 'POST' || !url.pathname.includes('/api/fetch-metadata')) {
+		return;
+	}
+
+	const bgFetchMeta = async () => {
+		try {
+			const controller = new AbortController();
+			setTimeout(() => controller.abort(), 10000); // 10 second timeout
+			const response = await fetch(event.request.clone(), { signal: controller.signal });
+			const meta = await response.clone().json();
+			const { bookmarkId, ...data } = meta;
+			await db.bookmarks.update(bookmarkId, { meta: data, title: data.title });
+			return response;
+		} catch (error) {
+			if (error.name === 'AbortError') {
+				console.log('FetchMetadata Request Aborted');
+				// todo: think about how to handle repeated timeouts and unnecessary Queue pollution
+			}
+			await queue.pushRequest({ request: event.request });
+			return error;
+		}
+	};
+
+	event.respondWith(bgFetchMeta());
 });

@@ -118,8 +118,13 @@ export const OPTIONS: RequestHandler = async () => {
 	});
 };
 
-export const GET: RequestHandler = async ({ url }) => {
-	const targetUrl = url.searchParams.get('url');
+export const POST: RequestHandler = async ({ request }) => {
+	const body = (await request.json()) as { id?: string; url?: string };
+	const { id: bookmarkId, url: targetUrl } = body;
+
+	if (!bookmarkId) {
+		return error(400, 'Bookmark ID parameter is required');
+	}
 
 	if (!targetUrl) {
 		return error(400, 'URL parameter is required');
@@ -185,12 +190,15 @@ export const GET: RequestHandler = async ({ url }) => {
 
 		const metadata = extractMetadata(html, targetUrl);
 
-		return json(metadata, {
-			headers: {
-				...CORS_HEADERS,
-				'Content-Security-Policy': "default-src 'none'"
+		return json(
+			{ bookmarkId, ...metadata },
+			{
+				headers: {
+					...CORS_HEADERS,
+					'Content-Security-Policy': "default-src 'none'"
+				}
 			}
-		});
+		);
 	} catch (err) {
 		console.error('Fetch error:', err);
 		// Don't expose internal error details
