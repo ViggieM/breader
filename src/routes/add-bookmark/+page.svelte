@@ -1,12 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { db } from '$lib/db';
-	import {
-		fetchUrlMetadata,
-		MetadataFetchError,
-		NetworkUnavailableError
-	} from '$lib/utils/metadata';
-	import { networkState } from '$lib/stores/network.svelte';
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
@@ -16,7 +10,6 @@
 	let saving = $state(false);
 	let isReviewed = $state(false);
 	let isStarred = $state(false);
-	let fetchingMetadata = $state(false);
 
 	async function _handleSubmit(
 		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
@@ -78,26 +71,9 @@
 				bind:value={url}
 				placeholder="https://example.com"
 				class="input input-md w-full"
-				class:pr-9={fetchingMetadata}
 				required
 				aria-describedby="url-status"
 			/>
-			{#if fetchingMetadata}
-				<div class="absolute right-3 top-1.5" aria-hidden="true">
-					<span class="loading loading-spinner loading-xs"></span>
-				</div>
-			{:else if networkState.isOffline && url}
-				<div
-					class="absolute right-3 top-1/2 -translate-y-1/2 tooltip tooltip-left"
-					data-tip="Offline"
-					aria-label="Currently offline"
-				>
-					<span
-						class="icon-[iconify--material-symbols--wifi-off] text-warning text-sm"
-						aria-hidden="true"
-					></span>
-				</div>
-			{/if}
 		</label>
 	</div>
 
