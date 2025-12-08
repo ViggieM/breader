@@ -38,30 +38,32 @@
 
 <main id="main-content">
 	<section>
-		<label for="search-input" class="sr-only">Search for content</label>
-		<input
-			id="search-input"
-			type="search"
-			bind:value={$filters.query}
-			oninput={updateURL}
-			placeholder="Search..."
-			class="input w-full"
-		/>
-		<div class="my-2">
-			<a href="/add-bookmark" class="btn btn-primary">Add Bookmark</a>
-			<!-- <SearchFilter></SearchFilter> -->
+		<div class="flex gap-2">
+			<label for="search-input" class="sr-only">Search for content</label>
+			<input
+				id="search-input"
+				type="search"
+				bind:value={$filters.query}
+				oninput={updateURL}
+				placeholder="Search..."
+				class="input w-full"
+			/>
+			<a href="/add-bookmark" class="btn btn-primary">
+				<span class="icon-[ri--add-large-fill]"></span>
+			</a>
 		</div>
-
-		{#if $results.length > 0}
-			<UrlList items={$results} />
-		{:else if $results}
-			<p class="flex items-center justify-center gap-2 text-base-content/60">
-				No bookmarks found matching your search criteria.
-			</p>
-		{:else}
-			<p class="flex items-center justify-center gap-2">
-				<span class="loading loading-spinner loading-lg"></span> Loading bookmarks...
-			</p>
-		{/if}
+		<div class="mt-4">
+			{#if $results.length > 0}
+				<UrlList items={$results} />
+			{:else if $results}
+				<p class="flex items-center justify-center gap-2 text-base-content/60">
+					No bookmarks found matching your search criteria.
+				</p>
+			{:else}
+				<p class="flex items-center justify-center gap-2">
+					<span class="loading loading-spinner loading-lg"></span> Loading bookmarks...
+				</p>
+			{/if}
+		</div>
 	</section>
 </main>
