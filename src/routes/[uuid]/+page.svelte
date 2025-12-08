@@ -1,14 +1,31 @@
 <script lang="ts">
-	import type { Bookmark } from '$lib/types';
+	import { Bookmark } from '$lib/types';
 	import MultiSelectTags from '$lib/components/MultiSelectTags.svelte';
 	import { tagsData } from '$lib/stores/search.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { db } from '$lib/db';
 	import { invalidateAll } from '$app/navigation';
 	import OvertypeEditor from '$lib/components/OvertypeEditor.svelte';
+	import { liveQuery } from 'dexie';
 
 	const { data } = $props();
-	let bookmark: Bookmark = $derived(data.bookmark);
+
+	// Live updates from Dexie
+	const liveBookmarkData = liveQuery(() => db.bookmarks.get(data.uuid));
+
+	// Start with loaded data, then update from live query
+	let bookmark: Bookmark = $state(data.bookmark);
+	let title = $state(bookmark.title);
+	let description = $state(bookmark.description);
+	let isReviewed = $state(bookmark.isReviewed);
+
+	liveBookmarkData.subscribe((value) => {
+		if (value) {
+			bookmark = new Bookmark(value);
+			title = bookmark.title;
+			description = bookmark.description;
+		}
+	});
 
 	const selectedTags = new SvelteSet<string>();
 	let hasUnsavedChanges = $state(false);
@@ -18,10 +35,6 @@
 	//  would be nice to have it more concentrated in one place
 	let multiSelectDetails = $state() as HTMLDetailsElement;
 	let copied = $state(false);
-
-	let title = $state(bookmark.title);
-	let description = $state(bookmark.description);
-	let isReviewed = $state(bookmark.isReviewed);
 
 	let descriptionEditor = $state() as OvertypeEditor;
 

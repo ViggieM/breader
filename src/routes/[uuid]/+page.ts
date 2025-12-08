@@ -22,6 +22,7 @@ export const load: PageLoad = async ({ params }) => {
 	const bookmark = new Bookmark(data);
 
 	return {
-		bookmark
+		bookmark,
+		uuid: params.uuid
 	};
 };
