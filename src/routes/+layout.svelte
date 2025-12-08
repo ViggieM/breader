@@ -6,6 +6,7 @@
 	import MainMenu from '$lib/components/MainMenu.svelte';
 	import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
 	import { initializeTheme } from '$lib/stores/theme.svelte';
+	import { page } from '$app/state';
 
 	let { children, data } = $props();
 	let { session, supabase } = data;
@@ -23,6 +24,8 @@
 
 		return () => data.subscription.unsubscribe();
 	});
+
+	const isHeaderHidden = page.route.id === '/quick-add';
 </script>
 
 <svelte:head>
@@ -46,10 +49,12 @@
 	Skip to main content
 </a>
 
-<header>
-	<Logo class="col-2"></Logo>
-	<MainMenu class="col-3 justify-self-end"></MainMenu>
-</header>
+{#if !isHeaderHidden}
+	<header>
+		<Logo class="col-2"></Logo>
+		<MainMenu class="col-3 justify-self-end"></MainMenu>
+	</header>
+{/if}
 
 {@render children?.()}
 

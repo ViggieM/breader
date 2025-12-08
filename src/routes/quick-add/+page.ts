@@ -10,6 +10,7 @@ export const load: PageLoad = ({ url }) => {
 	};
 
 	return {
-		articleData
+		articleData,
+		isHeaderHidden: true
 	};
 };
