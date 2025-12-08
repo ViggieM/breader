@@ -1,15 +1,15 @@
 import { error } from '@sveltejs/kit';
 import { db } from '$lib/db';
-import { List, type ListData } from '$lib/types';
+import { Tag, type TagData } from '$lib/types';
 import type { PageLoad } from './$types';
 
 // this needs to be client side rendered, since we don't have any indexDB access on the server
 export const ssr = false;
 
 export const load: PageLoad = async ({ params }) => {
-	let data: ListData | undefined;
+	let data: TagData | undefined;
 	try {
-		data = await db.lists.get(params.uuid);
+		data = await db.tags.get(params.uuid);
 	} catch (err) {
 		console.log(err);
 	}
@@ -18,10 +18,10 @@ export const load: PageLoad = async ({ params }) => {
 		error(404, 'Bookmark not found');
 	}
 
-	const list = new List(data);
+	const tag = new Tag(data);
 
 	return {
-		list,
+		tag,
 		uuid: params.uuid
 	};
 };

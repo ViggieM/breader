@@ -1,10 +1,13 @@
 <script lang="ts">
-	import { db } from '$lib/db';
 	import UrlList from '$lib/components/UrlList.svelte';
-	import { liveQuery } from 'dexie';
 	import SearchBar, { results } from '$lib/components/SearchBar.svelte';
+	import { childrenMap, tagMap } from '$lib/stores/tags.svelte';
+	import { derived } from 'svelte/store';
+	import { Tag } from '$lib/types';
 
-	const lists = liveQuery(() => db.lists.toArray());
+	const tags = derived(childrenMap, (childrenMap) => {
+		return childrenMap.get('root')?.map((tagId) => new Tag($tagMap.get(tagId)));
+	});
 </script>
 
 <svelte:head>
@@ -24,8 +27,8 @@
 		<a href="/list/notes" class="list-card"
 			><span class="icon-[ri--sticky-note-line]"></span>Notes</a
 		>
-		{#each $lists as list (list.id)}
-			<a href={`/list/${list.id}`} class="list-card">{list.name}</a>
+		{#each $tags as tag (tag.id)}
+			<a href={`/list/${tag.id}`} class="list-card">{tag.name}</a>
 		{/each}
 	</section>
 

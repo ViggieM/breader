@@ -1,10 +1,11 @@
 <script lang="ts">
-	// ABOUTME: Multi-level hierarchical tag selection component using Svelte 5 runes
-	// ABOUTME: Optimized database-driven architecture with O(1) lookups and reactive maps
-
-	import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-	import { Tag, type TagData } from '$lib/types';
+	import { descendantMap, ancestorMap, childrenMap, tagMap } from '$lib/stores/tags.svelte';
+	import { SvelteSet } from 'svelte/reactivity';
+	import { Tag } from '$lib/types';
 	import TagForm from '$lib/components/TagForm.svelte';
+
+	import { derived } from 'svelte/store';
+	let addTagModal = $state() as HTMLDialogElement;
 
 	interface RenderNode {
 		tag: Tag;
@@ -14,76 +15,23 @@
 	}
 
 	let {
-		tags,
 		selectedTags,
 		multiSelectDetails = $bindable()
 	}: {
-		tags: TagData[];
 		selectedTags: SvelteSet<string>;
 		multiSelectDetails?: HTMLDetailsElement;
 	} = $props();
 
-	let addTagModal = $state() as HTMLDialogElement;
-
-	const tagInstances = $derived(tags.map((data) => new Tag(data)));
-
-	const tagMap = $derived.by(() => {
-		const map = new SvelteMap<string, Tag>();
-		tagInstances.forEach((tag) => map.set(tag.id, tag));
-		return map;
-	});
-
-	const childrenMap = $derived.by(() => {
-		const map = new SvelteMap<string, string[]>();
-		tagInstances.forEach((tag) => {
-			const parentId = tag.parentId || 'root';
-			if (!map.has(parentId)) map.set(parentId, []);
-			map.get(parentId)!.push(tag.id);
-		});
-		return map;
-	});
-
-	const ancestorMap = $derived.by(() => {
-		const map = new SvelteMap<string, string[]>();
-		tagInstances.forEach((tag) => {
-			const ancestors: string[] = [];
-			let current = tag.parentId;
-			while (current && tagMap.get(current)) {
-				ancestors.push(current);
-				current = tagMap.get(current)!.parentId;
-			}
-			map.set(tag.id, ancestors);
-		});
-		return map;
-	});
-
-	const descendantMap = $derived.by(() => {
-		const map = new SvelteMap<string, string[]>();
-		const getDescendants = (tagId: string): string[] => {
-			const children = childrenMap.get(tagId) || [];
-			const descendants = [...children];
-			children.forEach((childId) => {
-				descendants.push(...getDescendants(childId));
-			});
-			return descendants;
-		};
-
-		tagInstances.forEach((tag) => {
-			map.set(tag.id, getDescendants(tag.id));
-		});
-		return map;
-	});
-
 	function selectTag(tagId: string) {
 		selectedTags.add(tagId);
-		descendantMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
-		ancestorMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
+		$descendantMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
+		$ancestorMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
 	}
 
 	function toggleTag(tagId: string) {
 		if (selectedTags.has(tagId)) {
 			selectedTags.delete(tagId);
-			descendantMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
+			$descendantMap.get(tagId)?.forEach((id) => selectedTags.delete(id));
 		} else {
 			selectTag(tagId);
 		}
@@ -92,17 +40,17 @@
 	function getCheckboxState(tagId: string): 'checked' | 'indeterminate' | 'unchecked' {
 		if (selectedTags.has(tagId)) return 'checked';
 
-		const descendants = descendantMap.get(tagId) || [];
+		const descendants = $descendantMap.get(tagId) || [];
 		const hasSelectedDescendants = descendants.some((id) => selectedTags.has(id));
 
 		return hasSelectedDescendants ? 'indeterminate' : 'unchecked';
 	}
 
-	const renderTree = $derived.by(() => {
+	const renderTree = derived([childrenMap, tagMap], ([$childrenMap, $tagMap]) => {
 		const buildTree = (parentId: string | null, level = 0): RenderNode[] => {
-			const childIds = childrenMap.get(parentId || 'root') || [];
+			const childIds = $childrenMap.get(parentId || 'root') || [];
 			return childIds.map((id) => {
-				const tag = tagMap.get(id)!;
+				const tag = $tagMap.get(id)!;
 				return {
 					tag,
 					level,
@@ -116,7 +64,7 @@
 
 	export function getSelectedTagsDisplay(): Tag[] {
 		return Array.from(selectedTags)
-			.map((id) => tagMap.get(id)!)
+			.map((id) => $tagMap.get(id)!)
 			.filter(Boolean);
 	}
 </script>
@@ -203,7 +151,7 @@
 		</summary>
 
 		<ul class="menu dropdown-content menu-xs w-full p-0 mt-1">
-			{#each renderTree as node (node.tag.id)}
+			{#each $renderTree as node (node.tag.id)}
 				{@render tagNode(node)}
 			{/each}
 			<li class="mt-2">

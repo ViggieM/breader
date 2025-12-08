@@ -41,15 +41,6 @@ export const bookmarksData = readable<BookmarkData[]>([], (set) => {
 	return () => subscription.unsubscribe();
 });
 
-export const tagsData = readable<TagData[]>([], (set) => {
-	const observable = liveQuery(() => db.tags.toArray());
-	const subscription = observable.subscribe((data) => {
-		if (data) set(data);
-	});
-
-	return () => subscription.unsubscribe();
-});
-
 export const engine = derived(
 	bookmarksData,
 	($bookmarksData) => new FuseSearchEngine($bookmarksData)

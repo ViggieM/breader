@@ -3,7 +3,7 @@
 	// ABOUTME: Allows selecting a parent tag from existing tags or choosing no parent
 
 	import { SvelteMap } from 'svelte/reactivity';
-	import { tagsData } from '$lib/stores/search.svelte';
+	import { tagsData } from '$lib/stores/tags.svelte';
 	import type { TagData } from '$lib/types';
 
 	// Reactive render tree for template

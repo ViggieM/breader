@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { tagsData } from '$lib/stores/search.svelte';
 	import MultiSelectTags from '$lib/components/MultiSelectTags.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import type { PageProps } from './$types';
 	import { db } from '$lib/db';
 	import { getFavicon } from '$lib/utils/favicon';
-	import OvertypeEditor from '$lib/components/OvertypeEditor.svelte';
 
 	const { data }: PageProps = $props();
 
@@ -13,7 +11,6 @@
 	let saving = $state(false);
 	let title = $state(data.articleData.title || '');
 	let url = $state(data.articleData.url || '');
-	let description = $state(data.articleData.description || '');
 
 	async function _handleSubmit(evt: SubmitEvent) {
 		evt.preventDefault();
@@ -23,7 +20,7 @@
 			await db.bookmarks.add({
 				title: title,
 				url: url,
-				description: description,
+				description: '',
 				tags: Array.from(selectedTags),
 				created: new Date().toISOString(),
 				modified: null,
@@ -58,12 +55,9 @@
 			/>
 		</label>
 	</div>
-	<div class="shadow">
-		<OvertypeEditor content={description} padding="0.5rem" />
-	</div>
 
 	<div class="form-group">
-		<MultiSelectTags tags={$tagsData} {selectedTags} />
+		<MultiSelectTags {selectedTags} />
 	</div>
 </form>
 

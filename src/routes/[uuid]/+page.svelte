@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Bookmark } from '$lib/types';
 	import MultiSelectTags from '$lib/components/MultiSelectTags.svelte';
-	import { tagsData } from '$lib/stores/search.svelte';
 	import { SvelteSet } from 'svelte/reactivity';
 	import { db } from '$lib/db';
 	import { invalidateAll } from '$app/navigation';
@@ -178,7 +177,7 @@
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
 				<dd class="text-sm">
-					<MultiSelectTags tags={$tagsData} {selectedTags} bind:multiSelectDetails />
+					<MultiSelectTags {selectedTags} bind:multiSelectDetails />
 				</dd>
 			</div>
 
