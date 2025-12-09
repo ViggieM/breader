@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { Bookmark } from '$lib/types';
-	import MultiSelectTags from '$lib/components/MultiSelectTags.svelte';
-	import { SvelteSet } from 'svelte/reactivity';
+	import { Bookmark, Tag, type TagData } from '$lib/types';
 	import { db } from '$lib/db';
 	import { invalidateAll } from '$app/navigation';
-	import OvertypeEditor from '$lib/components/OvertypeEditor.svelte';
 	import { liveQuery } from 'dexie';
+	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
+	import { tagMap } from '$lib/stores/tags.svelte.js';
+	import { type ObjectOption } from 'svelte-multiselect';
 
 	const { data } = $props();
 
@@ -14,64 +14,67 @@
 
 	// Start with loaded data, then update from live query
 	let bookmark: Bookmark = $state(data.bookmark);
-	let title = $state(bookmark.title);
-	let description = $state(bookmark.description);
 	let isReviewed = $state(bookmark.isReviewed);
 
-	liveBookmarkData.subscribe((value) => {
-		if (value) {
-			bookmark = new Bookmark(value);
-			title = bookmark.title;
-			description = bookmark.description;
-		}
+	let selectedTags = $state([]) as ObjectOption[];
+	$effect(() => {
+		selectedTags = bookmark.tags
+			.filter((id) => $tagMap.has(id))
+			.map((id) => {
+				const tag = $tagMap.get(id) as Tag;
+				return {
+					value: tag.id,
+					label: tag.getDisplayName()
+				};
+			});
 	});
 
-	const selectedTags = new SvelteSet<string>();
 	let hasUnsavedChanges = $state(false);
 	let saving = $state(false);
-	let initialTagsSet = $state(new Set<string>());
-	// fixme: (low) multiSelectDetails only exists for closing the MultiSelectTags after saving.
-	//  would be nice to have it more concentrated in one place
-	let multiSelectDetails = $state() as HTMLDetailsElement;
 	let copied = $state(false);
-
-	let descriptionEditor = $state() as OvertypeEditor;
-
-	$effect(() => {
-		selectedTags.clear();
-		bookmark.tags.forEach((tagId) => selectedTags.add(tagId));
-		initialTagsSet = new Set(bookmark.tags);
-		hasUnsavedChanges = false;
-	});
-
-	$effect(() => {
-		const currentTagsSet = new Set(selectedTags);
-		const hasChanges =
-			title !== bookmark.title ||
-			description !== bookmark.description ||
-			currentTagsSet.size !== initialTagsSet.size ||
-			[...currentTagsSet].some((tag) => !initialTagsSet.has(tag));
-		hasUnsavedChanges = hasChanges;
-	});
 
 	async function saveChanges() {
 		saving = true;
+
 		try {
-			const tagsArray = Array.from(selectedTags);
+			let newTagIds: string[] = [];
+			// Find tags that need to be created (those without a value property)
+			const newTags = selectedTags.filter(
+				(opt) => !('value' in opt) || opt.value === undefined || opt.value === null
+			);
+
+			// Bulk create new tags if any exist
+			if (newTags.length > 0) {
+				const newTagsData = newTags.map(
+					(opt) =>
+						({
+							name: opt.label,
+							parentId: null,
+							order: 0
+						}) as TagData
+				);
+
+				// Bulk insert new tags and get their auto-generated IDs
+				newTagIds = await db.tags.bulkAdd(newTagsData, { allKeys: true });
+
+				// Update selectedTags with the newly created tag IDs
+				newTags.forEach((opt, index) => {
+					opt.value = newTagIds[index];
+				});
+			}
+
+			// Collect all tag IDs: existing tags already have values, new tags now have values
+			const tagsArray = selectedTags.map((option) => option.value) as string[];
+
+			// Update the bookmark with all tag IDs
 			await db.bookmarks.update(bookmark.id, {
-				title: title,
-				description: description,
-				tags: tagsArray,
+				tags: [...tagsArray, ...newTagIds],
 				modified: new Date().toISOString()
 			});
 
 			await invalidateAll();
 
-			initialTagsSet = new Set(tagsArray);
 			hasUnsavedChanges = false;
-			if (multiSelectDetails) {
-				multiSelectDetails.open = false;
-			}
 		} catch (error) {
 			console.error('Error saving tags:', error);
 		} finally {
@@ -79,18 +82,42 @@
 		}
 	}
 
-	function cancelChanges() {
-		// reset title
-		title = bookmark.title;
-		// reset description
-		descriptionEditor.resetEditor();
-		// reset tags
-		selectedTags.clear();
-		initialTagsSet.forEach((tagId) => selectedTags.add(tagId));
+	function checkForChanges() {
+		// Check if there are any new tags without a value (to be created on save)
+		const hasNewTags = selectedTags.some(
+			(option) => option.value === undefined || option.value === null
+		);
+
+		// If there are new tags, there are definitely unsaved changes
+		if (hasNewTags) {
+			hasUnsavedChanges = true;
+			return;
+		}
+
+		// Compare current selectedTags with original bookmark tags
+		const currentTagIds = selectedTags.map((option) => option.value).sort();
+		const originalTagIds = [...bookmark.tags].sort();
+
+		// Check if arrays are different
+		const tagsChanged =
+			currentTagIds.length !== originalTagIds.length ||
+			currentTagIds.some((id, index) => id !== originalTagIds[index]);
+
+		hasUnsavedChanges = tagsChanged;
 	}
 
-	function openUrl() {
-		window.open(bookmark.url, '_blank');
+	function cancelChanges() {
+		// reset tags
+		selectedTags = bookmark.tags
+			.filter((id) => $tagMap.has(id))
+			.map((id) => {
+				const tag = $tagMap.get(id) as Tag;
+				return {
+					value: tag.id,
+					label: tag.getDisplayName()
+				};
+			});
+		hasUnsavedChanges = false;
 	}
 
 	async function copyUrl() {
@@ -105,18 +132,14 @@
 </script>
 
 <svelte:head>
-	<title>{bookmark.title} - Breader</title>
+	<title>{$liveBookmarkData?.title} | Breader</title>
 </svelte:head>
 
 <main class="flex flex-col">
 	<div class="container mx-auto max-w-2xl">
 		<header class="flex items-center gap-3">
 			<img src={bookmark.faviconUrl} class="size-4" alt="Favicon" />
-			<h1
-				class="text-lg font-medium flex-1 mt-0"
-				contenteditable="true"
-				bind:innerText={title}
-			></h1>
+			<h1 class="text-lg font-medium flex-1 mt-0">{$liveBookmarkData?.title}</h1>
 			{#if bookmark.isStarred}
 				<div class="text-warning">⭐</div>
 			{/if}
@@ -140,7 +163,7 @@
 							></div>
 						</button>
 					</label>
-					<button onclick={openUrl} class="btn btn-sm btn-primary">Open</button>
+					<a href={bookmark.url} target="_blank" class="btn btn-sm btn-primary">Open</a>
 				</dd>
 			</div>
 
@@ -176,22 +199,12 @@
 
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
-				<dd class="text-sm">
-					<MultiSelectTags {selectedTags} bind:multiSelectDetails />
-				</dd>
-			</div>
-
-			<div>
-				<dt class="text-sm font-medium opacity-70 mb-1">Description</dt>
-				<dd class="shadow">
-					{#key bookmark.description}
-						<OvertypeEditor
-							bind:this={descriptionEditor}
-							bind:content={description}
-							padding="0.5rem"
-						/>
-					{/key}
-				</dd>
+				<TagMultiselect
+					bind:selectedTags
+					onAdd={checkForChanges}
+					onRemove={checkForChanges}
+					onRemoveAll={checkForChanges}
+				></TagMultiselect>
 			</div>
 		</dl>
 	</div>

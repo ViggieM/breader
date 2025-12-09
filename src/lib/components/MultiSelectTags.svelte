@@ -125,7 +125,7 @@
 			{:else}
 				<div class="flex flex-wrap gap-1 items-center">
 					{#each getSelectedTagsDisplay() as tag (tag.id)}
-						<div class="tag-badge">
+						<span class="tag-badge">
 							{tag.name}
 							<button
 								onclick={(e) => {
@@ -135,7 +135,7 @@
 							>
 								×
 							</button>
-						</div>
+						</span>
 					{/each}
 					<button
 						class="btn ml-2 btn-ghost btn-xs pt-0.5"

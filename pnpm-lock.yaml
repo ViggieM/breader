@@ -111,6 +111,9 @@ importers:
       svelte-check:
         specifier: ^4.0.0
         version: 4.3.1(picomatch@4.0.3)(svelte@5.38.1)(typescript@5.9.2)
+      svelte-multiselect:
+        specifier: ^11.3.0
+        version: 11.3.0(svelte@5.38.1)
       tailwindcss:
         specifier: ^4.0.0
         version: 4.1.11
@@ -3284,6 +3287,11 @@ packages:
     peerDependenciesMeta:
       svelte:
         optional: true
+
+  svelte-multiselect@11.3.0:
+    resolution: {integrity: sha512-DcDFBnyYMG1qG1rQ+G4cKYYn7mGDKWOhk0/AXE/yCLrRBrSVHY+DMbZ3jcgNnC5uSyjAqDfllb/4dOUb396s2Q==}
+    peerDependencies:
+      svelte: ^5.35.6
 
   svelte@5.38.1:
     resolution: {integrity: sha512-fO6CLDfJYWHgfo6lQwkQU2vhCiHc2MBl6s3vEhK+sSZru17YL4R5s1v14ndRpqKAIkq8nCz6MTk1yZbESZWeyQ==}
@@ -7020,6 +7028,10 @@ snapshots:
       postcss-scss: 4.0.9(postcss@8.5.6)
       postcss-selector-parser: 7.1.0
     optionalDependencies:
+      svelte: 5.38.1
+
+  svelte-multiselect@11.3.0(svelte@5.38.1):
+    dependencies:
       svelte: 5.38.1
 
   svelte@5.38.1:
