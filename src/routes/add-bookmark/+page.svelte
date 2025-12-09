@@ -2,11 +2,14 @@
 	import { goto } from '$app/navigation';
 	import { db } from '$lib/db';
 	import type { PageProps } from './$types';
+	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
+	import type { ObjectOption } from 'svelte-multiselect';
+	import type { TagData } from '$lib/types';
 
 	const { data }: PageProps = $props();
 
 	let url = $state(data.articleData.url || '');
-	let tags = $state('');
+	let selectedTags = $state([]) as ObjectOption[];
 	let saving = $state(false);
 	let isReviewed = $state(false);
 	let isStarred = $state(false);
@@ -22,12 +25,33 @@
 		saving = true;
 
 		try {
+			// Filter new tags (those without a value) from existing tags
+			const newTags = selectedTags.filter(
+				(opt) => !('value' in opt) || opt.value === undefined || opt.value === null
+			);
+			const existingTagIds = selectedTags
+				.filter((opt) => 'value' in opt && opt.value !== undefined && opt.value !== null)
+				.map((opt) => opt.value as string);
+
+			// Create new tags in the database
+			let newTagIds: string[] = [];
+			if (newTags.length > 0) {
+				const newTagsData: TagData[] = newTags.map(
+					(opt) =>
+						({
+							name: opt.label,
+							parentId: null,
+							order: 0
+						}) as TagData
+				);
+				// Bulk insert new tags and get their auto-generated IDs
+				newTagIds = await db.tags.bulkAdd(newTagsData, { allKeys: true });
+			}
+
+			// Create bookmark with all tag IDs (existing + newly created)
 			const id = await db.bookmarks.add({
 				url,
-				tags: ((formData.get('tags') as string) || '')
-					.split(',')
-					.map((tag) => tag.trim())
-					.filter((tag) => tag.length > 0),
+				tags: [...existingTagIds, ...newTagIds],
 				created: new Date().toISOString(),
 				modified: null,
 				keywords: [],
@@ -102,17 +126,8 @@
 	</div>
 
 	<div class="form-group">
-		<label class="floating-label">
-			<span>Tags</span>
-			<input
-				name="tags"
-				type="text"
-				bind:value={tags}
-				placeholder="tag1, tag2, tag3"
-				class="input input-md w-full"
-			/>
-		</label>
-		<small>Separate tags with commas</small>
+		<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
+		<TagMultiselect bind:selectedTags />
 	</div>
 </form>
 

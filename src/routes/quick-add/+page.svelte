@@ -1,13 +1,14 @@
 <script lang="ts">
-	import MultiSelectTags from '$lib/components/MultiSelectTags.svelte';
-	import { SvelteSet } from 'svelte/reactivity';
 	import type { PageProps } from './$types';
 	import { db } from '$lib/db';
 	import { getFavicon } from '$lib/utils/favicon';
+	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
+	import type { ObjectOption } from 'svelte-multiselect';
+	import type { TagData } from '$lib/types';
 
 	const { data }: PageProps = $props();
 
-	const selectedTags = new SvelteSet<string>();
+	let selectedTags = $state([]) as ObjectOption[];
 	let saving = $state(false);
 	let title = $state(data.articleData.title || '');
 	let url = $state(data.articleData.url || '');
@@ -17,17 +18,42 @@
 		saving = true;
 
 		try {
+			// Filter new tags (those without a value) from existing tags
+			const newTags = selectedTags.filter(
+				(opt) => !('value' in opt) || opt.value === undefined || opt.value === null
+			);
+			const existingTagIds = selectedTags
+				.filter((opt) => 'value' in opt && opt.value !== undefined && opt.value !== null)
+				.map((opt) => opt.value as string);
+
+			// Create new tags in the database
+			let newTagIds: string[] = [];
+			if (newTags.length > 0) {
+				const newTagsData: TagData[] = newTags.map(
+					(opt) =>
+						({
+							name: opt.label,
+							parentId: null,
+							order: 0
+						}) as TagData
+				);
+				// Bulk insert new tags and get their auto-generated IDs
+				newTagIds = await db.tags.bulkAdd(newTagsData, { allKeys: true });
+			}
+
+			// Create bookmark with all tag IDs (existing + newly created)
 			await db.bookmarks.add({
 				title: title,
 				url: url,
 				description: '',
-				tags: Array.from(selectedTags),
+				tags: [...existingTagIds, ...newTagIds],
 				created: new Date().toISOString(),
 				modified: null,
 				keywords: [],
 				isReviewed: false,
 				isStarred: false
 			});
+
 			window.close();
 		} finally {
 			saving = false;
@@ -57,7 +83,7 @@
 	</div>
 
 	<div class="form-group">
-		<MultiSelectTags {selectedTags} />
+		<TagMultiselect bind:selectedTags />
 	</div>
 </form>
 
