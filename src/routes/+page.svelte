@@ -17,18 +17,20 @@
 <main id="main-content">
 	<SearchBar />
 
-	<section class="grid grid-cols-3 gap-2 mt-4">
+	<section class="grid grid-cols-2 sm:grid-cols-3 gap-1 sm:gap-2 mt-4">
 		<a href="/list/favorites" class="list-card"
-			><span class="icon-[ri--star-line]"></span>Favorites</a
+			><span class="icon-[ri--star-line] shrink-0"></span><span class="truncate">Favorites</span></a
 		>
 		<a href="/list/archived" class="list-card"
-			><span class="icon-[ri--archive-2-line]"></span>Archive</a
+			><span class="icon-[ri--archive-2-line] shrink-0"></span><span class="truncate">Archive</span
+			></a
 		>
 		<a href="/list/notes" class="list-card"
-			><span class="icon-[ri--sticky-note-line]"></span>Notes</a
+			><span class="icon-[ri--sticky-note-line] shrink-0"></span><span class="truncate">Notes</span
+			></a
 		>
 		{#each $tags as tag (tag.id)}
-			<a href={`/list/${tag.id}`} class="list-card">{tag.name}</a>
+			<a href={`/list/${tag.id}`} class="list-card"><span class="truncate">{tag.name}</span></a>
 		{/each}
 	</section>
 
