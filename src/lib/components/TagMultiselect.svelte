@@ -64,12 +64,15 @@
 </script>
 
 <MultiSelect
-	outerDivClass="input !min-h-10 h-auto "
-	liOptionClass="badge opacity-70"
-	ulOptionsClass="!p-2 flex gap-1.5 flex-wrap !mt-3"
+	outerDivClass="input !min-h-10 h-auto !px-2"
+	ulOptionsClass="!p-2 flex gap-2 flex-wrap !mt-3"
+	liOptionClass="badge"
+	liActiveOptionClass="badge-soft"
+	liSelectedClass="badge badge-primary !bg-primary !text-primary-content"
+	liUserMsgClass="text-xs"
 	allowUserOptions="append"
 	--sms-placeholder-opacity="0.7"
-	placeholder="no tags selected"
+	placeholder="Select Tags"
 	bind:selected={selectedTags}
 	options={$options}
 	selectedOptionsDraggable={false}
@@ -78,6 +81,40 @@
 	onadd={handleAdd}
 	onremove={handleRemove}
 	onremoveAll={onRemoveAll}
+	--sms-options-border-width="0px"
+	--sms-active-color="var(--color-neutral)"
 >
 	{#snippet expandIcon()}{/snippet}
 </MultiSelect>
+
+<style>
+	:global(div.multiselect > ul.options > li.selected) {
+		--badge-color: var(--color-primary);
+		background-color: color-mix(
+			in oklab,
+			var(--badge-color, var(--color-base-content)) 8%,
+			var(--color-base-100)
+		);
+		border-color: color-mix(
+			in oklab,
+			var(--badge-color, var(--color-base-content)) 10%,
+			var(--color-base-100)
+		);
+		background-image: none;
+	}
+	:global(div.multiselect > ul.options > li.active),
+	:global(div.multiselect > ul.options > li:not(.selected):hover) {
+		--badge-color: var(--color-primary);
+		background-color: color-mix(
+			in oklab,
+			var(--badge-color, var(--color-base-content)) 8%,
+			var(--color-base-100)
+		);
+		border-color: color-mix(
+			in oklab,
+			var(--badge-color, var(--color-base-content)) 10%,
+			var(--color-base-100)
+		);
+		background-image: none;
+	}
+</style>
