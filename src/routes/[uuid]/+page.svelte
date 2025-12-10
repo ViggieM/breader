@@ -6,7 +6,7 @@
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
-	import { formatDate } from '$lib';
+	import { formatDate, formatDateAndTime } from '$lib';
 
 	const { data } = $props();
 
@@ -285,7 +285,7 @@
 				{#if bookmark.modified}
 					<div>
 						<dt class="text-sm font-medium opacity-70 mb-1">Modified</dt>
-						<dd class="text-sm">{formatDate(bookmark.modified)}</dd>
+						<dd class="text-sm">{formatDateAndTime(bookmark.modified)}</dd>
 					</div>
 				{/if}
 			</div>

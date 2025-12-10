@@ -12,9 +12,10 @@
 	let saving = $state(false);
 	let title = $state(data.articleData.title || '');
 	let url = $state(data.articleData.url || '');
+	let form = $state() as HTMLFormElement;
+	let saveAs = $state<'want-to-read' | 'reading' | 'read' | 'archive'>('want-to-read');
 
-	async function _handleSubmit(evt: SubmitEvent) {
-		evt.preventDefault();
+	async function _handleSubmit() {
 		saving = true;
 
 		try {
@@ -22,7 +23,7 @@
 			const { allTagIds } = await processTagsForSave(selectedTags);
 
 			// Create bookmark with all tag IDs
-			await db.bookmarks.add({
+			const id = await db.bookmarks.add({
 				title: title,
 				url: url,
 				description: '',
@@ -30,8 +31,20 @@
 				created: new Date().toISOString(),
 				modified: null,
 				keywords: [],
-				isReviewed: false,
-				isStarred: false
+				isReviewed: saveAs === 'read' || saveAs === 'archive',
+				isStarred: false,
+				isArchived: saveAs === 'archive',
+				isReading: saveAs === 'reading'
+			});
+
+			// trigger a fetch of the metadata.
+			// This request is intercepted and handled by the service worker
+			await fetch(`/api/fetch-metadata`, {
+				method: 'POST',
+				body: JSON.stringify({ id, url }),
+				headers: {
+					'Content-Type': 'application/json'
+				}
 			});
 
 			window.close();
@@ -41,7 +54,7 @@
 	}
 </script>
 
-<form onsubmit={_handleSubmit} class="flex-1 md:flex-none space-y-4 pb-20 p-2" id="add-bookmark">
+<form bind:this={form} class="flex-1 md:flex-none space-y-4 pb-20 p-2" id="add-bookmark">
 	<header class="flex items-center gap-3">
 		<img src={getFavicon(url)} class="size-4" alt="Favicon" />
 		<h1 class="text-lg font-medium flex-1 mt-0" contenteditable="true" bind:innerText={title}></h1>
@@ -71,17 +84,75 @@
 	class="sticky bottom-0 left-0 right-0 p-2 md:static md:p-0 bg-base-100 border-t border-base-300 md:border-0"
 	style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));"
 >
-	<div class="form-actions flex gap-2">
-		<button class="btn btn-error flex-1 md:flex-none" onclick={() => window.close()}>
-			Cancel
-		</button>
-		<button
-			type="submit"
-			disabled={saving || !url}
-			class="btn btn-success flex-1 md:flex-none"
-			form="add-bookmark"
-		>
-			{saving ? 'Saving...' : 'Save Bookmark'}
-		</button>
+	<div class="form-actions flex flex-col gap-2">
+		<button class="btn btn-error" onclick={() => window.close()}> Cancel </button>
+		<div class="flex shadow-md">
+			<button
+				type="submit"
+				disabled={saving || !url}
+				class="btn btn-warning grow rounded-r-none border-r-0 shadow-none"
+				onclick={() => {
+					saveAs = 'want-to-read';
+					_handleSubmit();
+				}}
+			>
+				{saving ? 'Saving...' : 'Want to read'}
+			</button>
+			<div class="dropdown dropdown-top dropdown-end">
+				<div tabindex="0" role="button" class="btn btn-warning rounded-l-none shadow-none">
+					<span class="icon-[ri--arrow-down-s-line]"></span>
+				</div>
+				<ul
+					tabindex="-1"
+					class="dropdown-content menu bg-base-100 rounded-box z-1 mb-2 p-0 shadow-sm gap-2"
+				>
+					<li>
+						<button
+							type="submit"
+							disabled={saving || !url}
+							class="btn btn-neutral w-full"
+							onclick={() => {
+								saveAs = 'archive';
+								_handleSubmit();
+							}}
+						>
+							{saving ? 'Saving...' : 'Archive'}
+						</button>
+					</li>
+					<li>
+						<button
+							type="submit"
+							disabled={saving || !url}
+							class="btn btn-info w-full"
+							onclick={() => {
+								saveAs = 'reading';
+								_handleSubmit();
+							}}
+						>
+							{saving ? 'Saving...' : 'Currently reading'}
+						</button>
+					</li>
+					<li>
+						<button
+							type="submit"
+							disabled={saving || !url}
+							class="btn btn-success w-full"
+							onclick={() => {
+								saveAs = 'read';
+								_handleSubmit();
+							}}
+						>
+							{saving ? 'Saving...' : 'Read'}
+						</button>
+					</li>
+				</ul>
+			</div>
+		</div>
 	</div>
 </div>
+
+<style>
+	.dropdown-content {
+		width: calc(100vw - 1rem);
+	}
+</style>

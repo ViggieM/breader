@@ -21,8 +21,10 @@ export class Bookmark {
 	title?: string | null; // used for search, can be null while metadata was not fetched
 	url: string;
 	description?: string;
-	isReviewed: boolean;
-	isStarred: boolean;
+	isReviewed?: boolean;
+	isStarred?: boolean;
+	isArchived?: boolean;
+	isReading?: boolean;
 	tags: string[]; // used for search
 
 	constructor(data: BookmarkData) {
@@ -33,8 +35,10 @@ export class Bookmark {
 		this.title = data.title;
 		this.url = data.url;
 		this.description = data.description;
-		this.isReviewed = data.isReviewed;
-		this.isStarred = data.isStarred;
+		this.isReviewed = data.isReviewed || true;
+		this.isStarred = data.isStarred || false;
+		this.isArchived = data.isArchived || false;
+		this.isReading = data.isReading || false;
 		this.tags = data.tags;
 		this.meta = data.meta;
 	}
