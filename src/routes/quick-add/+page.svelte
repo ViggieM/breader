@@ -4,7 +4,7 @@
 	import { getFavicon } from '$lib/utils/favicon';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import type { ObjectOption } from 'svelte-multiselect';
-	import type { TagData } from '$lib/types';
+	import { processTagsForSave } from '$lib/utils/tags';
 
 	const { data }: PageProps = $props();
 
@@ -18,35 +18,15 @@
 		saving = true;
 
 		try {
-			// Filter new tags (those without a value) from existing tags
-			const newTags = selectedTags.filter(
-				(opt) => !('value' in opt) || opt.value === undefined || opt.value === null
-			);
-			const existingTagIds = selectedTags
-				.filter((opt) => 'value' in opt && opt.value !== undefined && opt.value !== null)
-				.map((opt) => opt.value as string);
+			// Process tags: create new ones and get all tag IDs
+			const { allTagIds } = await processTagsForSave(selectedTags);
 
-			// Create new tags in the database
-			let newTagIds: string[] = [];
-			if (newTags.length > 0) {
-				const newTagsData: TagData[] = newTags.map(
-					(opt) =>
-						({
-							name: opt.label,
-							parentId: null,
-							order: 0
-						}) as TagData
-				);
-				// Bulk insert new tags and get their auto-generated IDs
-				newTagIds = await db.tags.bulkAdd(newTagsData, { allKeys: true });
-			}
-
-			// Create bookmark with all tag IDs (existing + newly created)
+			// Create bookmark with all tag IDs
 			await db.bookmarks.add({
 				title: title,
 				url: url,
 				description: '',
-				tags: [...existingTagIds, ...newTagIds],
+				tags: allTagIds,
 				created: new Date().toISOString(),
 				modified: null,
 				keywords: [],

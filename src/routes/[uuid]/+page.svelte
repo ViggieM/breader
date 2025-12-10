@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { Bookmark, Tag, type TagData } from '$lib/types';
+	import { Bookmark, Tag } from '$lib/types';
 	import { db } from '$lib/db';
 	import { invalidateAll } from '$app/navigation';
 	import { liveQuery } from 'dexie';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
+	import { processTagsForSave } from '$lib/utils/tags';
 
 	const { data } = $props();
 
@@ -37,38 +38,19 @@
 		saving = true;
 
 		try {
-			let newTagIds: string[] = [];
-			// Find tags that need to be created (those without a value property)
-			const newTags = selectedTags.filter(
-				(opt) => !('value' in opt) || opt.value === undefined || opt.value === null
+			// Process tags: create new ones and get all tag IDs
+			const { allTagIds, newTagIds, newTags } = await processTagsForSave(selectedTags);
+
+			// Update UI state: add database IDs to newly created tags
+			selectedTags = selectedTags.map((opt) =>
+				newTags.some((newOpt) => newOpt.label === opt.label) && !opt.value
+					? { ...opt, value: newTagIds[newTags.findIndex((newOpt) => newOpt.label === opt.label)] }
+					: opt
 			);
 
-			// Bulk create new tags if any exist
-			if (newTags.length > 0) {
-				const newTagsData = newTags.map(
-					(opt) =>
-						({
-							name: opt.label,
-							parentId: null,
-							order: 0
-						}) as TagData
-				);
-
-				// Bulk insert new tags and get their auto-generated IDs
-				newTagIds = await db.tags.bulkAdd(newTagsData, { allKeys: true });
-
-				// Update selectedTags with the newly created tag IDs
-				newTags.forEach((opt, index) => {
-					opt.value = newTagIds[index];
-				});
-			}
-
-			// Collect all tag IDs: existing tags already have values, new tags now have values
-			const tagsArray = selectedTags.map((option) => option.value) as string[];
-
-			// Update the bookmark with all tag IDs
+			// Update the bookmark with all tag IDs (bug fixed: no duplicates!)
 			await db.bookmarks.update(bookmark.id, {
-				tags: [...tagsArray, ...newTagIds],
+				tags: allTagIds,
 				modified: new Date().toISOString()
 			});
 
