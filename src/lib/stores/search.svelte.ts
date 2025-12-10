@@ -34,7 +34,7 @@ export const bookmarksData = readable<BookmarkData[]>([], (set) => {
 	// sort by created.
 	// this might be later replaced with sorting via JS, to make sorting flexible. but for now it's fine
 	const observable = liveQuery(() => db.bookmarks.orderBy('created').reverse().toArray());
-	const subscription = observable.subscribe((data) => {
+	const subscription = observable.subscribe((data: BookmarkData[]) => {
 		if (data) set(data);
 	});
 

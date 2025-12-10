@@ -3,7 +3,8 @@
 
 import { db } from '$lib/db';
 import type { ObjectOption } from 'svelte-multiselect';
-import type { TagData } from '$lib/types';
+import type { Tag, TagData } from '$lib/types';
+import type { SvelteMap } from 'svelte/reactivity';
 
 /**
  * Processes selected tags for saving to database:
@@ -52,4 +53,16 @@ export async function processTagsForSave(selectedTags: ObjectOption[]): Promise<
 		newTagIds,
 		newTags
 	};
+}
+
+export function tagIdsToOptions(ids: string[], $tagMap: SvelteMap<string, Tag>): ObjectOption[] {
+	return ids
+		.filter((id: string) => $tagMap.has(id))
+		.map((id: string) => {
+			const tag = $tagMap.get(id) as Tag;
+			return {
+				value: tag.id,
+				label: tag.getDisplayName()
+			};
+		});
 }

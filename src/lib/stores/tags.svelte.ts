@@ -1,6 +1,7 @@
 import { db } from '$lib/db';
 import { Tag, type TagData } from '$lib/types';
 import { liveQuery } from 'dexie';
+import type { ObjectOption } from 'svelte-multiselect';
 import { SvelteMap } from 'svelte/reactivity';
 import { derived, readable } from 'svelte/store';
 

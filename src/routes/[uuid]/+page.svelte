@@ -1,33 +1,27 @@
 <script lang="ts">
-	import { Bookmark, Tag } from '$lib/types';
+	import { Bookmark } from '$lib/types';
 	import { db } from '$lib/db';
-	import { invalidateAll } from '$app/navigation';
 	import { liveQuery } from 'dexie';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
-	import { processTagsForSave } from '$lib/utils/tags';
+	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
 
 	const { data } = $props();
 
 	// Live updates from Dexie
-	const liveBookmarkData = liveQuery(() => db.bookmarks.get(data.uuid));
+	const liveData = liveQuery(() => db.bookmarks.get(data.uuid));
 
 	// Start with loaded data, then update from live query
-	let bookmark: Bookmark = $state(data.bookmark);
-	let isReviewed = $state(bookmark.isReviewed);
+	let bookmark = $state(data.bookmark) as Bookmark;
+	let isReviewed = $state(data.bookmark.isReviewed);
+	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
 
-	let selectedTags = $state([]) as ObjectOption[];
 	$effect(() => {
-		selectedTags = bookmark.tags
-			.filter((id) => $tagMap.has(id))
-			.map((id) => {
-				const tag = $tagMap.get(id) as Tag;
-				return {
-					value: tag.id,
-					label: tag.getDisplayName()
-				};
-			});
+		if ($liveData) {
+			selectedTags = tagIdsToOptions($liveData.tags, $tagMap);
+			bookmark = new Bookmark($liveData);
+		}
 	});
 
 	let hasUnsavedChanges = $state(false);
@@ -39,22 +33,13 @@
 
 		try {
 			// Process tags: create new ones and get all tag IDs
-			const { allTagIds, newTagIds, newTags } = await processTagsForSave(selectedTags);
-
-			// Update UI state: add database IDs to newly created tags
-			selectedTags = selectedTags.map((opt) =>
-				newTags.some((newOpt) => newOpt.label === opt.label) && !opt.value
-					? { ...opt, value: newTagIds[newTags.findIndex((newOpt) => newOpt.label === opt.label)] }
-					: opt
-			);
+			const { allTagIds } = await processTagsForSave(selectedTags);
 
 			// Update the bookmark with all tag IDs (bug fixed: no duplicates!)
 			await db.bookmarks.update(bookmark.id, {
 				tags: allTagIds,
 				modified: new Date().toISOString()
 			});
-
-			await invalidateAll();
 
 			hasUnsavedChanges = false;
 		} catch (error) {
@@ -90,15 +75,7 @@
 
 	function cancelChanges() {
 		// reset tags
-		selectedTags = bookmark.tags
-			.filter((id) => $tagMap.has(id))
-			.map((id) => {
-				const tag = $tagMap.get(id) as Tag;
-				return {
-					value: tag.id,
-					label: tag.getDisplayName()
-				};
-			});
+		selectedTags = tagIdsToOptions(bookmark.tags, $tagMap);
 		hasUnsavedChanges = false;
 	}
 
@@ -114,14 +91,14 @@
 </script>
 
 <svelte:head>
-	<title>{$liveBookmarkData?.title} | Breader</title>
+	<title>{bookmark.title} | Breader</title>
 </svelte:head>
 
 <main class="flex flex-col">
 	<div class="container mx-auto max-w-2xl">
 		<header class="flex items-center gap-3">
 			<img src={bookmark.faviconUrl} class="size-4" alt="Favicon" />
-			<h1 class="text-lg font-medium flex-1 mt-0">{$liveBookmarkData?.title}</h1>
+			<h1 class="text-lg font-medium flex-1 mt-0">{bookmark.title}</h1>
 			{#if bookmark.isStarred}
 				<div class="text-warning">⭐</div>
 			{/if}
