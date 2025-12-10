@@ -18,11 +18,21 @@
 	let isReviewed = $state(data.bookmark.isReviewed);
 	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
 	let url = $state(data.bookmark.url);
+	let title = $state(data.bookmark.title);
+	let isEditingTitle = $state(false);
+	let titleInput = $state() as HTMLInputElement;
 
 	$effect(() => {
 		if ($liveData) {
 			selectedTags = tagIdsToOptions($liveData.tags, $tagMap);
 			bookmark = new Bookmark($liveData);
+		}
+	});
+
+	// Focus the title input when editing mode is activated
+	$effect(() => {
+		if (isEditingTitle && titleInput) {
+			titleInput.focus();
 		}
 	});
 
@@ -113,11 +123,93 @@
 
 <main class="flex flex-col">
 	<div class="container mx-auto max-w-2xl">
-		<header class="flex items-center gap-3">
-			<img src={bookmark.faviconUrl} class="size-4" alt="Favicon" />
-			<h1 class="text-lg font-medium flex-1 mt-0">{bookmark.title}</h1>
-			{#if bookmark.isStarred}
-				<div class="text-warning">⭐</div>
+		<header class="flex items-center" class:px-0={isEditingTitle}>
+			{#if isEditingTitle}
+				<div class="w-full">
+					<input type="text" bind:value={title} class="input w-full" bind:this={titleInput} />
+					<div class="mt-2">
+						<button
+							class="btn btn-xs btn-success"
+							disabled={title === bookmark.title}
+							onclick={async () => {
+								await db.bookmarks.update(bookmark.id, {
+									title: title,
+									modified: new Date().toISOString()
+								});
+								isEditingTitle = false;
+							}}>Save</button
+						>
+						<button
+							class="btn btn-xs btn-error"
+							onclick={() => {
+								isEditingTitle = false;
+								title = bookmark.title;
+							}}>Cancel</button
+						>
+					</div>
+				</div>
+			{:else}
+				<img src={bookmark.faviconUrl} class="size-4 mr-3" alt="Favicon" />
+				<h1 class="text-lg font-medium flex-1 mt-0">
+					{bookmark.title}{#if bookmark.isStarred}
+						<span class="icon-[ri--star-s-fill] text-amber-500 relative top-0.5 ml-2 shrink-0"
+						></span>
+					{/if}
+				</h1>
+
+				<div class="dropdown dropdown-bottom dropdown-end">
+					<div
+						tabindex="0"
+						role="button"
+						class="btn btn-ghost rounded-full size-10 relative left-2"
+					>
+						<span class="icon-[ri--more-2-fill] shrink-0"></span>
+					</div>
+					<ul
+						tabindex="-1"
+						class="dropdown-content menu bg-base-100 rounded-box z-1 w-54 p-2 shadow-sm mt-1"
+					>
+						<li>
+							<button
+								onclick={() => {
+									isEditingTitle = true;
+								}}
+							>
+								<span class="icon-[ri--pencil-line]"></span>
+								Edit Title
+							</button>
+						</li>
+						{#if bookmark.isStarred}
+							<li>
+								<button
+									onclick={async () => {
+										await db.bookmarks.update(bookmark.id, {
+											isStarred: false,
+											modified: new Date().toISOString()
+										});
+									}}
+								>
+									<span class="icon-[ri--star-off-line]"></span>
+									Remove from favorites
+								</button>
+							</li>
+						{:else}
+							<li>
+								<button
+									onclick={async () => {
+										await db.bookmarks.update(bookmark.id, {
+											isStarred: true,
+											modified: new Date().toISOString()
+										});
+									}}
+								>
+									<span class="icon-[ri--star-line]"></span>
+									Mark as favorite
+								</button>
+							</li>
+						{/if}
+					</ul>
+				</div>
 			{/if}
 		</header>
 
