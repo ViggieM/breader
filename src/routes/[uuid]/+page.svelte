@@ -6,6 +6,7 @@
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
+	import { formatDate } from '$lib';
 
 	const { data } = $props();
 
@@ -16,6 +17,7 @@
 	let bookmark = $state(data.bookmark) as Bookmark;
 	let isReviewed = $state(data.bookmark.isReviewed);
 	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
+	let url = $state(data.bookmark.url);
 
 	$effect(() => {
 		if ($liveData) {
@@ -27,6 +29,7 @@
 	let hasUnsavedChanges = $state(false);
 	let saving = $state(false);
 	let copied = $state(false);
+	let detailsElement = $state<HTMLDetailsElement>();
 
 	async function saveChanges() {
 		saving = true;
@@ -88,6 +91,20 @@
 			console.error('Failed to copy URL:', error);
 		}
 	}
+
+	// Close details when clicking outside
+	$effect(() => {
+		if (!detailsElement) return;
+
+		function handleClickOutside(event: MouseEvent) {
+			if (detailsElement && !detailsElement.contains(event.target as Node) && detailsElement.open) {
+				detailsElement.open = false;
+			}
+		}
+
+		document.addEventListener('click', handleClickOutside);
+		return () => document.removeEventListener('click', handleClickOutside);
+	});
 </script>
 
 <svelte:head>
@@ -106,38 +123,14 @@
 
 		<dl class="space-y-4 mb-4">
 			<div>
-				<dt class="text-sm font-medium opacity-70 mb-1">URL</dt>
-				<dd class="flex gap-2">
-					<label class="input input-sm input-bordered w-full">
-						<input type="text" value={bookmark.url} class="flex-1 input-sm" readonly />
-						<button
-							onclick={copyUrl}
-							class="opacity-50 hover:opacity-100 transition-opacity cursor-pointer flex items-center gap-1"
-							class:text-success={copied}
-							>Copy URL
-							<div
-								class="{copied
-									? 'icon-[material-symbols--check] '
-									: 'icon-[material-symbols--content-copy]'} size-4"
-							></div>
-						</button>
-					</label>
-					<a href={bookmark.url} target="_blank" class="btn btn-sm btn-primary">Open</a>
-				</dd>
+				<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
+				<TagMultiselect
+					bind:selectedTags
+					onAdd={checkForChanges}
+					onRemove={checkForChanges}
+					onRemoveAll={checkForChanges}
+				></TagMultiselect>
 			</div>
-
-			<!--fixme: (low) need some nice place to put the created and modified date-->
-			<!--<div>-->
-			<!--	<dt class="text-sm font-medium opacity-70 mb-1">Created</dt>-->
-			<!--	<dd class="text-sm">{formatDate(bookmark.created)}</dd>-->
-			<!--</div>-->
-
-			<!--{#if bookmark.modified}-->
-			<!--	<div>-->
-			<!--		<dt class="text-sm font-medium opacity-70 mb-1">Modified</dt>-->
-			<!--		<dd class="text-sm">{formatDate(bookmark.modified)}</dd>-->
-			<!--	</div>-->
-			<!--{/if}-->
 
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Status</dt>
@@ -155,17 +148,56 @@
 					</button>
 				</dd>
 			</div>
-
-			<div>
-				<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
-				<TagMultiselect
-					bind:selectedTags
-					onAdd={checkForChanges}
-					onRemove={checkForChanges}
-					onRemoveAll={checkForChanges}
-				></TagMultiselect>
-			</div>
 		</dl>
+
+		<details class="collapse collapse-arrow overflow-visible" bind:this={detailsElement}>
+			<summary class="collapse-title text-sm p-0">Details</summary>
+			<div class="collapse-content space-y-4 p-0 mt-2">
+				<div>
+					<dt class="text-sm font-medium opacity-70 mb-1">URL</dt>
+					<dd class="flex gap-2">
+						<label class="input input-sm input-bordered w-full">
+							<input type="text" bind:value={url} class="flex-1 input-sm" />
+							<button
+								onclick={copyUrl}
+								class="opacity-50 hover:opacity-100 transition-opacity cursor-pointer flex items-center gap-1"
+								class:text-success={copied}
+								>Copy URL
+								<div
+									class="{copied
+										? 'icon-[material-symbols--check] '
+										: 'icon-[material-symbols--content-copy]'} size-4"
+								></div>
+							</button>
+						</label>
+						<a href={bookmark.url} target="_blank" class="btn btn-sm btn-primary">Open</a>
+					</dd>
+					{#if url !== bookmark.url}
+						<button
+							class="btn btn-xs btn-success mt-3"
+							type="button"
+							onclick={async () => {
+								await db.bookmarks.update(bookmark.id, {
+									url: url,
+									modified: new Date().toISOString()
+								});
+							}}>Save</button
+						>
+					{/if}
+				</div>
+				<div>
+					<dt class="text-sm font-medium opacity-70 mb-1">Created</dt>
+					<dd class="text-sm">{formatDate(bookmark.created)}</dd>
+				</div>
+
+				{#if bookmark.modified}
+					<div>
+						<dt class="text-sm font-medium opacity-70 mb-1">Modified</dt>
+						<dd class="text-sm">{formatDate(bookmark.modified)}</dd>
+					</div>
+				{/if}
+			</div>
+		</details>
 	</div>
 
 	{#if hasUnsavedChanges}
@@ -189,3 +221,13 @@
 		</div>
 	{/if}
 </main>
+
+<style>
+	.collapse-title {
+		padding-left: 20px;
+	}
+	.collapse-title:after {
+		left: 0;
+		top: 10px;
+	}
+</style>
