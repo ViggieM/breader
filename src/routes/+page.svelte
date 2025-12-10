@@ -6,7 +6,12 @@
 	import { Tag } from '$lib/types';
 
 	const tags = derived(childrenMap, (childrenMap) => {
-		return childrenMap.get('root')?.map((tagId) => new Tag($tagMap.get(tagId)));
+		const rootChildren = childrenMap.get('root');
+		if (!rootChildren) return [];
+
+		return rootChildren
+			.map((tagId) => $tagMap.get(tagId))
+			.filter((tag): tag is Tag => tag !== undefined);
 	});
 </script>
 

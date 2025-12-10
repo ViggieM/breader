@@ -6,7 +6,7 @@
 
 	const intervalMS = 60 * 60 * 1000;
 	const { needRefresh, updateServiceWorker, offlineReady } = useRegisterSW({
-		onRegisteredSW(swScriptUrl, registration) {
+		onRegisteredSW(swScriptUrl: string, registration: ServiceWorkerRegistration | undefined) {
 			console.log(`SW Registered: ${registration}`);
 
 			/* Periodically check for updates */
@@ -20,7 +20,7 @@
 				);
 			}
 		},
-		onRegisterError(error) {
+		onRegisterError(error: Error) {
 			console.log('SW registration error', error);
 		},
 		onNeedRefresh() {

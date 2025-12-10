@@ -5,10 +5,12 @@
 	import { SvelteMap } from 'svelte/reactivity';
 	import { Tag, type TagData } from '$lib/types';
 	import { db } from '$lib/db';
-	import { liveQuery } from 'dexie';
+	import Dexie from 'dexie';
 	import { readable } from 'svelte/store';
 	import { bookmarksData } from '$lib/stores/search.svelte';
 	import TagManagerTag from '$lib/components/TagManagerTag.svelte';
+
+	const { liveQuery } = Dexie;
 
 	interface RenderNode {
 		tag: Tag;

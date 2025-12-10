@@ -1,8 +1,10 @@
-import { liveQuery } from 'dexie';
+import Dexie from 'dexie';
 import Fuse, { type FuseIndex, type FuseSearchOptions } from 'fuse.js';
 import { derived, readable, writable } from 'svelte/store';
 import { db } from '$lib/db';
-import type { BookmarkData, TagData } from '$lib/types';
+
+const { liveQuery } = Dexie;
+import type { BookmarkData } from '$lib/types';
 
 class FuseSearchEngine {
 	public data: BookmarkData[];

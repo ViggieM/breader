@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { Bookmark } from '$lib/types';
 	import { db } from '$lib/db';
-	import { liveQuery } from 'dexie';
+	import Dexie from 'dexie';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
 	import { formatDate, formatDateAndTime } from '$lib';
+
+	const { liveQuery } = Dexie;
 
 	const { data } = $props();
 

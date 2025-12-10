@@ -14,7 +14,7 @@
 			value: initialValue,
 			padding: '0',
 			autoResize: true,
-			onChange: (value) => {
+			onChange: (value: string) => {
 				content = value;
 			},
 			theme: {

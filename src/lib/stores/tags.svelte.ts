@@ -1,13 +1,14 @@
 import { db } from '$lib/db';
 import { Tag, type TagData } from '$lib/types';
-import { liveQuery } from 'dexie';
-import type { ObjectOption } from 'svelte-multiselect';
+import Dexie from 'dexie';
 import { SvelteMap } from 'svelte/reactivity';
 import { derived, readable } from 'svelte/store';
 
+const { liveQuery } = Dexie;
+
 export const tagsData = readable<TagData[]>([], (set) => {
 	const observable = liveQuery(() => db.tags.toArray());
-	const subscription = observable.subscribe((data) => {
+	const subscription = observable.subscribe((data: TagData[] | undefined) => {
 		if (data) set(data);
 	});
 

@@ -57,12 +57,12 @@ export async function fetchUrlMetadata(bookmarkId: string, url: string): Promise
 			signal: controller.signal
 		});
 
-		if (response.ok) return response.json();
-
-		if (!response.ok) {
-			const errorText = await response.text().catch(() => 'Unknown error');
-			throw new MetadataFetchError(`Failed to fetch metadata: ${errorText}`, response.status);
+		if (response.ok) {
+			return response.json();
 		}
+
+		const errorText = await response.text().catch(() => 'Unknown error');
+		throw new MetadataFetchError(`Failed to fetch metadata: ${errorText}`, response.status);
 	} catch (error) {
 		if (error instanceof MetadataFetchError) {
 			throw error;

@@ -117,7 +117,7 @@
 		// Intercept WebSocket constructor to track WebSocket connections
 		const OriginalWebSocket = window.WebSocket;
 		window.WebSocket = class extends OriginalWebSocket {
-			constructor(url, protocols) {
+			constructor(url: string | URL, protocols?: string | string[]) {
 				super(url, protocols);
 
 				consoleLogs.push({
@@ -143,15 +143,16 @@
 				});
 
 				this.addEventListener('error', (event) => {
+					const ws = event.target as WebSocket | null;
 					consoleLogs.push({
 						type: 'error',
 						message: `WebSocket error for: ${url}\nEvent: ${JSON.stringify(
 							{
 								type: event.type,
-								target: event.target
+								target: ws
 									? {
-											readyState: event.target.readyState,
-											url: event.target.url
+											readyState: ws.readyState,
+											url: ws.url
 										}
 									: 'Unknown target'
 							},
