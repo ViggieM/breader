@@ -144,7 +144,18 @@
 		<header class="flex items-center" class:px-0={isEditingTitle}>
 			{#if isEditingTitle}
 				<div class="w-full">
-					<input type="text" bind:value={title} class="input w-full" bind:this={titleInput} />
+					<form
+						onsubmit={async (evt) => {
+							evt.preventDefault();
+							await db.bookmarks.update(bookmark.id, {
+								title: title,
+								modified: new Date().toISOString()
+							});
+							isEditingTitle = false;
+						}}
+					>
+						<input type="text" bind:value={title} class="input w-full" bind:this={titleInput} />
+					</form>
 					<div class="mt-2">
 						<button
 							class="btn btn-xs btn-success"
@@ -305,6 +316,14 @@
 			</div>
 		</details>
 	</div>
+
+	<section class="mt-8">
+		<div>
+			<button class="btn btn-sm btn-secondary"
+				><span class="icon-[ri--add-large-fill]"></span> Add a note</button
+			>
+		</div>
+	</section>
 
 	{#if hasUnsavedChanges}
 		<div
