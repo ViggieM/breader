@@ -68,9 +68,9 @@
 	<MultiSelect
 		outerDivClass="input !min-h-10 h-auto !px-2"
 		ulOptionsClass="!p-2 flex gap-2 flex-wrap !mt-3"
-		liOptionClass="badge"
-		liActiveOptionClass="badge-soft"
-		liSelectedClass="badge badge-primary !bg-primary !text-primary-content"
+		liOptionClass="badge badge-outline badge-primary"
+		liActiveOptionClass="badge badge-soft badge-primary"
+		liSelectedClass="badge badge-primary"
 		liUserMsgClass="text-xs"
 		allowUserOptions="append"
 		placeholder="Tags"
@@ -93,34 +93,37 @@
 	.floating-label > span {
 		z-index: 10;
 	}
+	/* Selected badges in input area and dropdown - ensure full primary styling */
+	:global(div.multiselect > ul:not(.options) > li),
 	:global(div.multiselect > ul.options > li.selected) {
 		--badge-color: var(--color-primary);
-		background-color: color-mix(
-			in oklab,
-			var(--badge-color, var(--color-base-content)) 8%,
-			var(--color-base-100)
-		);
-		border-color: color-mix(
-			in oklab,
-			var(--badge-color, var(--color-base-content)) 10%,
-			var(--color-base-100)
-		);
-		background-image: none;
+		--badge-fg: var(--color-primary-content);
+		background-color: var(--color-primary) !important;
+		color: var(--color-primary-content) !important;
+		border-color: var(--color-primary) !important;
+		border-width: 1px !important;
 	}
-	:global(div.multiselect > ul.options > li.active),
+
+	/* Active (hovered/keyboard focus) badges - use soft style */
+	:global(div.multiselect > ul.options > li.active:not(.selected)),
 	:global(div.multiselect > ul.options > li:not(.selected):hover) {
 		--badge-color: var(--color-primary);
 		background-color: color-mix(
 			in oklab,
-			var(--badge-color, var(--color-base-content)) 8%,
+			var(--color-primary) 8%,
 			var(--color-base-100)
-		);
-		border-color: color-mix(
-			in oklab,
-			var(--badge-color, var(--color-base-content)) 10%,
-			var(--color-base-100)
-		);
-		background-image: none;
+		) !important;
+		border-color: color-mix(in oklab, var(--color-primary) 10%, var(--color-base-100)) !important;
+		border-width: 1px !important;
+		color: var(--color-primary) !important;
+	}
+
+	/* Unselected, unfocused badges - outline style */
+	:global(div.multiselect > ul.options > li:not(.selected):not(.active):not(:hover)) {
+		background-color: transparent !important;
+		border-color: var(--color-primary) !important;
+		border-width: 1px !important;
+		color: var(--color-primary) !important;
 	}
 	:global(div.multiselect > ul > input[autocomplete]) {
 		&::placeholder {
