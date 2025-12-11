@@ -12,7 +12,7 @@
 				<input
 					type="checkbox"
 					class="checkbox checkbox-sm mr-2"
-					bind:checked={$filters.isReviewed}
+					bind:checked={$filters.showUnread}
 				/>
 				Unreviewed
 			</label>

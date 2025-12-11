@@ -50,6 +50,6 @@ export const engine = derived(
 
 export const filters = writable({
 	query: '',
-	isReviewed: false,
+	showUnread: false,
 	isStarred: false
 });

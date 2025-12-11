@@ -28,6 +28,11 @@ export default defineConfig(({ command }) => ({
 			}
 		})
 	],
+	server: {
+		watch: {
+			ignored: ['**/.trees/**']
+		}
+	},
 	test: {
 		expect: { requireAssertions: true },
 		projects: [

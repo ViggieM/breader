@@ -76,7 +76,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Database Schema**:
 
-- Single `bookmarks` table with indexes on: id, title, url, tags (multi-entry), keywords (multi-entry), isStarred, isReviewed, created, modified
+- Single `bookmarks` table with indexes on: id, title, url, tags (multi-entry), keywords (multi-entry), isStarred, status, created, modified
+- Status field uses BookmarkStatus enum: ARCHIVED (0), READING (1), READ (2), WANT_TO_READ (3)
 - UUID primary keys generated via custom Dexie plugin
 
 **Key Files**:

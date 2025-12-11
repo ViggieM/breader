@@ -9,6 +9,15 @@ export type BookmarkMetaData = {
 	description: string; // meta description
 };
 
+export const BookmarkStatus = {
+	ARCHIVED: 0,
+	READING: 1,
+	READ: 2,
+	WANT_TO_READ: 3
+} as const;
+
+export type BookmarkStatus = (typeof BookmarkStatus)[keyof typeof BookmarkStatus];
+
 export class Bookmark {
 	// automatically generated
 	id: string; // UUID v4
@@ -21,10 +30,8 @@ export class Bookmark {
 	title?: string | null; // used for search, can be null while metadata was not fetched
 	url: string;
 	description?: string;
-	isReviewed?: boolean;
+	status: BookmarkStatus;
 	isStarred?: boolean;
-	isArchived?: boolean;
-	isReading?: boolean;
 	tags: string[]; // used for search
 
 	constructor(data: BookmarkData) {
@@ -35,10 +42,8 @@ export class Bookmark {
 		this.title = data.title;
 		this.url = data.url;
 		this.description = data.description;
-		this.isReviewed = data.isReviewed || true;
+		this.status = data.status ?? BookmarkStatus.WANT_TO_READ;
 		this.isStarred = data.isStarred || false;
-		this.isArchived = data.isArchived || false;
-		this.isReading = data.isReading || false;
 		this.tags = data.tags;
 		this.meta = data.meta;
 	}

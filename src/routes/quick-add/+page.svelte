@@ -5,6 +5,7 @@
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import type { ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave } from '$lib/utils/tags';
+	import { BookmarkStatus } from '$lib/types';
 
 	const { data }: PageProps = $props();
 
@@ -12,8 +13,7 @@
 	let saving = $state(false);
 	let title = $state(data.articleData.title || '');
 	let url = $state(data.articleData.url || '');
-	let form = $state() as HTMLFormElement;
-	let saveAs = $state<'want-to-read' | 'reading' | 'read' | 'archive'>('want-to-read');
+	let status = $state(BookmarkStatus.WANT_TO_READ) as BookmarkStatus;
 
 	async function _handleSubmit() {
 		saving = true;
@@ -31,10 +31,8 @@
 				created: new Date().toISOString(),
 				modified: null,
 				keywords: [],
-				isReviewed: saveAs === 'read' || saveAs === 'archive',
-				isStarred: false,
-				isArchived: saveAs === 'archive',
-				isReading: saveAs === 'reading'
+				status,
+				isStarred: false
 			});
 
 			// trigger a fetch of the metadata.
@@ -54,7 +52,7 @@
 	}
 </script>
 
-<form bind:this={form} class="flex-1 md:flex-none space-y-4 pb-20 p-2" id="add-bookmark">
+<form class="flex-1 md:flex-none space-y-4 pb-20 p-2" id="add-bookmark">
 	<header class="flex items-center gap-3">
 		<img src={getFavicon(url)} class="size-4" alt="Favicon" />
 		<h1 class="text-lg font-medium flex-1 mt-0" contenteditable="true" bind:innerText={title}></h1>
@@ -92,7 +90,7 @@
 				disabled={saving || !url}
 				class="btn btn-warning grow rounded-r-none border-r-0 shadow-none"
 				onclick={() => {
-					saveAs = 'want-to-read';
+					status = BookmarkStatus.WANT_TO_READ;
 					_handleSubmit();
 				}}
 			>
@@ -112,7 +110,7 @@
 							disabled={saving || !url}
 							class="btn btn-neutral w-full"
 							onclick={() => {
-								saveAs = 'archive';
+								status = BookmarkStatus.ARCHIVED;
 								_handleSubmit();
 							}}
 						>
@@ -125,7 +123,7 @@
 							disabled={saving || !url}
 							class="btn btn-info w-full"
 							onclick={() => {
-								saveAs = 'reading';
+								status = BookmarkStatus.READING;
 								_handleSubmit();
 							}}
 						>
@@ -138,7 +136,7 @@
 							disabled={saving || !url}
 							class="btn btn-success w-full"
 							onclick={() => {
-								saveAs = 'read';
+								status = BookmarkStatus.READ;
 								_handleSubmit();
 							}}
 						>

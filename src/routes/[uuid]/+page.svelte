@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Bookmark } from '$lib/types';
+	import { Bookmark, BookmarkStatus } from '$lib/types';
 	import { db } from '$lib/db';
 	import Dexie from 'dexie';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
@@ -17,7 +17,7 @@
 
 	// Start with loaded data, then update from live query
 	let bookmark = $state(data.bookmark) as Bookmark;
-	let isReviewed = $state(data.bookmark.isReviewed);
+	let status = $state(data.bookmark.status);
 	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
 	let url = $state(data.bookmark.url);
 	let title = $state(data.bookmark.title);
@@ -229,17 +229,21 @@
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Status</dt>
 				<dd>
-					<button
-						class="badge cursor-pointer {isReviewed ? 'badge-success' : 'badge-warning'}"
-						onclick={() => {
-							db.bookmarks.update(bookmark.id, {
-								isReviewed: !isReviewed
+					<select
+						bind:value={status}
+						class="select select-sm w-full max-w-xs"
+						onchange={async () => {
+							await db.bookmarks.update(bookmark.id, {
+								status,
+								modified: new Date().toISOString()
 							});
-							isReviewed = !isReviewed;
 						}}
 					>
-						{isReviewed ? 'Reviewed' : 'Unreviewed'}
-					</button>
+						<option value={BookmarkStatus.WANT_TO_READ}>Want to Read</option>
+						<option value={BookmarkStatus.READING}>Currently Reading</option>
+						<option value={BookmarkStatus.READ}>Read</option>
+						<option value={BookmarkStatus.ARCHIVED}>Archived</option>
+					</select>
 				</dd>
 			</div>
 		</dl>

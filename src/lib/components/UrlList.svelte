@@ -17,11 +17,6 @@
 		}
 	}
 
-	function markAsRead(event: Event, bookmarkId: string) {
-		const target = event.target as HTMLInputElement;
-		db.bookmarks.update(bookmarkId, { isReviewed: target.checked });
-	}
-
 	function deleteBookmark(event: Event, bookmarkId: string) {
 		if (confirm('Are you sure you want to delete this bookmark?')) {
 			db.bookmarks.delete(bookmarkId);
@@ -49,10 +44,7 @@
 	{#each items as bookmark (bookmark.id)}
 		<li id={bookmark.id} class="url-list-item">
 			<details class="group" ontoggle={handleToggle}>
-				<summary
-					class={`${bookmark.isReviewed ? '' : 'font-bold'}`}
-					ondblclick={(evt) => handleDoubleClick(evt, bookmark)}
-				>
+				<summary ondblclick={(evt) => handleDoubleClick(evt, bookmark)}>
 					<img
 						src={bookmark.faviconUrl}
 						alt=""
@@ -79,15 +71,6 @@
 							</span>
 						</div>
 						<div class="flex items-center gap-4">
-							<label class="flex items-center gap-1.5 cursor-pointer">
-								<input
-									type="checkbox"
-									class="checkbox checkbox-xs"
-									checked={bookmark.isReviewed}
-									onchange={(event) => markAsRead(event, bookmark.id)}
-								/>
-								<span class="text-sm">Read</span>
-							</label>
 							<a href={bookmark.localUrl} class="link text-sm flex items-center gap-1.5">
 								<span class="size-4 icon-[ri--pencil-line]"></span> Edit
 							</a>

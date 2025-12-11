@@ -1,14 +1,16 @@
 <script module lang="ts">
 	import { derived } from 'svelte/store';
 	import { engine, filters } from '$lib/stores/search.svelte';
-	import { Bookmark } from '$lib/types';
+	import { Bookmark, BookmarkStatus } from '$lib/types';
 
 	export const results = derived([engine, filters], ([$engine, $filters]) => {
 		if (!$engine) return [];
 		let results = $engine.search($filters.query.trim());
 
-		if ($filters.isReviewed) {
-			results = results.filter((b) => !b.isReviewed);
+		if ($filters.showUnread) {
+			results = results.filter(
+				(b) => b.status === BookmarkStatus.WANT_TO_READ || b.status === BookmarkStatus.READING
+			);
 		}
 		if ($filters.isStarred) {
 			results = results.filter((b) => b.isStarred);

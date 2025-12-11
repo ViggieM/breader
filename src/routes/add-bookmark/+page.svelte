@@ -5,13 +5,14 @@
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import type { ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave } from '$lib/utils/tags';
+	import { BookmarkStatus } from '$lib/types';
 
 	const { data }: PageProps = $props();
 
 	let url = $state(data.articleData.url || '');
 	let selectedTags = $state([]) as ObjectOption[];
 	let saving = $state(false);
-	let isReviewed = $state(false);
+	let status = $state(BookmarkStatus.WANT_TO_READ) as BookmarkStatus;
 	let isStarred = $state(false);
 
 	async function _handleSubmit(
@@ -35,7 +36,7 @@
 				created: new Date().toISOString(),
 				modified: null,
 				keywords: [],
-				isReviewed,
+				status,
 				isStarred
 			});
 
@@ -82,15 +83,12 @@
 	</div>
 
 	<div class="form-group">
-		<label class="flex items-center gap-2 text-sm" for="reviewed-checkbox">
-			<input
-				id="reviewed-checkbox"
-				type="checkbox"
-				class="checkbox checkbox-sm"
-				bind:checked={isReviewed}
-			/>
-			<span>Mark as reviewed</span>
-		</label>
+		<label for="status-select" class="text-sm font-medium opacity-70 mb-1">Status</label>
+		<select id="status-select" bind:value={status} class="select select-sm w-full">
+			<option value={BookmarkStatus.WANT_TO_READ}>Want to Read</option>
+			<option value={BookmarkStatus.READING}>Currently Reading</option>
+			<option value={BookmarkStatus.READ}>Read</option>
+		</select>
 	</div>
 
 	<div class="form-group">

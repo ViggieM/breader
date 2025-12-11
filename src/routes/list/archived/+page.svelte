@@ -1,11 +1,11 @@
 <script lang="ts">
 	import UrlList from '$lib/components/UrlList.svelte';
 	import { results } from '$lib/components/SearchBar.svelte';
-
+	import { BookmarkStatus } from '$lib/types';
 	import { derived } from 'svelte/store';
 
 	const archived = derived(results, (results) => {
-		return results.filter((b) => b.isArchived);
+		return results.filter((b) => b.status === BookmarkStatus.ARCHIVED);
 	});
 </script>
 
