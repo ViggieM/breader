@@ -6,6 +6,7 @@
 	import type { ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave } from '$lib/utils/tags';
 	import { BookmarkStatus } from '$lib/types';
+	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
 
 	const { data }: PageProps = $props();
 
@@ -14,6 +15,7 @@
 	let title = $state(data.articleData.title || '');
 	let url = $state(data.articleData.url || '');
 	let status = $state(BookmarkStatus.WANT_TO_READ) as BookmarkStatus;
+	let disabled = $derived(saving || !url);
 
 	async function _handleSubmit() {
 		saving = true;
@@ -84,73 +86,12 @@
 >
 	<div class="form-actions flex flex-col gap-2">
 		<button class="btn btn-error" onclick={() => window.close()}> Cancel </button>
-		<div class="flex shadow-md">
-			<button
-				type="submit"
-				disabled={saving || !url}
-				class="btn btn-warning grow rounded-r-none border-r-0 shadow-none"
-				onclick={() => {
-					status = BookmarkStatus.WANT_TO_READ;
-					_handleSubmit();
-				}}
-			>
-				{saving ? 'Saving...' : 'Want to read'}
-			</button>
-			<div class="dropdown dropdown-top dropdown-end">
-				<div tabindex="0" role="button" class="btn btn-warning rounded-l-none shadow-none">
-					<span class="icon-[ri--arrow-down-s-line]"></span>
-				</div>
-				<ul
-					tabindex="-1"
-					class="dropdown-content menu bg-base-100 rounded-box z-1 mb-2 p-0 shadow-sm gap-2"
-				>
-					<li>
-						<button
-							type="submit"
-							disabled={saving || !url}
-							class="btn btn-neutral w-full"
-							onclick={() => {
-								status = BookmarkStatus.ARCHIVED;
-								_handleSubmit();
-							}}
-						>
-							{saving ? 'Saving...' : 'Archive'}
-						</button>
-					</li>
-					<li>
-						<button
-							type="submit"
-							disabled={saving || !url}
-							class="btn btn-info w-full"
-							onclick={() => {
-								status = BookmarkStatus.READING;
-								_handleSubmit();
-							}}
-						>
-							{saving ? 'Saving...' : 'Currently reading'}
-						</button>
-					</li>
-					<li>
-						<button
-							type="submit"
-							disabled={saving || !url}
-							class="btn btn-success w-full"
-							onclick={() => {
-								status = BookmarkStatus.READ;
-								_handleSubmit();
-							}}
-						>
-							{saving ? 'Saving...' : 'Read'}
-						</button>
-					</li>
-				</ul>
-			</div>
-		</div>
+		<BookmarkStatusSelect
+			bind:status
+			bind:saving
+			bind:disabled
+			handleClick={_handleSubmit}
+			position="top"
+		/>
 	</div>
 </div>
-
-<style>
-	.dropdown-content {
-		width: calc(100vw - 1rem);
-	}
-</style>

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { Bookmark, BookmarkStatus } from '$lib/types';
+	import { Bookmark } from '$lib/types';
 	import { db } from '$lib/db';
 	import Dexie from 'dexie';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
+	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
@@ -42,6 +43,7 @@
 	let saving = $state(false);
 	let copied = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
+	let disabled = $derived(saving);
 
 	async function saveChanges() {
 		saving = true;
@@ -101,6 +103,20 @@
 			setTimeout(() => (copied = false), 2000);
 		} catch (error) {
 			console.error('Failed to copy URL:', error);
+		}
+	}
+
+	async function handleStatusClick() {
+		saving = true;
+		try {
+			await db.bookmarks.update(bookmark.id, {
+				status,
+				modified: new Date().toISOString()
+			});
+		} catch (error) {
+			console.error('Error updating status:', error);
+		} finally {
+			saving = false;
 		}
 	}
 
@@ -228,22 +244,15 @@
 
 			<div>
 				<dt class="text-sm font-medium opacity-70 mb-1">Status</dt>
-				<dd>
-					<select
-						bind:value={status}
-						class="select select-sm w-full max-w-xs"
-						onchange={async () => {
-							await db.bookmarks.update(bookmark.id, {
-								status,
-								modified: new Date().toISOString()
-							});
-						}}
-					>
-						<option value={BookmarkStatus.WANT_TO_READ}>Want to Read</option>
-						<option value={BookmarkStatus.READING}>Currently Reading</option>
-						<option value={BookmarkStatus.READ}>Read</option>
-						<option value={BookmarkStatus.ARCHIVED}>Archived</option>
-					</select>
+				<dd class="w-52">
+					<BookmarkStatusSelect
+						bind:status
+						bind:saving
+						bind:disabled
+						handleClick={handleStatusClick}
+						position="bottom"
+						size="small"
+					/>
 				</dd>
 			</div>
 		</dl>
