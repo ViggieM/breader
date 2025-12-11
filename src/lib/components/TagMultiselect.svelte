@@ -131,4 +131,10 @@
 			color: color-mix(in oklch, currentColor 50%, #0000) !important;
 		}
 	}
+	:global(div.multiselect > ul > input[autocomplete]:focus::placeholder),
+	:global(div.multiselect.open > ul > input[autocomplete]::placeholder),
+	:global(label.floating-label:focus-within input[autocomplete]::placeholder) {
+		opacity: 0 !important;
+		transition: opacity 0.1s ease !important;
+	}
 </style>

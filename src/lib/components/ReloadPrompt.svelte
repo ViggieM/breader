@@ -9,15 +9,12 @@
 		onRegisteredSW(swScriptUrl: string, registration: ServiceWorkerRegistration | undefined) {
 			console.log(`SW Registered: ${registration}`);
 
-			/* Periodically check for updates */
-			if (registration) {
-				setInterval(
-					() => {
-						console.log('SW Checking for updates');
-						registration.update();
-					},
-					dev ? 3000 : intervalMS
-				);
+			/* Periodically check for updates (disabled in dev to avoid update conflicts) */
+			if (registration && !dev) {
+				setInterval(() => {
+					console.log('SW Checking for updates');
+					registration.update();
+				}, intervalMS);
 			}
 		},
 		onRegisterError(error: Error) {

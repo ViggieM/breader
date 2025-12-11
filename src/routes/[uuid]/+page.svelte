@@ -233,7 +233,6 @@
 
 		<dl class="space-y-4 mb-4">
 			<div>
-				<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
 				<TagMultiselect
 					bind:selectedTags
 					onAdd={checkForChanges}
