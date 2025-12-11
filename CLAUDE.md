@@ -41,10 +41,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Framework**: SvelteKit with Svelte 5 using modern runes syntax (`$state`, `$props`)
 
-**Styling**: TailwindCSS 4.0 with `@tailwindcss/forms` plugin and DaisyUI components
+**Styling**: TailwindCSS 4.0 with and DaisyUI components
 
-- **Icons**: Iconify icons via `@iconify/tailwind4` (class format: `icon-[iconset--icon-name]`)
-- **Themes**: DaisyUI theme system with localStorage persistence (light, dark, retro, cyberpunk, valentine, aqua)
+**Service Worker**: PWA support with manifest
+
+**Linting/Formatting**:
+
+- ESLint + Prettier with Svelte plugin support
+- TypeScript with strict mode enabled
 
 **Testing Setup**:
 
@@ -52,15 +56,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Component Tests**: Browser environment using Playwright for Svelte components (`.svelte.{test,spec}.{js,ts}` files)
 - **Server Tests**: Node environment for server-side code (`.{test,spec}.{js,ts}` files, excluding Svelte component tests)
 - **E2E Tests**: Playwright tests in `e2e/` directory
-
-**Build Tools**:
-
-- Vite with SvelteKit plugin and TailwindCSS integration
-- TypeScript with strict mode enabled
-- Cloudflare Workers adapter for serverless deployment
-- Wrangler for Cloudflare deployment and development
-- **Linting/Formatting**: ESLint + Prettier with Svelte plugin support
-- **Service Worker**: PWA support with manifest
 
 **Data Layer**:
 
@@ -89,8 +84,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `src/lib/db/index.ts` - Dexie database setup and schema
 - `src/lib/types/bookmark.ts` - Bookmark class and BookmarkData type definitions
 - `src/lib/stores/search.svelte.ts` - Search functionality with Fuse.js integration
-- `vite.config.ts` - Dual test environment configuration (browser/node)
-- `src/app.html` - HTML template with theme initialization script
 
 **Critical Architecture Notes**:
 
