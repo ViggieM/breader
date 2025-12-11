@@ -3,6 +3,7 @@
 	import { db } from '$lib/db';
 	import type { PageProps } from './$types';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
+	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
 	import type { ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave } from '$lib/utils/tags';
 	import { BookmarkStatus } from '$lib/types';
@@ -14,6 +15,7 @@
 	let saving = $state(false);
 	let status = $state(BookmarkStatus.WANT_TO_READ) as BookmarkStatus;
 	let isStarred = $state(false);
+	let disabled = $derived(saving);
 
 	async function _handleSubmit(
 		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
@@ -83,15 +85,22 @@
 	</div>
 
 	<div class="form-group">
-		<label for="status-select" class="text-sm font-medium opacity-70 mb-1">Status</label>
-		<select id="status-select" bind:value={status} class="select select-sm w-full">
-			<option value={BookmarkStatus.WANT_TO_READ}>Want to Read</option>
-			<option value={BookmarkStatus.READING}>Currently Reading</option>
-			<option value={BookmarkStatus.READ}>Read</option>
-		</select>
+		<TagMultiselect bind:selectedTags />
 	</div>
 
-	<div class="form-group">
+	<div class="form-group max-w-52">
+		<span class="text-sm font-medium opacity-70 mb-1">Status</span>
+		<BookmarkStatusSelect
+			bind:status
+			bind:saving
+			bind:disabled
+			handleClick={() => {}}
+			position="bottom"
+			size="small"
+		/>
+	</div>
+
+	<div class="form-group mt-6">
 		<label class="flex items-center gap-2 text-sm" for="starred-checkbox">
 			<input
 				id="starred-checkbox"
@@ -99,18 +108,13 @@
 				class="checkbox checkbox-sm"
 				bind:checked={isStarred}
 			/>
-			<span>Mark as starred</span>
+			<span>Add to Favorites</span>
 		</label>
-	</div>
-
-	<div class="form-group">
-		<dt class="text-sm font-medium opacity-70 mb-1">Tags</dt>
-		<TagMultiselect bind:selectedTags />
 	</div>
 </form>
 
 <div
-	class="sticky bottom-0 left-0 right-0 p-2 md:static md:p-0 bg-base-100 border-t border-base-300 md:border-0"
+	class="sticky bottom-0 left-0 right-0 p-2 md:static md:p-0 bg-base-100 border-t border-base-300 md:border-0 mt-8"
 	style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));"
 >
 	<div class="form-actions flex gap-2">

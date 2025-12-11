@@ -53,6 +53,7 @@
 			hidden = true;
 			handleClick();
 		}}
+		type="button"
 	>
 		{buttonText}
 	</button>
@@ -65,6 +66,7 @@
 		class:btn-info={status === BookmarkStatus.READING}
 		class:btn-neutral={status === BookmarkStatus.ARCHIVED}
 		class:btn-sm={size === 'small'}
+		type="button"
 	>
 		<span class="icon-[ri--arrow-down-s-line]"></span>
 	</button>

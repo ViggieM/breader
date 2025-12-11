@@ -63,31 +63,36 @@
 	}
 </script>
 
-<MultiSelect
-	outerDivClass="input !min-h-10 h-auto !px-2"
-	ulOptionsClass="!p-2 flex gap-2 flex-wrap !mt-3"
-	liOptionClass="badge"
-	liActiveOptionClass="badge-soft"
-	liSelectedClass="badge badge-primary !bg-primary !text-primary-content"
-	liUserMsgClass="text-xs"
-	allowUserOptions="append"
-	--sms-placeholder-opacity="0.7"
-	placeholder="Select Tags"
-	bind:selected={selectedTags}
-	options={$options}
-	selectedOptionsDraggable={false}
-	closeDropdownOnSelect={false}
-	duplicates={true}
-	onadd={handleAdd}
-	onremove={handleRemove}
-	onremoveAll={onRemoveAll}
-	--sms-options-border-width="0px"
-	--sms-active-color="var(--color-neutral)"
->
-	{#snippet expandIcon()}{/snippet}
-</MultiSelect>
+<label class="floating-label">
+	<span class="z-20">Tags</span>
+	<MultiSelect
+		outerDivClass="input !min-h-10 h-auto !px-2"
+		ulOptionsClass="!p-2 flex gap-2 flex-wrap !mt-3"
+		liOptionClass="badge"
+		liActiveOptionClass="badge-soft"
+		liSelectedClass="badge badge-primary !bg-primary !text-primary-content"
+		liUserMsgClass="text-xs"
+		allowUserOptions="append"
+		placeholder="Tags"
+		bind:selected={selectedTags}
+		options={$options}
+		selectedOptionsDraggable={false}
+		closeDropdownOnSelect={false}
+		duplicates={true}
+		onadd={handleAdd}
+		onremove={handleRemove}
+		onremoveAll={onRemoveAll}
+		--sms-options-border-width="0px"
+		--sms-active-color="var(--color-neutral)"
+	>
+		{#snippet expandIcon()}{/snippet}
+	</MultiSelect>
+</label>
 
 <style>
+	.floating-label > span {
+		z-index: 10;
+	}
 	:global(div.multiselect > ul.options > li.selected) {
 		--badge-color: var(--color-primary);
 		background-color: color-mix(
@@ -116,5 +121,14 @@
 			var(--color-base-100)
 		);
 		background-image: none;
+	}
+	:global(div.multiselect > ul > input[autocomplete]) {
+		&::placeholder {
+			font-size: 0.875rem;
+			position: relative;
+			left: -3px;
+			opacity: 1;
+			color: color-mix(in oklch, currentColor 50%, #0000) !important;
+		}
 	}
 </style>
