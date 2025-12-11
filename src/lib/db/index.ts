@@ -2,13 +2,13 @@ import Dexie, { type EntityTable } from 'dexie';
 import type { BookmarkData, TagData } from '$lib/types';
 import dexieCloud from 'dexie-cloud-addon';
 import { PUBLIC_DEXIE_CLOUD_DB_URL } from '$env/static/public';
-import type { ListData } from '$lib/types/list';
+import type { NoteData } from '$lib/types/note';
 import { BookmarkStatus } from '$lib/types/bookmark';
 
 class Database extends Dexie {
 	bookmarks!: EntityTable<BookmarkData, 'id'>;
 	tags!: EntityTable<TagData, 'id'>;
-	lists!: EntityTable<ListData, 'id'>;
+	notes!: EntityTable<NoteData, 'id'>;
 
 	constructor() {
 		super('BookmarkManager', { addons: [dexieCloud] });
@@ -60,3 +60,10 @@ db.version(6)
 				delete bookmark.isReading;
 			});
 	});
+
+db.version(7).stores({
+	bookmarks: '@id, title, url, *tags, *keywords, isStarred, created, modified, status',
+	tags: '@id, parentId, name, order',
+	lists: null, // Remove lists table
+	notes: '@id, *bookmarks, created, modified' // Add notes table
+});
