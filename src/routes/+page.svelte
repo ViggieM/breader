@@ -1,6 +1,5 @@
 <script lang="ts">
-	import UrlList from '$lib/components/UrlList.svelte';
-	import SearchBar, { results } from '$lib/components/SearchBar.svelte';
+	import SearchBar from '$lib/components/SearchBar.svelte';
 	import NavigationMenu from '$lib/components/NavigationMenu.svelte';
 </script>
 

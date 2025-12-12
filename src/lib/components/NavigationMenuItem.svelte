@@ -5,6 +5,8 @@
 	import type { TagNode } from '$lib/stores/navigation.svelte';
 	import { onMount } from 'svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
+	import { db } from '$lib/db';
+	import { updateBookmarkTags } from '$lib/db/bookmarks';
 
 	interface Props {
 		node: TagNode;
@@ -29,6 +31,11 @@
 	let isOpen = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
 
+	// Drag and drop state
+	let isDragOver = $state(false);
+
+	const dragHelpId = 'bookmark-drag-help';
+
 	onMount(() => {
 		// Load saved state from localStorage
 		const saved = localStorage.getItem(storageKey);
@@ -47,12 +54,81 @@
 
 {#if level < 5}
 	<li>
-		<details bind:this={detailsElement} open={isOpen} ontoggle={handleToggle}>
+		<details
+			bind:this={detailsElement}
+			open={isOpen}
+			ontoggle={handleToggle}
+			ondragend={() => {
+				isDragOver = false;
+			}}
+			ondragover={(e) => {
+				e.preventDefault();
+				if (!e.dataTransfer) return;
+				// Only allow bookmark drops
+				if (!e.dataTransfer.types.includes('application/x-bookmark-id')) {
+					e.dataTransfer.dropEffect = 'none';
+					return;
+				}
+				e.stopPropagation();
+				e.dataTransfer.dropEffect = 'move';
+				isDragOver = true;
+			}}
+			ondragenter={(e) => {
+				e.preventDefault();
+				isDragOver = true;
+				e.stopPropagation();
+			}}
+			ondragleave={(e) => {
+				isDragOver = false;
+				e.stopPropagation();
+			}}
+			ondrop={async (e) => {
+				e.preventDefault();
+				isDragOver = false;
+
+				if (!e.dataTransfer) return;
+
+				// Validate data type
+				if (!e.dataTransfer.types.includes('application/x-bookmark-id')) return;
+
+				// Extract bookmark ID from data transfer
+				const bookmarkId = e.dataTransfer.getData('application/x-bookmark-id');
+				if (!bookmarkId) {
+					console.error('No bookmark ID found in drag data');
+					return;
+				}
+
+				try {
+					// Get current bookmark
+					const bookmark = await db.bookmarks.get(bookmarkId);
+					if (!bookmark) {
+						console.error('Bookmark not found:', bookmarkId);
+						return;
+					}
+
+					// Check if tag exists
+					if (!node.tag || !node.tag.id) {
+						console.error('Invalid tag node:', node);
+						return;
+					}
+
+					// Check if tag already exists in bookmark's tags
+					if (!bookmark.tags.includes(node.tag.id)) {
+						// Add the new tag to the existing tags
+						const newTags = [...bookmark.tags, node.tag.id];
+						await updateBookmarkTags(bookmarkId, newTags);
+					}
+				} catch (error) {
+					console.error('Failed to update bookmark tags:', error);
+				}
+				e.stopPropagation();
+			}}
+		>
 			<summary
-				class="font-normal"
+				class="font-normal {isDragOver ? 'bg-base-300 ring-2 ring-primary' : ''}"
 				aria-label="{node.tag.name} tag ({totalCount} {totalCount === 1
 					? 'bookmark'
-					: 'bookmarks'})"
+					: 'bookmarks'}) - drop bookmarks here to add this tag"
 			>
 				<span class="icon-[ri--price-tag-3-fill] shrink-0" aria-hidden="true"></span>
 				<span class="flex-1 truncate" title={node.tag.name}>{node.tag.name}</span>
@@ -65,11 +141,16 @@
 
 				<!-- Direct bookmarks for this tag -->
 				{#each node.bookmarks as bookmark (bookmark.id)}
-					<li>
+					<li draggable="true">
 						<a
-							draggable="true"
 							href="/bookmark/{bookmark.id}"
 							aria-label="Open {bookmark.title || 'Untitled'}"
+							aria-describedby={dragHelpId}
+							ondragstart={(e) => {
+								if (!e.dataTransfer) return;
+								e.dataTransfer.effectAllowed = 'copyMove';
+								e.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
+							}}
 						>
 							<img
 								src={bookmark.faviconUrl}

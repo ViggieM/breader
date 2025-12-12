@@ -4,9 +4,12 @@
 <script lang="ts">
 	import { navigationData } from '$lib/stores/navigation.svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
+
+	const dragHelpId = 'bookmark-drag-help';
 </script>
 
 {#if $navigationData}
+	<span id={dragHelpId} class="sr-only">Drag bookmarks to tags to add that tag</span>
 	<ul class="menu rounded-box w-full p-0 mt-4">
 		<!-- Static top-level links -->
 		<li>
@@ -37,6 +40,12 @@
 					draggable="true"
 					href="/bookmark/{bookmark.id}"
 					aria-label="Open {bookmark.title || 'Untitled'}"
+					aria-describedby={dragHelpId}
+					ondragstart={(e) => {
+						if (!e.dataTransfer) return;
+						e.dataTransfer.effectAllowed = 'move';
+						e.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
+					}}
 				>
 					<img
 						src={bookmark.faviconUrl}
