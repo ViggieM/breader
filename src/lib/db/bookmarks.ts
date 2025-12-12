@@ -29,8 +29,10 @@ export function getBookmark(id: string) {
 export function getAllBookmarks() {
 	return liveQuery(async () => {
 		const bookmarks = await db.bookmarks.toArray();
-		// Sort by created date, newest first
-		return bookmarks.sort((a, b) => b.created.localeCompare(a.created));
+		// Sort by modified / created date, newest first
+		return bookmarks.sort((a, b) =>
+			(b.modified || b.created).localeCompare(a.modified || a.created)
+		);
 	});
 }
 

@@ -6,6 +6,7 @@
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
 
 	const dragHelpId = 'bookmark-drag-help';
+	let currentlyDragedOver = $state<HTMLElement>();
 </script>
 
 {#if $navigationData}
@@ -78,3 +79,20 @@
 		<span class="loading loading-spinner loading-lg"></span>
 	</div>
 {/if}
+
+<svelte:window
+	ondrag={(e) => {
+		const el = document.elementFromPoint(e.clientX, e.clientY);
+		let node: HTMLElement | null | undefined = el?.closest('details');
+		if (node && [...node.classList].includes('dragover')) return;
+		if (node) {
+			currentlyDragedOver?.classList.remove('dragover');
+			currentlyDragedOver = node;
+			currentlyDragedOver.classList.add('dragover');
+			return;
+		}
+
+		currentlyDragedOver?.classList.remove('dragover');
+	}}
+	ondragend={() => document.querySelector('.dragover')?.classList.remove('dragover')}
+/>

@@ -9,6 +9,10 @@
 		& ul {
 			@apply ml-4;
 		}
+
+		&.dragover {
+			@apply bg-base-200!;
+		}
 	}
 
 	/* Favicon sizing for bookmarks */

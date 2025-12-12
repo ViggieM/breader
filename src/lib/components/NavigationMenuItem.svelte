@@ -32,9 +32,6 @@
 	let isOpen = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
 
-	// Drag and drop state
-	let isDragOver = $state(false);
-
 	const dragHelpId = 'bookmark-drag-help';
 
 	onMount(() => {
@@ -56,13 +53,10 @@
 {#if level < 5}
 	<li>
 		<details
-			class:bg-base-200={isDragOver}
+			id={node.tag.id}
 			bind:this={detailsElement}
 			open={isOpen}
 			ontoggle={handleToggle}
-			ondragend={() => {
-				isDragOver = false;
-			}}
 			ondragover={(e) => {
 				e.preventDefault();
 				if (!e.dataTransfer) return;
@@ -73,21 +67,17 @@
 				}
 				e.stopPropagation();
 				e.dataTransfer.dropEffect = 'move';
-				isDragOver = true;
 			}}
 			ondragenter={(e) => {
 				e.preventDefault();
-				isDragOver = true;
 				e.stopPropagation();
 			}}
 			ondragleave={(e) => {
-				isDragOver = false;
 				e.stopPropagation();
 			}}
 			ondrop={async (e) => {
 				e.preventDefault();
 				e.stopPropagation();
-				isDragOver = false;
 
 				if (!e.dataTransfer) return;
 
@@ -133,7 +123,7 @@
 			}}
 		>
 			<summary
-				class="font-normal {isDragOver ? 'bg-base-300 ring-2 ring-primary' : ''}"
+				class="font-normal"
 				aria-label="{node.tag.name} tag ({totalCount} {totalCount === 1
 					? 'bookmark'
 					: 'bookmarks'}) - drop bookmarks here to add this tag"
