@@ -129,6 +129,8 @@
 					if (details && !details.open) {
 						details.open = true;
 					}
+					// Scroll the details element to the top of the viewport
+					details?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 				}}
 			/>
 		</span>
