@@ -1,0 +1,58 @@
+/* Navigation menu component styles */
+.menu {
+	/* Ensure proper spacing for nested items */
+	& details {
+		& > summary {
+			@apply font-medium;
+		}
+
+		& ul {
+			@apply ml-4;
+		}
+	}
+
+	/* Favicon sizing for bookmarks */
+	& img {
+		@apply w-4 h-4 shrink-0 object-contain;
+	}
+
+	/* Badge styling for bookmark counts */
+	& .badge {
+		@apply ml-auto;
+	}
+
+	/* Icon sizing */
+	& [class^='icon-'],
+	& [class*=' icon-'] {
+		@apply w-5 h-5 shrink-0;
+	}
+
+	/* Truncate long text */
+	& .truncate {
+		@apply min-w-0;
+	}
+
+	/* Add smooth transitions for details */
+	& details {
+		& > ul {
+			@apply transition-all duration-200;
+		}
+	}
+
+	/* Mobile adjustments */
+	@media (max-width: 640px) {
+		& a,
+		& summary {
+			@apply text-sm py-2;
+		}
+
+		& [class^='icon-'],
+		& [class*=' icon-'] {
+			@apply w-4 h-4;
+		}
+
+		& .badge {
+			@apply text-xs;
+		}
+	}
+}
