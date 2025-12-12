@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+IMPORTANT: The dev server might already be running on port 3000. Use that one instead of starting a new one
+
 ## Development Commands
 
 **Package Manager**: This project uses `pnpm` (see pnpm-lock.yaml)

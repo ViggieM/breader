@@ -4,14 +4,20 @@
 <script lang="ts">
 	import { navigationData } from '$lib/stores/navigation.svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
+	import { updateTagParent } from '$lib/db/tags';
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement>();
+	let isRootDropTarget = $state(false);
 </script>
 
 {#if $navigationData}
 	<span id={dragHelpId} class="sr-only">Drag bookmarks to tags to add that tag</span>
-	<ul class="menu rounded-box w-full p-0 mt-4">
+	<span id="tag-drag-help" class="sr-only">
+		Drag tags to reorganize the hierarchy. Drop on another tag to make it a child, or drop in the
+		space above the tags to make it a root-level tag.
+	</span>
+	<ul class="menu rounded-box w-full p-0 mt-4 h-full">
 		<!-- Static top-level links -->
 		<li>
 			<a href="/list/favorites" aria-label="View favorite bookmarks">
@@ -32,39 +38,81 @@
 			</a>
 		</li>
 
-		<hr class="text-base-300 my-2" />
+		<div
+			role="region"
+			aria-label="Tag organization area"
+			class="border-t border-base-300 py-4 mt-4"
+			class:bg-base-200={isRootDropTarget}
+			ondragover={(e) => {
+				e.preventDefault();
+				if (!e.dataTransfer) return;
 
-		<!-- Untagged bookmarks section -->
-		{#each $navigationData.untagged as bookmark (bookmark.id)}
-			<li>
-				<a
-					draggable="true"
-					href="/bookmark/{bookmark.id}"
-					aria-label="Open {bookmark.title || 'Untitled'}"
-					aria-describedby={dragHelpId}
-					ondragstart={(e) => {
-						if (!e.dataTransfer) return;
-						e.dataTransfer.effectAllowed = 'move';
-						e.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
-					}}
-				>
-					<img
-						src={bookmark.faviconUrl}
-						alt=""
-						draggable="false"
-						loading="lazy"
-						class="w-4 h-4 shrink-0"
-						onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-					/>
-					<span class="truncate">{bookmark.title || 'Untitled'}</span>
-				</a>
-			</li>
-		{/each}
+				// Only accept tag drops at root level
+				if (!e.dataTransfer.types.includes('application/x-tag-id')) {
+					e.dataTransfer.dropEffect = 'none';
+					return;
+				}
 
-		<!-- Tag tree with nested tags and bookmarks -->
-		{#each $navigationData.tagTree as tagNode (tagNode.tag.id)}
-			<NavigationMenuItem node={tagNode} />
-		{/each}
+				e.dataTransfer.dropEffect = 'move';
+				isRootDropTarget = true;
+			}}
+			ondragleave={() => {
+				isRootDropTarget = false;
+			}}
+			ondrop={async (e) => {
+				e.preventDefault();
+				isRootDropTarget = false;
+
+				if (!e.dataTransfer) return;
+
+				// Only handle tag drops
+				if (!e.dataTransfer.types.includes('application/x-tag-id')) return;
+
+				const tagId = e.dataTransfer.getData('application/x-tag-id');
+				if (!tagId) {
+					console.error('No tag ID found in drag data');
+					return;
+				}
+
+				try {
+					await updateTagParent(tagId, null);
+				} catch (error) {
+					console.error('Failed to move tag to root:', error);
+				}
+			}}
+		>
+			<!-- Untagged bookmarks section -->
+			{#each $navigationData.untagged as bookmark (bookmark.id)}
+				<li>
+					<a
+						draggable="true"
+						href="/bookmark/{bookmark.id}"
+						aria-label="Open {bookmark.title || 'Untitled'}"
+						aria-describedby={dragHelpId}
+						ondragstart={(e) => {
+							if (!e.dataTransfer) return;
+							e.dataTransfer.effectAllowed = 'move';
+							e.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
+						}}
+					>
+						<img
+							src={bookmark.faviconUrl}
+							alt=""
+							draggable="false"
+							loading="lazy"
+							class="w-4 h-4 shrink-0"
+							onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+						/>
+						<span class="truncate">{bookmark.title || 'Untitled'}</span>
+					</a>
+				</li>
+			{/each}
+
+			<!-- Tag tree with nested tags and bookmarks -->
+			{#each $navigationData.tagTree as tagNode (tagNode.tag.id)}
+				<NavigationMenuItem node={tagNode} />
+			{/each}
+		</div>
 
 		<!-- Empty state -->
 		{#if $navigationData.tagTree.length === 0 && $navigationData.untagged.length === 0}
@@ -83,8 +131,11 @@
 <svelte:window
 	ondrag={(e) => {
 		const el = document.elementFromPoint(e.clientX, e.clientY);
+
+		// Check if dragging over a tag details element
 		let node: HTMLElement | null | undefined = el?.closest('details');
 		if (node && [...node.classList].includes('dragover')) return;
+
 		if (node) {
 			currentlyDragedOver?.classList.remove('dragover');
 			currentlyDragedOver = node;
@@ -92,7 +143,14 @@
 			return;
 		}
 
+		// Check if dragging over root drop area
+		const rootArea = el?.closest('.border-t.border-base-300');
+		if (rootArea && rootArea.classList.contains('dragover')) return;
+
 		currentlyDragedOver?.classList.remove('dragover');
 	}}
-	ondragend={() => document.querySelector('.dragover')?.classList.remove('dragover')}
+	ondragend={() => {
+		document.querySelector('.dragover')?.classList.remove('dragover');
+		isRootDropTarget = false;
+	}}
 />
