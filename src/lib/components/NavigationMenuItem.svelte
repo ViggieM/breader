@@ -221,10 +221,6 @@
 {/if}
 
 <style>
-	summary[draggable='true'] {
-		cursor: grab;
-	}
-
 	summary[draggable='true']:active {
 		cursor: grabbing;
 	}

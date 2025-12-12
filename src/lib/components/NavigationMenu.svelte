@@ -17,7 +17,46 @@
 		Drag tags to reorganize the hierarchy. Drop on another tag to make it a child, or drop in the
 		space above the tags to make it a root-level tag.
 	</span>
-	<ul class="menu rounded-box w-full p-0 mt-4 h-full">
+	<ul
+		class="menu rounded-box w-full p-0 mt-4"
+		ondragover={(e) => {
+			e.preventDefault();
+			if (!e.dataTransfer) return;
+
+			// Only accept tag drops at root level
+			if (!e.dataTransfer.types.includes('application/x-tag-id')) {
+				e.dataTransfer.dropEffect = 'none';
+				return;
+			}
+
+			e.dataTransfer.dropEffect = 'move';
+			isRootDropTarget = true;
+		}}
+		ondragleave={() => {
+			isRootDropTarget = false;
+		}}
+		ondrop={async (e) => {
+			e.preventDefault();
+			isRootDropTarget = false;
+
+			if (!e.dataTransfer) return;
+
+			// Only handle tag drops
+			if (!e.dataTransfer.types.includes('application/x-tag-id')) return;
+
+			const tagId = e.dataTransfer.getData('application/x-tag-id');
+			if (!tagId) {
+				console.error('No tag ID found in drag data');
+				return;
+			}
+
+			try {
+				await updateTagParent(tagId, null);
+			} catch (error) {
+				console.error('Failed to move tag to root:', error);
+			}
+		}}
+	>
 		<!-- Static top-level links -->
 		<li>
 			<a href="/list/favorites" aria-label="View favorite bookmarks">
@@ -43,43 +82,6 @@
 			aria-label="Tag organization area"
 			class="border-t border-base-300 py-4 mt-4"
 			class:bg-base-200={isRootDropTarget}
-			ondragover={(e) => {
-				e.preventDefault();
-				if (!e.dataTransfer) return;
-
-				// Only accept tag drops at root level
-				if (!e.dataTransfer.types.includes('application/x-tag-id')) {
-					e.dataTransfer.dropEffect = 'none';
-					return;
-				}
-
-				e.dataTransfer.dropEffect = 'move';
-				isRootDropTarget = true;
-			}}
-			ondragleave={() => {
-				isRootDropTarget = false;
-			}}
-			ondrop={async (e) => {
-				e.preventDefault();
-				isRootDropTarget = false;
-
-				if (!e.dataTransfer) return;
-
-				// Only handle tag drops
-				if (!e.dataTransfer.types.includes('application/x-tag-id')) return;
-
-				const tagId = e.dataTransfer.getData('application/x-tag-id');
-				if (!tagId) {
-					console.error('No tag ID found in drag data');
-					return;
-				}
-
-				try {
-					await updateTagParent(tagId, null);
-				} catch (error) {
-					console.error('Failed to move tag to root:', error);
-				}
-			}}
 		>
 			<!-- Untagged bookmarks section -->
 			{#each $navigationData.untagged as bookmark (bookmark.id)}
@@ -121,6 +123,11 @@
 			</li>
 		{/if}
 	</ul>
+	<div class="px-3">
+		<button class="btn btn-sm btn-outline"
+			><span class="icon-[ri--add-large-fill]"></span> Add a new tag</button
+		>
+	</div>
 {:else}
 	<!-- Loading state -->
 	<div class="flex justify-center items-center p-8">
