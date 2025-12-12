@@ -35,7 +35,7 @@
 			});
 
 			// Scroll the opened details into view
-			currentDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			currentDetails.scrollIntoView({ behavior: 'smooth', block: 'start' });
 		}
 	}
 </script>
