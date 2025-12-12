@@ -63,17 +63,17 @@
 	}
 </script>
 
-<label class="floating-label">
-	<span class="z-20">Tags</span>
+<div class="flex gap-2 items-center">
+	<span class="icon-[ri--price-tag-3-fill] text-primary shrink-0"></span>
 	<MultiSelect
-		outerDivClass="input !min-h-10 h-auto !px-2"
+		outerDivClass="h-auto w-full grow"
 		ulOptionsClass="!p-2 flex gap-2 flex-wrap !mt-3"
 		liOptionClass="badge badge-outline badge-primary"
 		liActiveOptionClass="badge badge-soft badge-primary"
 		liSelectedClass="badge badge-primary"
 		liUserMsgClass="text-xs"
 		allowUserOptions="append"
-		placeholder="Tags"
+		placeholder="No tags selected"
 		bind:selected={selectedTags}
 		options={$options}
 		selectedOptionsDraggable={false}
@@ -87,11 +87,12 @@
 	>
 		{#snippet expandIcon()}{/snippet}
 	</MultiSelect>
-</label>
+</div>
 
 <style>
-	.floating-label > span {
-		z-index: 10;
+	:global(div.multiselect) {
+		border: none !important;
+		padding: 0 !important;
 	}
 	/* Selected badges in input area and dropdown - ensure full primary styling */
 	:global(div.multiselect > ul:not(.options) > li),
@@ -129,7 +130,8 @@
 		&::placeholder {
 			font-size: 0.875rem;
 			position: relative;
-			left: -3px;
+			top: -1px;
+			left: -2px;
 			opacity: 1;
 			color: color-mix(in oklch, currentColor 50%, #0000) !important;
 		}
