@@ -2,7 +2,7 @@
 	import { db } from '$lib/db';
 	import Dexie from 'dexie';
 	import { readable } from 'svelte/store';
-	import NoteList from '$lib/components/NoteList.svelte';
+	import Note from '$lib/components/Note.svelte';
 	import { updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
 	import type { NoteData } from '$lib/types/note';
 
@@ -43,8 +43,20 @@
 	}
 </script>
 
-<h1 class="text-3xl font-bold">Notes</h1>
+<h1 class="sr-only">Notes</h1>
 
 <section class="mt-4">
-	<NoteList {notes} onSave={handleSave} onDelete={handleDelete} />
+	{#if notes.length === 0}
+		<div class="text-center text-base-content/60 py-8">
+			<p>No notes yet. Create your first note!</p>
+		</div>
+	{:else}
+		<ul class="space-y-1">
+			{#each notes as note (note.id)}
+				<li>
+					<Note {note} onSave={handleSave} onDelete={handleDelete} />
+				</li>
+			{/each}
+		</ul>
+	{/if}
 </section>
