@@ -4,7 +4,7 @@
 	import Dexie from 'dexie';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
-	import Notes from '$lib/components/Notes.svelte';
+	import BookmarkNotes from '$lib/components/BookmarkNotes.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
@@ -45,7 +45,6 @@
 	let copied = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
 	let disabled = $derived(saving);
-	let notes = $state([]) as Array<{ id: string; text: string; created: string }>;
 
 	async function saveChanges() {
 		saving = true;
@@ -319,7 +318,7 @@
 		</details>
 	</div>
 
-	<Notes bind:notes />
+	<BookmarkNotes bookmarkId={bookmark.id} />
 
 	{#if hasUnsavedChanges}
 		<div

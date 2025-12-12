@@ -22,7 +22,6 @@
 
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
-	import { db } from '$lib/db';
 
 	// Update URL when query changes (for bookmarking/sharing)
 	function updateURL() {
@@ -47,7 +46,8 @@
 		if (!listName) {
 			return;
 		}
-		await db.lists.add({ name: listName, created: new Date().toISOString(), modified: null });
+		// todo: lists are not existing anymore. remove this method and the option
+		// await db.lists.add({ name: listName, created: new Date().toISOString(), modified: null });
 		addListForm.reset();
 		addListDialog.close();
 	}

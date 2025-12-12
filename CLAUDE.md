@@ -76,19 +76,29 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **Database Schema**:
 
-- Single `bookmarks` table with indexes on: id, title, url, tags (multi-entry), keywords (multi-entry), isStarred, status, created, modified
-- Status field uses BookmarkStatus enum: ARCHIVED (0), READING (1), READ (2), WANT_TO_READ (3)
+- `bookmarks` table with indexes on: id, title, url, tags (multi-entry), keywords (multi-entry), isStarred, status, created, modified
+  - Status field uses BookmarkStatus enum: ARCHIVED (0), READING (1), READ (2), WANT_TO_READ (3)
+- `notes` table with indexes on: id, bookmarks (multi-entry), created, modified
+  - Many-to-many relationship: notes can be associated with multiple bookmarks via `bookmarks` array
+  - Auto-generated IDs via Dexie
 - UUID primary keys generated via custom Dexie plugin
 
 **Key Files**:
 
 - `src/lib/db/index.ts` - Dexie database setup and schema
+- `src/lib/db/notes.ts` - Notes CRUD operations and queries
 - `src/lib/types/bookmark.ts` - Bookmark class and BookmarkData type definitions
 - `src/lib/stores/search.svelte.ts` - Search functionality with Fuse.js integration
+- `src/lib/stores/bookmarkNotes.svelte.ts` - Reactive store for bookmark notes
+- `src/lib/components/BookmarkNotes.svelte` - UI component for managing notes
 
 **Critical Architecture Notes**:
 
 - Dexie liveQuery observables must be converted to Svelte readable stores using `readable()` wrapper for compatibility with `derived()` stores
 - Search store uses derived stores pattern to automatically rebuild search index when bookmark data changes
+- BookmarkNotes component uses liveQuery wrapped in readable store for reactivity (see `bookmarkNotes.svelte.ts`)
+- Notes are persisted to database immediately on save (no local state management)
+- Dexie auto-generates note IDs; temporary UUIDs are not persisted
 - Theme switching happens immediately via localStorage and DOM data-theme attribute
 - No need to install new icon sets like '@iconify-json/material-symbols' since '@iconify/json' includes all
+- All types should be defined in `$lib/types` and imported from there, e.g. `import { BookmarkStatus } from '$lib/types';`

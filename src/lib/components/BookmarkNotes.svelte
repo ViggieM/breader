@@ -1,67 +1,77 @@
-<!-- ABOUTME: Component for managing bookmark notes with add, edit, delete functionality -->
-<!-- ABOUTME: Uses bindable notes array to sync with parent component -->
+<!-- ABOUTME: Component for managing notes associated with a specific bookmark -->
+<!-- ABOUTME: Uses Dexie liveQuery and derived stores for reactive database access -->
 <script lang="ts">
 	import { formatDateAndTime } from '$lib';
+	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
+	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	// Types
-	type Note = { id: string; text: string; created: string };
-
-	type NotesProps = {
-		notes: Note[];
+	type BookmarkNotesProps = {
+		bookmarkId: string;
 	};
 
 	// Props
-	let { notes = $bindable([]) }: NotesProps = $props();
+	let { bookmarkId }: BookmarkNotesProps = $props();
+
+	// Store initialization
+	const notesStore = createBookmarkNotesStore(bookmarkId);
+	let notes = $derived($notesStore);
 
 	// Internal state
-	let editingNotes = $state(new Map<string, string>()); // Map of noteId -> original text
+	let editingNotes = new SvelteMap<string, string>(); // Map of noteId -> original text
 	let sortedNotes = $derived([...notes].sort((a, b) => b.created.localeCompare(a.created)));
 
 	// Note management functions
-	function addNote() {
-		const id = crypto.randomUUID();
-		const newNote = { id, text: '', created: new Date().toISOString() };
-		notes.push(newNote);
-		editingNotes.set(id, '');
-	}
-
-	function saveNote(noteId: string, newText: string) {
-		const note = notes.find((n) => n.id === noteId);
-		if (note) {
-			note.text = newText;
+	async function addNote() {
+		try {
+			// Create in database with empty text
+			const id = await createNote(bookmarkId, '');
+			// Enter edit mode for the new note
+			editingNotes.set(id, '');
+		} catch (error) {
+			console.error('Failed to create note:', error);
 		}
-		editingNotes.delete(noteId);
 	}
 
-	function cancelNote(noteId: string) {
-		const originalText = editingNotes.get(noteId);
-		if (originalText === '') {
-			// New note, remove it
-			notes = notes.filter((n) => n.id !== noteId);
-		} else {
-			// Revert to original text
-			const note = notes.find((n) => n.id === noteId);
-			if (note && originalText !== undefined) {
-				note.text = originalText;
+	async function saveNote(noteId: string, newText: string) {
+		try {
+			await updateNote(noteId, newText);
+			editingNotes.delete(noteId);
+		} catch (error) {
+			console.error('Failed to save note:', error);
+			// Keep edit mode active so user doesn't lose their work
+		}
+	}
+
+	async function cancelNote(noteId: string) {
+		try {
+			const originalText = editingNotes.get(noteId);
+			if (originalText === '') {
+				// New note that was never saved, delete it
+				await deleteNoteFromDb(noteId);
 			}
+			// For existing notes, just exit edit mode
+			// The textarea is bound to note.text, so it will revert to DB value automatically when we exit edit mode
+			editingNotes.delete(noteId);
+		} catch (error) {
+			console.error('Failed to cancel note:', error);
 		}
-		editingNotes.delete(noteId);
 	}
 
-	function deleteNote(noteId: string) {
-		notes = notes.filter((n) => n.id !== noteId);
-		editingNotes.delete(noteId);
+	async function deleteNote(noteId: string) {
+		try {
+			await deleteNoteFromDb(noteId);
+			editingNotes.delete(noteId);
+		} catch (error) {
+			console.error('Failed to delete note:', error);
+		}
 	}
 
 	function startEditingNote(noteId: string, currentText: string) {
 		if (!editingNotes.has(noteId)) {
 			editingNotes.set(noteId, currentText);
 		}
-	}
-
-	function isNoteEdited(noteId: string, currentText: string): boolean {
-		const originalText = editingNotes.get(noteId);
-		return originalText !== undefined && currentText !== originalText;
 	}
 
 	// Autogrow textarea action
@@ -92,7 +102,7 @@
 		</button>
 
 		{#each sortedNotes as note (note.id)}
-			<div class="card bg-base-200">
+			<div class="card bg-base-200" id={`note-${note.id}`}>
 				<div class="card-body p-4 space-y-2">
 					<div class="text-xs opacity-60 mb-2">
 						{formatDateAndTime(note.created)}
@@ -105,7 +115,7 @@
 						placeholder="Write your note here..."
 					></textarea>
 
-					{#if editingNotes.has(note.id) && isNoteEdited(note.id, note.text)}
+					{#if editingNotes.has(note.id)}
 						<div class="flex gap-2">
 							<button class="btn btn-xs btn-success" onclick={() => saveNote(note.id, note.text)}>
 								Save
