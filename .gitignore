@@ -29,7 +29,9 @@ vite.config.ts.timestamp-*
 # Claude
 .claude/sessions/
 /dexie-cloud.key
-.trees/
+plan.md
+specs.md
+todo.md
 
 # Supabase
 supabase/
