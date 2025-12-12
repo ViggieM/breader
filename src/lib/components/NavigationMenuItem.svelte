@@ -56,9 +56,6 @@
 			>
 				<span class="icon-[ri--price-tag-3-fill] shrink-0" aria-hidden="true"></span>
 				<span class="flex-1 truncate" title={node.tag.name}>{node.tag.name}</span>
-				{#if totalCount > 0}
-					<span class="badge badge-sm" aria-hidden="true">{totalCount}</span>
-				{/if}
 			</summary>
 			<ul>
 				<!-- Child tags (recursive) -->

@@ -51,41 +51,25 @@
 		<hr class="text-base-300 my-2" />
 
 		<!-- Untagged bookmarks section -->
-		{#if $navigationData.untagged.length > 0}
+		{#each $navigationData.untagged as bookmark (bookmark.id)}
 			<li>
-				<details
-					bind:this={untaggedDetailsElement}
-					open={untaggedIsOpen}
-					ontoggle={handleUntaggedToggle}
+				<a
+					draggable="true"
+					href="/bookmark/{bookmark.id}"
+					aria-label="Open {bookmark.title || 'Untitled'}"
 				>
-					<summary
-						class="font-normal"
-						aria-label="Untagged bookmarks ({$navigationData.untagged.length})"
-					>
-						<span class="icon-[ri--bookmark-line] shrink-0" aria-hidden="true"></span>
-						Untagged
-						<span class="badge badge-sm">{$navigationData.untagged.length}</span>
-					</summary>
-					<ul>
-						{#each $navigationData.untagged as bookmark (bookmark.id)}
-							<li>
-								<a href="/bookmark/{bookmark.id}" aria-label="Open {bookmark.title || 'Untitled'}">
-									<img
-										src={bookmark.faviconUrl}
-										alt=""
-										draggable="false"
-										loading="lazy"
-										class="w-4 h-4 shrink-0"
-										onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-									/>
-									<span class="truncate">{bookmark.title || 'Untitled'}</span>
-								</a>
-							</li>
-						{/each}
-					</ul>
-				</details>
+					<img
+						src={bookmark.faviconUrl}
+						alt=""
+						draggable="false"
+						loading="lazy"
+						class="w-4 h-4 shrink-0"
+						onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
+					/>
+					<span class="truncate">{bookmark.title || 'Untitled'}</span>
+				</a>
 			</li>
-		{/if}
+		{/each}
 
 		<!-- Tag tree with nested tags and bookmarks -->
 		{#each $navigationData.tagTree as tagNode (tagNode.tag.id)}
