@@ -6,32 +6,37 @@
 
 	type NoteProps = {
 		note: Note;
-		onSave: (noteId: string, text: string) => Promise<void>;
+		onSave: (noteId: string, text: string, title: string | null) => Promise<void>;
 		onDelete: (noteId: string) => Promise<void>;
 	};
 
 	let { note, onSave, onDelete }: NoteProps = $props();
 
-	// Local reactive state for editing - this makes text changes reactive!
+	// Local reactive state for editing - this makes text and title changes reactive!
 	let text = $state(note.text);
 	let originalText = $state(note.text);
+	let title = $state(note.title || '');
+	let originalTitle = $state(note.title || '');
 
 	// Derived: has the note been edited?
-	let hasChanges = $derived(text !== originalText);
+	let hasChanges = $derived(text !== originalText || title !== originalTitle);
 
 	// Sync with database when note prop changes (but only if no local edits)
 	$effect(() => {
-		if (text === originalText) {
+		if (text === originalText && title === originalTitle) {
 			text = note.text;
 			originalText = note.text;
+			title = note.title || '';
+			originalTitle = note.title || '';
 		}
 	});
 
 	async function save() {
 		try {
-			await onSave(note.id, text);
+			await onSave(note.id, text, title || null);
 			// Update original only after successful save
 			originalText = text;
+			originalTitle = title;
 		} catch (error) {
 			console.error('Failed to save note:', error);
 		}
@@ -44,6 +49,7 @@
 		} else {
 			// Revert to original
 			text = originalText;
+			title = originalTitle;
 		}
 	}
 
@@ -69,34 +75,39 @@
 	}
 </script>
 
-<div class="card bg-base-200" id={`note-${note.id}`}>
-	<div class="card-body p-4 space-y-2">
-		<div class="text-xs opacity-60 mb-2">
-			{formatDateAndTime(note.created)}
+<div class="space-y-2">
+	<!-- <label class="floating-label">
+		<span>Title</span>
+		<input
+			bind:value={title}
+			type="text"
+			class="input input-ghost input-xs text-lg font-semibold w-full"
+			placeholder="Untitled"
+			name="title"
+		/>
+	</label> -->
+	<textarea
+		bind:value={text}
+		use:autogrow
+		class="textarea textarea-ghost textarea-bordered w-full min-h-[100px] resize-none overflow-hidden"
+		placeholder="Write your note here..."
+		name="text"
+	></textarea>
+	{#if hasChanges}
+		<div class="flex gap-2">
+			<button class="btn btn-xs btn-success" onclick={save}> Save </button>
+			<button class="btn btn-xs btn-error" onclick={cancel}> Cancel </button>
+			<button class="btn btn-xs btn-ghost ml-auto" onclick={deleteNote}>
+				<span class="icon-[ri--delete-bin-line]"></span>
+				Delete
+			</button>
 		</div>
-		<textarea
-			bind:value={text}
-			use:autogrow
-			class="textarea textarea-ghost textarea-bordered w-full min-h-[100px] resize-none overflow-hidden"
-			placeholder="Write your note here..."
-		></textarea>
-
-		{#if hasChanges}
-			<div class="flex gap-2">
-				<button class="btn btn-xs btn-success" onclick={save}> Save </button>
-				<button class="btn btn-xs btn-error" onclick={cancel}> Cancel </button>
-				<button class="btn btn-xs btn-ghost ml-auto" onclick={deleteNote}>
-					<span class="icon-[ri--delete-bin-line]"></span>
-					Delete
-				</button>
-			</div>
-		{:else}
-			<div class="flex justify-end">
-				<button class="btn btn-xs btn-ghost" onclick={deleteNote}>
-					<span class="icon-[ri--delete-bin-line]"></span>
-					Delete
-				</button>
-			</div>
-		{/if}
-	</div>
+	{:else}
+		<div class="flex justify-end">
+			<button class="btn btn-xs btn-ghost" onclick={deleteNote}>
+				<span class="icon-[ri--delete-bin-line]"></span>
+				Delete
+			</button>
+		</div>
+	{/if}
 </div>

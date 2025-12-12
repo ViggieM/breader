@@ -4,6 +4,7 @@
 	import Note from './Note.svelte';
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
+	import { formatDateAndTime } from '$lib';
 
 	// Types
 	type BookmarkNotesProps = {
@@ -27,9 +28,9 @@
 		}
 	}
 
-	async function saveNote(noteId: string, newText: string) {
+	async function saveNote(noteId: string, newText: string, newTitle: string | null) {
 		try {
-			await updateNote(noteId, newText);
+			await updateNote(noteId, newText, newTitle);
 		} catch (error) {
 			console.error('Failed to save note:', error);
 			throw error; // Re-throw so Note component can handle it
@@ -53,7 +54,14 @@
 		</button>
 
 		{#each sortedNotes as note (note.id)}
-			<Note {note} onSave={saveNote} onDelete={deleteNote} />
+			<div class="card bg-base-200" id={`note-${note.id}`}>
+				<div class="card-body p-4">
+					<div class="text-xs opacity-60 mb-2">
+						{formatDateAndTime(note.created)}
+					</div>
+					<Note {note} onSave={saveNote} onDelete={deleteNote} />
+				</div>
+			</div>
 		{/each}
 	</div>
 </section>

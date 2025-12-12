@@ -1,0 +1,26 @@
+.note-list-item {
+	@apply relative w-full p-1;
+
+	details {
+		summary {
+			@apply grid grid-cols-[auto_1fr_auto] justify-center gap-2 items-center cursor-pointer;
+			@apply hover:bg-base-200 transition-colors;
+
+			.icon-\[ri--sticky-note-line\] {
+				@apply text-primary;
+			}
+
+			span {
+				min-width: 0; /* Critical for flex items and truncation */
+			}
+		}
+
+		summary::-webkit-details-marker {
+			display: none;
+		}
+
+		> article {
+			@apply rounded p-2;
+		}
+	}
+}

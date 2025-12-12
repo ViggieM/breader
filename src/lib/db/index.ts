@@ -67,3 +67,9 @@ db.version(7).stores({
 	lists: null, // Remove lists table
 	notes: '@id, *bookmarks, created, modified' // Add notes table
 });
+
+db.version(8).stores({
+	bookmarks: '@id, title, url, *tags, *keywords, isStarred, created, modified, status',
+	tags: '@id, parentId, name, order',
+	notes: '@id, *bookmarks, created, modified, title' // Add title field to notes
+});

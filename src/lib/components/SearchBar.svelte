@@ -22,6 +22,7 @@
 
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
+	import { db } from '$lib/db';
 
 	// Update URL when query changes (for bookmarking/sharing)
 	function updateURL() {
@@ -34,22 +35,37 @@
 		replaceState(url, {});
 	}
 
-	// Handle adding new lists
-	let addListDialog = $state() as HTMLDialogElement;
-	let addListForm = $state() as HTMLFormElement;
-	async function handleAddList(
+	// Add Note functionality
+	let addNoteDialog = $state() as HTMLDialogElement;
+	let addNoteForm = $state() as HTMLFormElement;
+	let noteTitle = $state('');
+	let noteText = $state('');
+
+	async function handleAddNote(
 		event: SubmitEvent & { currentTarget: EventTarget & HTMLFormElement }
 	) {
 		event.preventDefault();
-		const formData = new FormData(event.currentTarget);
-		const listName = formData.get('name')?.toString() || '';
-		if (!listName) {
+		if (!noteText.trim()) {
 			return;
 		}
-		// todo: lists are not existing anymore. remove this method and the option
-		// await db.lists.add({ name: listName, created: new Date().toISOString(), modified: null });
-		addListForm.reset();
-		addListDialog.close();
+
+		try {
+			await db.notes.add({
+				title: noteTitle.trim() || null,
+				text: noteText.trim(),
+				bookmarks: [],
+				created: new Date().toISOString(),
+				modified: null
+			});
+
+			// Reset form and close dialog
+			noteTitle = '';
+			noteText = '';
+			addNoteForm.reset();
+			addNoteDialog.close();
+		} catch (error) {
+			console.error('Failed to create note:', error);
+		}
 	}
 </script>
 
@@ -78,51 +94,54 @@
 				</a>
 			</li>
 			<li>
-				<button onclick={() => addListDialog.showModal()}
-					><span class="icon-[ri--folder-3-line]"></span>
-					Add List</button
-				>
-			</li>
-			<li>
-				<a href="/add-note">
+				<button onclick={() => addNoteDialog.showModal()}>
 					<span class="icon-[ri--sticky-note-line]"></span>
 					Add Note
-				</a>
+				</button>
 			</li>
 		</ul>
 	</div>
 </div>
 
-<dialog bind:this={addListDialog} class="modal">
+<dialog bind:this={addNoteDialog} class="modal">
 	<div class="modal-box">
 		<form method="dialog">
 			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
 		</form>
 
-		<h3 class="text-lg font-bold">Add a new List</h3>
-		<form bind:this={addListForm} id="add-list-form" class="mt-4" onsubmit={handleAddList}>
-			<div class="form-group">
-				<label class="floating-label input validator input-md w-full">
-					<span>List name</span>
+		<h3 class="text-lg font-bold">Add a new Note</h3>
+		<form bind:this={addNoteForm} id="add-note-form" class="mt-4" onsubmit={handleAddNote}>
+			<div class="form-group space-y-4">
+				<label class="input input-bordered flex items-center gap-2">
 					<input
-						name="name"
+						bind:value={noteTitle}
+						name="title"
 						type="text"
-						placeholder="List name"
-						required
-						pattern=".*\S+.*"
-						title="List name cannot be empty or contain only whitespace"
+						placeholder="Note title (optional)"
+						class="grow"
 					/>
 				</label>
-				<p class="validator-hint">List name cannot be empty or contain only whitespace</p>
+				<textarea
+					bind:value={noteText}
+					name="text"
+					placeholder="Write your note here..."
+					required
+					autofocus
+					class="textarea textarea-bordered w-full min-h-[150px]"
+				></textarea>
 			</div>
 		</form>
-		<div class="mt-2 text-right">
-			<button class="btn btn-primary" type="submit" form="add-list-form">Save</button>
+		<div class="mt-4 text-right">
+			<button class="btn btn-primary" type="submit" form="add-note-form" disabled={!noteText.trim()}
+				>Save</button
+			>
 			<button
 				class="btn btn-error"
 				onclick={() => {
-					addListDialog.close();
-					addListForm.reset();
+					addNoteDialog.close();
+					noteTitle = '';
+					noteText = '';
+					addNoteForm.reset();
 				}}>Cancel</button
 			>
 		</div>

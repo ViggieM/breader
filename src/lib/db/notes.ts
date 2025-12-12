@@ -29,11 +29,17 @@ export function getBookmarkNotes(bookmarkId: string) {
  *
  * @param bookmarkId - The ID of the bookmark to associate the note with
  * @param text - The text content of the note
+ * @param title - Optional title for the note
  * @returns Promise that resolves to the auto-generated note ID
  */
-export async function createNote(bookmarkId: string, text: string): Promise<string> {
+export async function createNote(
+	bookmarkId: string,
+	text: string,
+	title: string | null = null
+): Promise<string> {
 	const noteData: Omit<NoteData, 'id'> = {
 		text,
+		title,
 		created: new Date().toISOString(),
 		modified: null,
 		bookmarks: [bookmarkId]
@@ -44,16 +50,22 @@ export async function createNote(bookmarkId: string, text: string): Promise<stri
 }
 
 /**
- * Update an existing note's text content.
+ * Update an existing note's text content and/or title.
  * Sets the modified timestamp to the current time.
  *
  * @param noteId - The ID of the note to update
  * @param text - The new text content
+ * @param title - Optional title for the note
  * @returns Promise that resolves when the update is complete
  */
-export async function updateNote(noteId: string, text: string): Promise<void> {
+export async function updateNote(
+	noteId: string,
+	text: string,
+	title: string | null = null
+): Promise<void> {
 	await db.notes.update(noteId, {
 		text,
+		title,
 		modified: new Date().toISOString()
 	});
 }
