@@ -89,17 +89,40 @@
 			currentDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 		}
 	}
+
+	// Close details when clicking outside
+	let detailsElement: HTMLDetailsElement;
+
+	$effect(() => {
+		function handleClickOutside(event: MouseEvent) {
+			if (detailsElement && detailsElement.open && !detailsElement.contains(event.target as Node)) {
+				detailsElement.open = false;
+			}
+		}
+
+		document.addEventListener('click', handleClickOutside);
+
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
+	});
 </script>
 
-<details class="group note-list-item" ontoggle={handleToggle} id={`note-${note.id}`}>
+<details
+	class="group note-list-item"
+	ontoggle={handleToggle}
+	id={`note-${note.id}`}
+	bind:this={detailsElement}
+>
 	<summary>
 		<span class="icon-[ri--sticky-note-line]"></span>
 		<span class="group-not-open:truncate">
 			<input
 				bind:value={title}
 				type="text"
-				class="input input-ghost input-sm text-base font-semibold w-full"
-				placeholder={`Untitled Note: ${note.text.substring(0, 20)}${note.text.length > 20 ? '...' : ''}`}
+				class="text-base w-full"
+				class:font-semibold={Boolean(title)}
+				placeholder={`Untitled Note${note.text ? ': ' + note.text.substring(0, 20) : ''}${note.text.length > 20 ? '...' : ''}`}
 				name="title"
 				onclick={(e) => {
 					const details = (e.target as HTMLElement).closest('details');
@@ -113,7 +136,7 @@
 			{formatDateAndTime(note.created)}
 		</span>
 	</summary>
-	<article class="group-open:shadow space-y-4">
+	<article class="group-open:shadow space-y-4 mt-2">
 		<textarea
 			bind:value={text}
 			use:autogrow

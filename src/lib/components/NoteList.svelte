@@ -18,7 +18,7 @@
 		<p>No notes yet. Create your first note!</p>
 	</div>
 {:else}
-	<ul>
+	<ul class="space-y-1">
 		{#each notes as note (note.id)}
 			<li>
 				<Note {note} {onSave} {onDelete} />

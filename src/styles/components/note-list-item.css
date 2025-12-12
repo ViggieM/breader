@@ -1,7 +1,7 @@
 details.note-list-item {
-	@apply relative w-full p-1;
+	@apply w-full rounded;
 	summary {
-		@apply grid grid-cols-[auto_1fr_auto] justify-center gap-2 items-center cursor-pointer;
+		@apply grid grid-cols-[auto_1fr_auto] justify-center items-center gap-2 cursor-pointer;
 		@apply hover:bg-base-200 transition-colors;
 
 		.icon-\[ri--sticky-note-line\] {
@@ -10,6 +10,17 @@ details.note-list-item {
 
 		span {
 			min-width: 0; /* Critical for flex items and truncation */
+		}
+
+		input[name='title'] {
+			@apply rounded-none;
+			border-bottom: 1.5px solid transparent;
+
+			&:focus,
+			&:active {
+				@apply outline-none;
+				border-bottom: 1.5px solid var(--color-base-300);
+			}
 		}
 	}
 

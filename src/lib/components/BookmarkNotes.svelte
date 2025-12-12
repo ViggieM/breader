@@ -1,7 +1,7 @@
 <!-- ABOUTME: Component for managing notes associated with a specific bookmark -->
 <!-- ABOUTME: Uses Dexie liveQuery and derived stores for reactive database access -->
 <script lang="ts">
-	import Note from './Note.svelte';
+	import Note from '$lib/components/Note.svelte';
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
 
@@ -47,13 +47,18 @@
 </script>
 
 <section class="mt-8">
-	<div class="space-y-4">
-		<button class="btn btn-sm btn-secondary" onclick={addNote}>
-			<span class="icon-[ri--add-large-fill]"></span> Add a note
-		</button>
+	<div>
+		<h2>Notes</h2>
 
-		{#each sortedNotes as note (note.id)}
-			<Note {note} onSave={saveNote} onDelete={deleteNote} />
-		{/each}
+		<ul class="mt-4 space-y-1">
+			{#each sortedNotes as note (note.id)}
+				<li><Note {note} onSave={saveNote} onDelete={deleteNote} /></li>
+			{/each}
+		</ul>
+		<footer class="mt-4">
+			<button class="btn btn-sm btn-outline" onclick={addNote}>
+				<span class="icon-[ri--add-large-fill]"></span> Add a note
+			</button>
+		</footer>
 	</div>
 </section>
