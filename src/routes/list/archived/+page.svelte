@@ -9,6 +9,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Archived | Breader</title>
+</svelte:head>
+
 <section class="mt-4">
 	{#if $archived.length > 0}
 		<h2 class="mt-8 mb-2">Archived</h2>

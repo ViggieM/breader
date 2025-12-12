@@ -9,6 +9,10 @@
 	});
 </script>
 
+<svelte:head>
+	<title>Favorites | Breader</title>
+</svelte:head>
+
 <section class="mt-4">
 	{#if $favorites.length > 0}
 		<h2 class="mt-8 mb-2">Recently added</h2>

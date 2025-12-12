@@ -43,6 +43,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Notes | Breader</title>
+</svelte:head>
+
 <h1 class="sr-only">Notes</h1>
 
 <section class="mt-4">

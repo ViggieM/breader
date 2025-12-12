@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Add Bookmark - Breader</title>
+	<title>Add Bookmark | Breader</title>
 </svelte:head>
 
 <main class="add">
