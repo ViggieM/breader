@@ -4,7 +4,6 @@
 	import Note from './Note.svelte';
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
-	import { formatDateAndTime } from '$lib';
 
 	// Types
 	type BookmarkNotesProps = {
@@ -54,14 +53,7 @@
 		</button>
 
 		{#each sortedNotes as note (note.id)}
-			<div class="card bg-base-200" id={`note-${note.id}`}>
-				<div class="card-body p-4">
-					<div class="text-xs opacity-60 mb-2">
-						{formatDateAndTime(note.created)}
-					</div>
-					<Note {note} onSave={saveNote} onDelete={deleteNote} />
-				</div>
-			</div>
+			<Note {note} onSave={saveNote} onDelete={deleteNote} />
 		{/each}
 	</div>
 </section>

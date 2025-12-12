@@ -73,41 +73,70 @@
 			}
 		};
 	}
+
+	function handleToggle(event: Event) {
+		const currentDetails = event.target as HTMLDetailsElement;
+		if (currentDetails.open) {
+			// Close all other details elements
+			const allDetails = document.querySelectorAll('.note-list-item details');
+			allDetails.forEach((details) => {
+				if (details !== currentDetails) {
+					details.removeAttribute('open');
+				}
+			});
+
+			// Scroll the opened details into view
+			currentDetails.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
+	}
 </script>
 
-<div class="space-y-2">
-	<!-- <label class="floating-label">
-		<span>Title</span>
-		<input
-			bind:value={title}
-			type="text"
-			class="input input-ghost input-xs text-lg font-semibold w-full"
-			placeholder="Untitled"
-			name="title"
-		/>
-	</label> -->
-	<textarea
-		bind:value={text}
-		use:autogrow
-		class="textarea textarea-ghost textarea-bordered w-full min-h-[100px] resize-none overflow-hidden"
-		placeholder="Write your note here..."
-		name="text"
-	></textarea>
-	{#if hasChanges}
-		<div class="flex gap-2">
-			<button class="btn btn-xs btn-success" onclick={save}> Save </button>
-			<button class="btn btn-xs btn-error" onclick={cancel}> Cancel </button>
-			<button class="btn btn-xs btn-ghost ml-auto" onclick={deleteNote}>
-				<span class="icon-[ri--delete-bin-line]"></span>
-				Delete
-			</button>
-		</div>
-	{:else}
-		<div class="flex justify-end">
-			<button class="btn btn-xs btn-ghost" onclick={deleteNote}>
-				<span class="icon-[ri--delete-bin-line]"></span>
-				Delete
-			</button>
-		</div>
-	{/if}
-</div>
+<details class="group note-list-item" ontoggle={handleToggle} id={`note-${note.id}`}>
+	<summary>
+		<span class="icon-[ri--sticky-note-line]"></span>
+		<span class="group-not-open:truncate">
+			<input
+				bind:value={title}
+				type="text"
+				class="input input-ghost input-sm text-base font-semibold w-full"
+				placeholder={`Untitled Note: ${note.text.substring(0, 20)}${note.text.length > 20 ? '...' : ''}`}
+				name="title"
+				onclick={(e) => {
+					const details = (e.target as HTMLElement).closest('details');
+					if (details && !details.open) {
+						details.open = true;
+					}
+				}}
+			/>
+		</span>
+		<span class="text-xs text-base-content/60 whitespace-nowrap">
+			{formatDateAndTime(note.created)}
+		</span>
+	</summary>
+	<article class="group-open:shadow space-y-4">
+		<textarea
+			bind:value={text}
+			use:autogrow
+			class="textarea textarea-ghost textarea-bordered w-full min-h-[100px] resize-none overflow-hidden"
+			placeholder="Write your note here..."
+			name="text"
+		></textarea>
+		{#if hasChanges}
+			<div class="flex gap-2">
+				<button class="btn btn-xs btn-success" onclick={save}> Save </button>
+				<button class="btn btn-xs btn-error" onclick={cancel}> Cancel </button>
+				<button class="btn btn-xs btn-ghost ml-auto" onclick={deleteNote}>
+					<span class="icon-[ri--delete-bin-line]"></span>
+					Delete
+				</button>
+			</div>
+		{:else}
+			<div class="flex justify-end">
+				<button class="btn btn-xs btn-ghost" onclick={deleteNote}>
+					<span class="icon-[ri--delete-bin-line]"></span>
+					Delete
+				</button>
+			</div>
+		{/if}
+	</article>
+</details>
