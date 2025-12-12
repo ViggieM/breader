@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-	import { db } from '$lib/db';
+	import { createBookmark } from '$lib/db/bookmarks';
 	import { getFavicon } from '$lib/utils/favicon';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import type { ObjectOption } from 'svelte-multiselect';
@@ -25,14 +25,11 @@
 			const { allTagIds } = await processTagsForSave(selectedTags);
 
 			// Create bookmark with all tag IDs
-			const id = await db.bookmarks.add({
-				title: title,
-				url: url,
+			const id = await createBookmark({
+				title,
+				url,
 				description: '',
 				tags: allTagIds,
-				created: new Date().toISOString(),
-				modified: null,
-				keywords: [],
 				status,
 				isStarred: false
 			});

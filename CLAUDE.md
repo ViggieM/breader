@@ -67,6 +67,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
   - `BookmarkData` type for database persistence (excludes computed properties)
   - `Bookmark` class with computed properties (faviconUrl, localUrl, hasBody)
   - Dexie `liveQuery` converted to Svelte readable stores for reactivity
+  - **Database Utilities**: Centralized CRUD operations in utility modules
+    - `src/lib/db/bookmarks.ts` - Bookmark operations (create, read, update, delete)
+    - `src/lib/db/notes.ts` - Notes operations
+    - Components should use these utilities instead of direct `db.bookmarks` or `db.notes` access
 
 **Core Stores**:
 

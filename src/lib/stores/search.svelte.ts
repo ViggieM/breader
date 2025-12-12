@@ -1,9 +1,6 @@
-import Dexie from 'dexie';
 import Fuse, { type FuseIndex, type FuseSearchOptions } from 'fuse.js';
 import { derived, readable, writable } from 'svelte/store';
-import { db } from '$lib/db';
-
-const { liveQuery } = Dexie;
+import { getAllBookmarks } from '$lib/db/bookmarks';
 import type { BookmarkData } from '$lib/types';
 
 class FuseSearchEngine {
@@ -33,9 +30,7 @@ class FuseSearchEngine {
 }
 
 export const bookmarksData = readable<BookmarkData[]>([], (set) => {
-	// sort by created.
-	// this might be later replaced with sorting via JS, to make sorting flexible. but for now it's fine
-	const observable = liveQuery(() => db.bookmarks.orderBy('created').reverse().toArray());
+	const observable = getAllBookmarks();
 	const subscription = observable.subscribe((data: BookmarkData[]) => {
 		if (data) set(data);
 	});

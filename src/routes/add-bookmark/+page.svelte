@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { db } from '$lib/db';
+	import { createBookmark } from '$lib/db/bookmarks';
 	import type { PageProps } from './$types';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
@@ -32,12 +32,9 @@
 			const { allTagIds } = await processTagsForSave(selectedTags);
 
 			// Create bookmark with all tag IDs
-			const id = await db.bookmarks.add({
+			const id = await createBookmark({
 				url,
 				tags: allTagIds,
-				created: new Date().toISOString(),
-				modified: null,
-				keywords: [],
 				status,
 				isStarred
 			});

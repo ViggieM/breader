@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { Bookmark } from '$lib/types';
-	import { db } from '$lib/db';
-	import Dexie from 'dexie';
+	import {
+		getBookmark,
+		updateBookmarkTags,
+		updateBookmarkStatus,
+		updateBookmarkTitle,
+		updateBookmarkStar,
+		updateBookmarkUrl
+	} from '$lib/db/bookmarks';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
 	import BookmarkNotes from '$lib/components/BookmarkNotes.svelte';
@@ -10,19 +16,17 @@
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
 	import { formatDate, formatDateAndTime } from '$lib';
 
-	const { liveQuery } = Dexie;
-
 	const { data } = $props();
 
 	// Live updates from Dexie
-	const liveData = liveQuery(() => db.bookmarks.get(data.uuid));
+	const liveData = getBookmark(data.uuid);
 
 	// Start with loaded data, then update from live query
 	let bookmark = $state(data.bookmark) as Bookmark;
 	let status = $state(data.bookmark.status);
 	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
 	let url = $state(data.bookmark.url);
-	let title = $state(data.bookmark.title);
+	let title = $state(data.bookmark.title ?? null);
 	let isEditingTitle = $state(false);
 	let titleInput = $state() as HTMLInputElement;
 
@@ -54,10 +58,7 @@
 			const { allTagIds } = await processTagsForSave(selectedTags);
 
 			// Update the bookmark with all tag IDs (bug fixed: no duplicates!)
-			await db.bookmarks.update(bookmark.id, {
-				tags: allTagIds,
-				modified: new Date().toISOString()
-			});
+			await updateBookmarkTags(bookmark.id, allTagIds);
 
 			hasUnsavedChanges = false;
 		} catch (error) {
@@ -110,10 +111,7 @@
 	async function handleStatusClick() {
 		saving = true;
 		try {
-			await db.bookmarks.update(bookmark.id, {
-				status,
-				modified: new Date().toISOString()
-			});
+			await updateBookmarkStatus(bookmark.id, status);
 		} catch (error) {
 			console.error('Error updating status:', error);
 		} finally {
@@ -148,10 +146,7 @@
 					<form
 						onsubmit={async (evt) => {
 							evt.preventDefault();
-							await db.bookmarks.update(bookmark.id, {
-								title: title,
-								modified: new Date().toISOString()
-							});
+							await updateBookmarkTitle(bookmark.id, title);
 							isEditingTitle = false;
 						}}
 					>
@@ -162,10 +157,7 @@
 							class="btn btn-xs btn-success"
 							disabled={title === bookmark.title}
 							onclick={async () => {
-								await db.bookmarks.update(bookmark.id, {
-									title: title,
-									modified: new Date().toISOString()
-								});
+								await updateBookmarkTitle(bookmark.id, title);
 								isEditingTitle = false;
 							}}>Save</button
 						>
@@ -173,7 +165,7 @@
 							class="btn btn-xs btn-error"
 							onclick={() => {
 								isEditingTitle = false;
-								title = bookmark.title;
+								title = bookmark.title ?? null;
 							}}>Cancel</button
 						>
 					</div>
@@ -213,10 +205,7 @@
 							<li>
 								<button
 									onclick={async () => {
-										await db.bookmarks.update(bookmark.id, {
-											isStarred: false,
-											modified: new Date().toISOString()
-										});
+										await updateBookmarkStar(bookmark.id, false);
 									}}
 								>
 									<span class="icon-[ri--star-off-line]"></span>
@@ -227,10 +216,7 @@
 							<li>
 								<button
 									onclick={async () => {
-										await db.bookmarks.update(bookmark.id, {
-											isStarred: true,
-											modified: new Date().toISOString()
-										});
+										await updateBookmarkStar(bookmark.id, true);
 									}}
 								>
 									<span class="icon-[ri--star-line]"></span>
@@ -295,10 +281,7 @@
 							class="btn btn-xs btn-success mt-3"
 							type="button"
 							onclick={async () => {
-								await db.bookmarks.update(bookmark.id, {
-									url: url,
-									modified: new Date().toISOString()
-								});
+								await updateBookmarkUrl(bookmark.id, url);
 							}}>Save</button
 						>
 					{/if}

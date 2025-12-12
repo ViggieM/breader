@@ -5,7 +5,7 @@
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 import { clientsClaim } from 'workbox-core';
 import { Queue } from 'workbox-background-sync';
-import { db } from '../lib/db';
+import { updateBookmarkMetadata } from '../lib/db/bookmarks';
 
 // This gives `self` the correct types
 declare let self: ServiceWorkerGlobalScope;
@@ -38,7 +38,7 @@ self.addEventListener('fetch', (event) => {
 			const response = await fetch(event.request.clone(), { signal: controller.signal });
 			const meta = await response.clone().json();
 			const { bookmarkId, ...data } = meta;
-			await db.bookmarks.update(bookmarkId, { meta: data, title: data.title });
+			await updateBookmarkMetadata(bookmarkId, data, data.title);
 			return response;
 		} catch (error) {
 			if (error.name === 'AbortError') {

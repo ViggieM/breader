@@ -117,20 +117,22 @@
 	<summary>
 		<span class="icon-[ri--sticky-note-line]"></span>
 		<span class="group-not-open:truncate">
-			<input
-				bind:value={title}
-				type="text"
-				class="text-base w-full"
-				class:font-semibold={Boolean(title)}
-				placeholder={`Untitled Note${note.text ? ': ' + note.text.substring(0, 20) : ''}${note.text.length > 20 ? '...' : ''}`}
-				name="title"
-				onclick={(e) => {
-					const details = (e.target as HTMLElement).closest('details');
-					if (details && !details.open) {
-						details.open = true;
-					}
-				}}
-			/>
+			<form onsubmit={save}>
+				<input
+					bind:value={title}
+					type="text"
+					class="text-base w-full"
+					class:font-semibold={Boolean(title)}
+					placeholder={`Untitled Note${note.text ? ': ' + note.text.substring(0, 20) : ''}${note.text.length > 20 ? '...' : ''}`}
+					name="title"
+					onclick={(e) => {
+						const details = (e.target as HTMLElement).closest('details');
+						if (details && !details.open) {
+							details.open = true;
+						}
+					}}
+				/>
+			</form>
 		</span>
 		<span class="text-xs text-base-content/60 whitespace-nowrap">
 			{formatDateAndTime(note.created)}

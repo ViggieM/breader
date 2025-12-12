@@ -4,26 +4,6 @@
 <script lang="ts">
 	import { navigationData } from '$lib/stores/navigation.svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
-	import { onMount } from 'svelte';
-
-	// Persistent state for untagged section
-	const untaggedStorageKey = 'navigation-expanded-untagged';
-	let untaggedIsOpen = $state(false);
-	let untaggedDetailsElement = $state<HTMLDetailsElement>();
-
-	onMount(() => {
-		const saved = localStorage.getItem(untaggedStorageKey);
-		if (saved !== null) {
-			untaggedIsOpen = saved === 'true';
-		}
-	});
-
-	function handleUntaggedToggle() {
-		if (untaggedDetailsElement) {
-			untaggedIsOpen = untaggedDetailsElement.open;
-			localStorage.setItem(untaggedStorageKey, String(untaggedIsOpen));
-		}
-	}
 </script>
 
 {#if $navigationData}

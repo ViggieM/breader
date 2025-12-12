@@ -66,7 +66,11 @@
 				<!-- Direct bookmarks for this tag -->
 				{#each node.bookmarks as bookmark (bookmark.id)}
 					<li>
-						<a href="/bookmark/{bookmark.id}" aria-label="Open {bookmark.title || 'Untitled'}">
+						<a
+							draggable="true"
+							href="/bookmark/{bookmark.id}"
+							aria-label="Open {bookmark.title || 'Untitled'}"
+						>
 							<img
 								src={bookmark.faviconUrl}
 								alt=""

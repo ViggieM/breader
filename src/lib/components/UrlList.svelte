@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { formatDate } from '$lib';
-	import { db } from '$lib/db';
+	import { deleteBookmark as deleteBookmarkUtil } from '$lib/db/bookmarks';
 	import type { Bookmark } from '$lib/types';
 	import { marked } from 'marked';
 
@@ -17,9 +17,9 @@
 		}
 	}
 
-	function deleteBookmark(event: Event, bookmarkId: string) {
+	async function deleteBookmark(event: Event, bookmarkId: string) {
 		if (confirm('Are you sure you want to delete this bookmark?')) {
-			db.bookmarks.delete(bookmarkId);
+			await deleteBookmarkUtil(bookmarkId);
 		}
 	}
 
