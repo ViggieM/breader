@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { db } from '$lib/db';
-	import SelectTag from './SelectTag.svelte';
+	import TagMultiselect from './TagMultiselect.svelte';
+	import type { ObjectOption } from 'svelte-multiselect';
 
 	interface Props {
 		onSuccess?: (newTagId: string) => void;
@@ -9,7 +10,7 @@
 	const { onSuccess }: Props = $props();
 
 	let name = $state('');
-	let selectedParentId = $state<string | null>(null);
+	let selectedParentTags = $state([]) as ObjectOption[];
 	let saving = $state(false);
 
 	async function _handleSubmit(
@@ -21,15 +22,18 @@
 		saving = true;
 
 		try {
+			const parentId =
+				selectedParentTags.length > 0 ? (selectedParentTags[0].value as string) : null;
+
 			const newTagId = await db.tags.add({
 				name: (formData.get('name') as string) || 'Untitled',
-				parentId: selectedParentId,
+				parentId: parentId,
 				order: 0
 			});
 
 			// Clear form after successful submission
 			name = '';
-			selectedParentId = null;
+			selectedParentTags = [];
 
 			// Call success callback if provided (for closing modal, etc.)
 			if (onSuccess) {
@@ -62,10 +66,13 @@
 	</div>
 
 	<div class="form-group">
-		<div class="label">
-			<span class="label-text">Parent Tag</span>
-		</div>
-		<SelectTag bind:selectedParentId />
+		<TagMultiselect
+			bind:selectedTags={selectedParentTags}
+			maxSelect={1}
+			placeholder="Select parent tag (optional)"
+			closeDropdownOnSelect={true}
+			allowUserOptions={false}
+		/>
 	</div>
 </form>
 

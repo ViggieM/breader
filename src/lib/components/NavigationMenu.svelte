@@ -5,10 +5,12 @@
 	import { navigationData } from '$lib/stores/navigation.svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
 	import { updateTagParent } from '$lib/db/tags';
+	import TagForm from './TagForm.svelte';
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement>();
 	let isRootDropTarget = $state(false);
+	let addTagDialogRef = $state() as HTMLDialogElement;
 </script>
 
 {#if $navigationData}
@@ -85,10 +87,25 @@
 		{/if}
 	</ul>
 	<div class="px-3">
-		<button class="btn btn-sm btn-outline"
-			><span class="icon-[ri--add-large-fill]"></span> Add a new tag</button
-		>
+		<button class="btn btn-sm btn-outline" onclick={() => addTagDialogRef.showModal()}>
+			<span class="icon-[ri--add-large-fill]"></span> Add a new tag
+		</button>
 	</div>
+
+	<dialog bind:this={addTagDialogRef} class="modal">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+			</form>
+
+			<h3 class="text-lg font-bold mb-4">Add a new tag</h3>
+
+			<TagForm onSuccess={() => addTagDialogRef.close()} />
+		</div>
+		<form method="dialog" class="modal-backdrop">
+			<button>close</button>
+		</form>
+	</dialog>
 {:else}
 	<!-- Loading state -->
 	<div class="flex justify-center items-center p-8">

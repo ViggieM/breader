@@ -17,17 +17,6 @@
 
 	let { node, level = 0 }: Props = $props();
 
-	// Calculate total bookmark count (direct + descendants)
-	function getTotalBookmarkCount(n: TagNode): number {
-		let count = n.bookmarks.length;
-		n.children.forEach((child) => {
-			count += getTotalBookmarkCount(child);
-		});
-		return count;
-	}
-
-	const totalCount = getTotalBookmarkCount(node);
-
 	// Persistent expand/collapse state
 	const storageKey = `navigation-expanded-${node.tag.id}`;
 	let isOpen = $state(false);
@@ -166,9 +155,8 @@
 				class="font-normal"
 				draggable="true"
 				aria-describedby="tag-drag-help"
-				aria-label="{node.tag.name} tag with {totalCount} {totalCount === 1
-					? 'bookmark'
-					: 'bookmarks'}. Drag to reorganize hierarchy or drop bookmarks to add this tag."
+				aria-label="{node.tag
+					.name} tag. Drag to reorganize hierarchy or drop bookmarks to add this tag."
 				ondragstart={(e) => {
 					if (!e.dataTransfer) return;
 					e.dataTransfer.effectAllowed = 'move';

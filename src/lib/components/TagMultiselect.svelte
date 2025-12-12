@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Tag } from '$lib/types';
-	import MultiSelect, { type ObjectOption } from 'svelte-multiselect';
+	import MultiSelect, { type ObjectOption, type MultiSelectProps } from 'svelte-multiselect';
 	import { descendantMap, ancestorMap, childrenMap, tagMap } from '$lib/stores/tags.svelte';
 	import { derived } from 'svelte/store';
 
@@ -8,12 +8,14 @@
 		selectedTags = $bindable(),
 		onAdd,
 		onRemove,
-		onRemoveAll
+		onRemoveAll,
+		...restProps
 	}: {
 		selectedTags: ObjectOption[];
 		onAdd?: () => void;
 		onRemove?: () => void;
 		onRemoveAll?: () => void;
+		[key: string]: any; // todo: fix typing, use MultiSelectProps?
 	} = $props();
 
 	const options = derived([childrenMap, tagMap], ([childrenMap, tagMap]) => {
@@ -74,16 +76,17 @@
 		liUserMsgClass="text-xs"
 		allowUserOptions="append"
 		placeholder="No tags selected"
-		bind:selected={selectedTags}
-		options={$options}
 		selectedOptionsDraggable={false}
 		closeDropdownOnSelect={false}
 		duplicates={true}
+		--sms-options-border-width="0px"
+		--sms-active-color="var(--color-neutral)"
+		{...restProps}
+		bind:selected={selectedTags}
+		options={$options}
 		onadd={handleAdd}
 		onremove={handleRemove}
 		onremoveAll={onRemoveAll}
-		--sms-options-border-width="0px"
-		--sms-active-color="var(--color-neutral)"
 	>
 		{#snippet expandIcon()}{/snippet}
 	</MultiSelect>

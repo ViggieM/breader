@@ -70,9 +70,6 @@ export const navigationData = derived(
 				const tag = $tagMap.get(tagId);
 				if (!tag) continue;
 
-				// Only include tags that have bookmarks or children with bookmarks
-				if (!hasBookmarks(tagId)) continue;
-
 				const newVisited = new SvelteSet(visited);
 				newVisited.add(tagId);
 
