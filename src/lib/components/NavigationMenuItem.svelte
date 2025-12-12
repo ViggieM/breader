@@ -7,6 +7,7 @@
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
 	import { db } from '$lib/db';
 	import { updateBookmarkTags } from '$lib/db/bookmarks';
+	import { descendantMap, ancestorMap } from '$lib/stores/tags.svelte';
 
 	interface Props {
 		node: TagNode;
@@ -55,6 +56,7 @@
 {#if level < 5}
 	<li>
 		<details
+			class:bg-base-200={isDragOver}
 			bind:this={detailsElement}
 			open={isOpen}
 			ontoggle={handleToggle}
@@ -84,6 +86,7 @@
 			}}
 			ondrop={async (e) => {
 				e.preventDefault();
+				e.stopPropagation();
 				isDragOver = false;
 
 				if (!e.dataTransfer) return;
@@ -114,14 +117,19 @@
 
 					// Check if tag already exists in bookmark's tags
 					if (!bookmark.tags.includes(node.tag.id)) {
+						let newTags: string[] = [node.tag.id];
+						$descendantMap.get(node.tag.id)?.forEach((id) => {
+							newTags = newTags.filter((tagId) => tagId !== id);
+						});
+						$ancestorMap.get(node.tag.id)?.forEach((id) => {
+							newTags = newTags.filter((tagId) => tagId !== id);
+						});
 						// Add the new tag to the existing tags
-						const newTags = [...bookmark.tags, node.tag.id];
 						await updateBookmarkTags(bookmarkId, newTags);
 					}
 				} catch (error) {
 					console.error('Failed to update bookmark tags:', error);
 				}
-				e.stopPropagation();
 			}}
 		>
 			<summary
