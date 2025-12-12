@@ -17,46 +17,7 @@
 		Drag tags to reorganize the hierarchy. Drop on another tag to make it a child, or drop in the
 		space above the tags to make it a root-level tag.
 	</span>
-	<ul
-		class="menu rounded-box w-full p-0 mt-4"
-		ondragover={(e) => {
-			e.preventDefault();
-			if (!e.dataTransfer) return;
-
-			// Only accept tag drops at root level
-			if (!e.dataTransfer.types.includes('application/x-tag-id')) {
-				e.dataTransfer.dropEffect = 'none';
-				return;
-			}
-
-			e.dataTransfer.dropEffect = 'move';
-			isRootDropTarget = true;
-		}}
-		ondragleave={() => {
-			isRootDropTarget = false;
-		}}
-		ondrop={async (e) => {
-			e.preventDefault();
-			isRootDropTarget = false;
-
-			if (!e.dataTransfer) return;
-
-			// Only handle tag drops
-			if (!e.dataTransfer.types.includes('application/x-tag-id')) return;
-
-			const tagId = e.dataTransfer.getData('application/x-tag-id');
-			if (!tagId) {
-				console.error('No tag ID found in drag data');
-				return;
-			}
-
-			try {
-				await updateTagParent(tagId, null);
-			} catch (error) {
-				console.error('Failed to move tag to root:', error);
-			}
-		}}
-	>
+	<ul class="menu rounded-box w-full p-0 mt-4">
 		<!-- Static top-level links -->
 		<li>
 			<a href="/list/favorites" aria-label="View favorite bookmarks">
@@ -159,5 +120,42 @@
 	ondragend={() => {
 		document.querySelector('.dragover')?.classList.remove('dragover');
 		isRootDropTarget = false;
+	}}
+	ondragover={(e) => {
+		e.preventDefault();
+		if (!e.dataTransfer) return;
+
+		// Only accept tag drops at root level
+		if (!e.dataTransfer.types.includes('application/x-tag-id')) {
+			e.dataTransfer.dropEffect = 'none';
+			return;
+		}
+
+		e.dataTransfer.dropEffect = 'move';
+		isRootDropTarget = true;
+	}}
+	ondragleave={() => {
+		isRootDropTarget = false;
+	}}
+	ondrop={async (e) => {
+		e.preventDefault();
+		isRootDropTarget = false;
+
+		if (!e.dataTransfer) return;
+
+		// Only handle tag drops
+		if (!e.dataTransfer.types.includes('application/x-tag-id')) return;
+
+		const tagId = e.dataTransfer.getData('application/x-tag-id');
+		if (!tagId) {
+			console.error('No tag ID found in drag data');
+			return;
+		}
+
+		try {
+			await updateTagParent(tagId, null);
+		} catch (error) {
+			console.error('Failed to move tag to root:', error);
+		}
 	}}
 />
