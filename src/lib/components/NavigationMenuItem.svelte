@@ -10,6 +10,7 @@
 	import { updateBookmarkTags } from '$lib/db/bookmarks';
 	import { updateTagParent } from '$lib/db/tags';
 	import { descendantMap, ancestorMap, tagMap } from '$lib/stores/tags.svelte';
+	import { dragState } from '$lib/stores/dragState.svelte';
 
 	interface Props {
 		node: TagNode;
@@ -79,10 +80,14 @@
 					return;
 				}
 
-				const hasBookmark = e.dataTransfer.types.includes('application/x-bookmark-id');
-				const hasTag = e.dataTransfer.types.includes('application/x-tag-id');
+				const hasBookmark =
+					e.dataTransfer.types.includes('application/x-bookmark-id') ||
+					Boolean(dragState.getBookmarkId());
+				const hasTag =
+					e.dataTransfer.types.includes('application/x-tag-id') || Boolean(dragState.getTagId());
 
 				console.log('🟡 [TAG DROP ZONE] dragover', {
+					event: e,
 					tagId: node.tag.id,
 					tagName: node.tag.name,
 					hasBookmark,
@@ -135,14 +140,27 @@
 				console.log('🟣 [TAG DROP ZONE] dataTransfer types:', Array.from(e.dataTransfer.types));
 
 				// Handle bookmark drops
-				if (e.dataTransfer.types.includes('application/x-bookmark-id')) {
-					// Extract bookmark ID from data transfer
-					const bookmarkId = e.dataTransfer.getData('application/x-bookmark-id');
+				if (
+					e.dataTransfer.types.includes('application/x-bookmark-id') ||
+					dragState.getBookmarkId()
+				) {
+					// Try dataTransfer first (desktop)
+					let bookmarkId = e.dataTransfer.getData('application/x-bookmark-id');
+
+					// Fallback to global state if dataTransfer is empty (mobile)
+					if (!bookmarkId) {
+						bookmarkId = dragState.getBookmarkId();
+						if (bookmarkId) {
+							console.log('📱 [MOBILE FALLBACK] Using stored bookmark ID:', bookmarkId);
+						}
+					}
+
 					console.log('🟣 [TAG DROP ZONE] Bookmark drop detected', {
 						bookmarkId,
 						targetTagId: node.tag.id,
 						targetTagName: node.tag.name
 					});
+
 					if (!bookmarkId) {
 						console.error('❌ [TAG DROP ZONE] No bookmark ID found in drag data');
 						return;
@@ -188,13 +206,24 @@
 				}
 
 				// Handle tag drops
-				if (e.dataTransfer.types.includes('application/x-tag-id')) {
-					const draggedTagId = e.dataTransfer.getData('application/x-tag-id');
+				if (e.dataTransfer.types.includes('application/x-tag-id') || dragState.getTagId()) {
+					// Try dataTransfer first (desktop)
+					let draggedTagId = e.dataTransfer.getData('application/x-tag-id');
+
+					// Fallback to global state if dataTransfer is empty (mobile)
+					if (!draggedTagId) {
+						draggedTagId = dragState.getTagId();
+						if (draggedTagId) {
+							console.log('📱 [MOBILE FALLBACK] Using stored tag ID:', draggedTagId);
+						}
+					}
+
 					console.log('🟣 [TAG DROP ZONE] Tag drop detected', {
 						draggedTagId,
 						targetTagId: node.tag.id,
 						targetTagName: node.tag.name
 					});
+
 					if (!draggedTagId) {
 						console.error('❌ [TAG DROP ZONE] No tag ID found in drag data');
 						return;
@@ -231,6 +260,9 @@
 						console.error('❌ [TAG DROP ZONE] Failed to update tag parent:', error);
 					}
 				}
+
+				// Clear drag state after drop
+				dragState.clear();
 			}}
 		>
 			<summary
@@ -249,17 +281,23 @@
 						eventType: e.type,
 						isTouchEvent: 'touches' in e
 					});
-					if (!e.dataTransfer) {
+
+					// Set in dataTransfer (works on desktop)
+					if (e.dataTransfer) {
+						e.dataTransfer.effectAllowed = 'move';
+						e.dataTransfer.setData('application/x-tag-id', node.tag.id);
+						console.log('🔵 [TAG DRAG] dataTransfer set:', {
+							type: 'application/x-tag-id',
+							value: node.tag.id,
+							effectAllowed: e.dataTransfer.effectAllowed
+						});
+					} else {
 						console.warn('⚠️ [TAG DRAG] No dataTransfer available');
-						return;
 					}
-					e.dataTransfer.effectAllowed = 'move';
-					e.dataTransfer.setData('application/x-tag-id', node.tag.id);
-					console.log('🔵 [TAG DRAG] dataTransfer set:', {
-						type: 'application/x-tag-id',
-						value: node.tag.id,
-						effectAllowed: e.dataTransfer.effectAllowed
-					});
+
+					// ALSO set in global state (fallback for mobile)
+					dragState.set('tag', node.tag.id);
+
 					e.currentTarget.style.cursor = 'grabbing';
 				}}
 				ondragend={(e) => {
@@ -268,6 +306,7 @@
 						tagName: node.tag.name,
 						timestamp: new Date().toISOString()
 					});
+					dragState.clear();
 					e.currentTarget.style.cursor = '';
 				}}
 			>

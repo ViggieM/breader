@@ -8,6 +8,7 @@
 	import TagForm from './TagForm.svelte';
 	import { tick } from 'svelte';
 	import NavigationMenuBookmark from './NavigationMenuBookmark.svelte';
+	import { dragState } from '$lib/stores/dragState.svelte';
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement>();
@@ -361,14 +362,15 @@
 			return;
 		}
 
-		// Only accept tag drops at root level
-		if (!e.dataTransfer.types.includes('application/x-tag-id')) {
+		// Only accept tag drops at root level (check both dataTransfer and fallback)
+		if (!e.dataTransfer.types.includes('application/x-tag-id') && !dragState.getTagId()) {
 			e.dataTransfer.dropEffect = 'none';
 			return;
 		}
 
 		console.log('🟡 [WINDOW ROOT] dragover - tag over root area', {
 			dataTransferTypes: Array.from(e.dataTransfer.types),
+			hasFallbackTag: Boolean(dragState.getTagId()),
 			timestamp: new Date().toISOString()
 		});
 
@@ -394,13 +396,23 @@
 
 		console.log('🟣 [WINDOW ROOT] dataTransfer types:', Array.from(e.dataTransfer.types));
 
-		// Only handle tag drops
-		if (!e.dataTransfer.types.includes('application/x-tag-id')) {
+		// Only handle tag drops (check both dataTransfer and fallback state)
+		if (!e.dataTransfer.types.includes('application/x-tag-id') && !dragState.getTagId()) {
 			console.log('ℹ️ [WINDOW ROOT] drop - not a tag drop, ignoring');
 			return;
 		}
 
-		const tagId = e.dataTransfer.getData('application/x-tag-id');
+		// Try dataTransfer first (desktop)
+		let tagId = e.dataTransfer.getData('application/x-tag-id');
+
+		// Fallback to global state if dataTransfer is empty (mobile)
+		if (!tagId) {
+			tagId = dragState.getTagId();
+			if (tagId) {
+				console.log('📱 [MOBILE FALLBACK] Using stored tag ID:', tagId);
+			}
+		}
+
 		console.log('🟣 [WINDOW ROOT] Tag drop to root detected', { tagId });
 
 		if (!tagId) {
@@ -414,6 +426,9 @@
 			console.log('✅ [WINDOW ROOT] Tag moved to root successfully');
 		} catch (error) {
 			console.error('❌ [WINDOW ROOT] Failed to move tag to root:', error);
+		} finally {
+			// Clear drag state after drop
+			dragState.clear();
 		}
 	}}
 />

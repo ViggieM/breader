@@ -51,7 +51,7 @@
 
 			// navigate to the newly created bookmark
 			// use replaceState to prevent browser back button from returning to this form
-			await goto(`/${id}`, { replaceState: true });
+			await goto(`/bookmark/${id}`, { replaceState: true });
 		} catch (error) {
 			// todo: add a notification here instead of just a console error
 			console.error('Error saving bookmark:', error);
@@ -71,7 +71,7 @@
 			<span>URL</span>
 			<input
 				name="url"
-				type="text"
+				type="url"
 				bind:value={url}
 				placeholder="https://example.com"
 				class="input input-md w-full"

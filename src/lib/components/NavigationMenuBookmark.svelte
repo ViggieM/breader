@@ -3,6 +3,7 @@
 
 <script lang="ts">
 	import type { DragEventHandler } from 'svelte/elements';
+	import { dragState } from '$lib/stores/dragState.svelte';
 
 	interface Props {
 		bookmark: {
@@ -85,6 +86,8 @@
 			eventType: event.type,
 			isTouchEvent: 'touches' in event
 		});
+
+		// Set in dataTransfer (works on desktop)
 		if (event.dataTransfer) {
 			event.dataTransfer.effectAllowed = 'move';
 			event.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
@@ -96,6 +99,9 @@
 		} else {
 			console.warn('⚠️ [BOOKMARK DRAG] No dataTransfer available');
 		}
+
+		// ALSO set in global state (fallback for mobile)
+		dragState.set('bookmark', bookmark.id);
 	}
 
 	function handleTouchStart(event: TouchEvent) {
@@ -117,6 +123,10 @@
 	bind:this={containerElement}
 	draggable="true"
 	ondragstart={handleDragStart}
+	ondragend={() => {
+		console.log('🔴 [BOOKMARK DRAG] dragend - clearing state');
+		dragState.clear();
+	}}
 	ontouchstart={handleTouchStart}
 	aria-describedby="bookmark-drag-help"
 	class={className}
