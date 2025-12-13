@@ -125,7 +125,7 @@
 			<div
 				id={dropdownId}
 				role="menu"
-				class="mt-2 w-full grid grid-cols-4 gap-2 text-xs text-base-content/70"
+				class="mt-2 w-full grid grid-cols-4 gap-2 text-base-content/70"
 			>
 				<a
 					href="/list/notes?bookmarkId={bookmark.id}"
@@ -134,7 +134,7 @@
 					draggable="false"
 				>
 					<span class="icon-[ri--sticky-note-line] size-4" aria-hidden="true"></span>
-					Notes
+					<span class="text-xs">Notes</span>
 				</a>
 				<a
 					href="/bookmark/{bookmark.id}"
@@ -143,7 +143,7 @@
 					draggable="false"
 				>
 					<span class="icon-[ri--edit-2-line] size-4" aria-hidden="true"></span>
-					Edit
+					<span class="text-xs">Edit</span>
 				</a>
 				<button
 					role="menuitem"
@@ -157,7 +157,7 @@
 							: 'icon-[ri--share-forward-line] size-4'}
 						aria-hidden="true"
 					></span>
-					Share
+					<span class="text-xs">Share</span>
 				</button>
 				<button
 					role="menuitem"
@@ -166,7 +166,7 @@
 					draggable="false"
 				>
 					<span class="icon-[ri--external-link-line] size-4" aria-hidden="true"></span>
-					Open
+					<span class="text-xs">Open</span>
 				</button>
 			</div>
 		{/if}
