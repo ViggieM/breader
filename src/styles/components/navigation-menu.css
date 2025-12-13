@@ -59,4 +59,25 @@
 			@apply text-xs;
 		}
 	}
+
+	/* Enable mobile drag-and-drop support */
+	& li[draggable='true'] {
+		-webkit-user-drag: element;
+		user-select: none;
+		-webkit-user-select: none;
+		-webkit-touch-callout: none;
+	}
+
+	& summary[draggable='true'] {
+		-webkit-user-drag: element;
+		user-select: none;
+		-webkit-user-select: none;
+		-webkit-touch-callout: none;
+		cursor: move;
+		cursor: grab;
+	}
+
+	& summary[draggable='true']:active {
+		cursor: grabbing;
+	}
 }
