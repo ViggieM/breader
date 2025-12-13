@@ -6,7 +6,8 @@
 		updateBookmarkStatus,
 		updateBookmarkTitle,
 		updateBookmarkStar,
-		updateBookmarkUrl
+		updateBookmarkUrl,
+		deleteBookmark
 	} from '$lib/db/bookmarks';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
@@ -15,6 +16,7 @@
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
 	import { formatDate, formatDateAndTime } from '$lib';
+	import { goto } from '$app/navigation';
 
 	const { data } = $props();
 
@@ -49,6 +51,7 @@
 	let copied = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
 	let disabled = $derived(saving);
+	let deleteDialog = $state() as HTMLDialogElement;
 
 	async function saveChanges() {
 		saving = true;
@@ -132,6 +135,16 @@
 		document.addEventListener('click', handleClickOutside);
 		return () => document.removeEventListener('click', handleClickOutside);
 	});
+
+	async function handleDeleteBookmark() {
+		try {
+			await deleteBookmark(bookmark.id);
+			deleteDialog.close();
+			goto('/');
+		} catch (error) {
+			console.error('Failed to delete bookmark:', error);
+		}
+	}
 </script>
 
 <svelte:head>
@@ -224,6 +237,17 @@
 								</button>
 							</li>
 						{/if}
+						<li>
+							<button
+								onclick={() => {
+									deleteDialog.showModal();
+								}}
+								class="text-error"
+							>
+								<span class="icon-[ri--delete-bin-line]"></span>
+								Delete Bookmark
+							</button>
+						</li>
 					</ul>
 				</div>
 			{/if}
@@ -324,6 +348,24 @@
 		</div>
 	{/if}
 </main>
+
+<dialog bind:this={deleteDialog} class="modal">
+	<div class="modal-box">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+		</form>
+
+		<h3 class="text-lg font-bold">Delete Bookmark</h3>
+		<p class="py-4">
+			Are you sure you want to delete "<strong>{bookmark.title}</strong>"? This action cannot be
+			undone.
+		</p>
+		<div class="modal-action">
+			<button class="btn" onclick={() => deleteDialog.close()}>Cancel</button>
+			<button class="btn btn-error" onclick={handleDeleteBookmark}>Delete</button>
+		</div>
+	</div>
+</dialog>
 
 <style>
 	.collapse-title {
