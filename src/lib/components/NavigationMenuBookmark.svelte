@@ -1,11 +1,44 @@
+<!-- ABOUTME: Expandable bookmark component for navigation menu with action buttons (notes, edit, share, open) -->
+<!-- ABOUTME: Wraps in draggable <li> for drag-and-drop support, handles web share API with clipboard fallback -->
+
 <script lang="ts">
-	let { children } = $props();
+	interface Props {
+		bookmark: {
+			id: string;
+			title?: string | null;
+			faviconUrl: string;
+			url: string;
+		};
+		class?: string;
+	}
+
+	let { bookmark, class: className }: Props = $props();
 	let isOpen = $state(false);
+	let shareSuccess = $state(false);
 	let dropdownId = `dropdown-${Math.random().toString(36).substr(2, 9)}`;
+	let containerElement = $state<HTMLLIElement>();
 
 	function toggle() {
 		isOpen = !isOpen;
 	}
+
+	// Close dropdown when clicking outside
+	$effect(() => {
+		if (!isOpen) return;
+
+		containerElement?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+		function handleClickOutside(event: MouseEvent) {
+			if (containerElement && !containerElement.contains(event.target as Node)) {
+				isOpen = false;
+			}
+		}
+
+		document.addEventListener('click', handleClickOutside);
+		return () => {
+			document.removeEventListener('click', handleClickOutside);
+		};
+	});
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter' || event.key === ' ') {
@@ -15,65 +48,130 @@
 			isOpen = false;
 		}
 	}
+
+	async function handleShare() {
+		try {
+			if (navigator.share) {
+				// Use Web Share API on mobile/supported browsers
+				await navigator.share({
+					title: bookmark.title || 'Untitled',
+					url: bookmark.url
+				});
+			} else {
+				// Fallback to clipboard on desktop
+				await navigator.clipboard.writeText(bookmark.url);
+				shareSuccess = true;
+				setTimeout(() => {
+					shareSuccess = false;
+				}, 2000);
+			}
+		} catch (error) {
+			// User canceled share or clipboard failed
+			console.error('Share failed:', error);
+		}
+	}
+
+	function handleOpen() {
+		window.open(bookmark.url, '_blank', 'noopener,noreferrer');
+	}
+
+	function handleDragStart(event: DragEvent) {
+		if (event.dataTransfer) {
+			event.dataTransfer.effectAllowed = 'move';
+			event.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
+		}
+	}
 </script>
 
-<div class={['bookmark grid grid-rows-[1fr_auto] gap-0', isOpen && 'shadow bookmark-open']}>
-	<button
-		type="button"
-		aria-haspopup="menu"
-		aria-expanded={isOpen}
-		aria-controls={dropdownId}
-		onclick={toggle}
-		onkeydown={handleKeydown}
-		class={['flex items-center gap-2 text-left min-w-0 min-h-0 cursor-pointer']}
+<li
+	bind:this={containerElement}
+	draggable="true"
+	ondragstart={handleDragStart}
+	aria-describedby="bookmark-drag-help"
+	class={className}
+>
+	<div
+		class={[
+			'bookmark w-full grid auto-cols-fr grid-rows-[1fr_auto] gap-0',
+			isOpen && 'shadow bookmark-open'
+		]}
 	>
-		<img
-			alt=""
-			draggable="false"
-			loading="lazy"
-			class="w-4 h-4 shrink-0 self-start mt-0.5"
-			src="https://www.google.com/s2/favicons?domain=developer.chrome.com"
-		/>
-		<span class:truncate={!isOpen} class:text-pretty={isOpen}>{@render children()}</span>
-	</button>
-
-	{#if isOpen}
-		<div
-			id={dropdownId}
-			role="menu"
-			class="mt-2 grid grid-cols-4 gap-2 text-xs text-base-content/70"
+		<button
+			type="button"
+			aria-haspopup="menu"
+			aria-expanded={isOpen}
+			aria-controls={dropdownId}
+			aria-describedby="bookmark-actions-help"
+			onclick={toggle}
+			onkeydown={handleKeydown}
+			class={['flex items-center gap-2 text-left min-w-0 min-h-0 cursor-pointer self-stretch']}
 		>
-			<button
-				role="menuitem"
-				class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer"
+			<img
+				alt=""
+				draggable="false"
+				loading="lazy"
+				class="w-4 h-4 shrink-0 self-start mt-0.5"
+				src={bookmark.faviconUrl}
+			/>
+			<span
+				class:truncate={!isOpen}
+				class:text-pretty={isOpen}
+				title={!isOpen ? bookmark.title?.trim() || 'Untitled' : undefined}
+				>{bookmark.title?.trim() || 'Untitled'}</span
 			>
-				<span class="icon-[ri--sticky-note-line] size-4" aria-hidden="true"></span>
-				Notes
-			</button>
-			<button
-				role="menuitem"
-				class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200"
+		</button>
+
+		{#if isOpen}
+			<div
+				id={dropdownId}
+				role="menu"
+				class="mt-2 w-full grid grid-cols-4 gap-2 text-xs text-base-content/70"
 			>
-				<span class="icon-[ri--edit-2-line] size-4" aria-hidden="true"></span>
-				Edit
-			</button>
-			<button
-				role="menuitem"
-				class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200"
-			>
-				<span class="icon-[ri--share-forward-line] size-4" aria-hidden="true"></span>
-				Share
-			</button>
-			<button
-				role="menuitem"
-				class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200"
-			>
-				<span class="icon-[ri--external-link-line] size-4" aria-hidden="true"></span>
-				Open
-			</button>
-		</div>
-	{/if}
-</div>
+				<a
+					href="/list/notes?bookmarkId={bookmark.id}"
+					role="menuitem"
+					class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer min-w-0"
+					draggable="false"
+				>
+					<span class="icon-[ri--sticky-note-line] size-4" aria-hidden="true"></span>
+					Notes
+				</a>
+				<a
+					href="/bookmark/{bookmark.id}"
+					role="menuitem"
+					class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer min-w-0"
+					draggable="false"
+				>
+					<span class="icon-[ri--edit-2-line] size-4" aria-hidden="true"></span>
+					Edit
+				</a>
+				<button
+					role="menuitem"
+					class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer min-w-0"
+					onclick={handleShare}
+					draggable="false"
+				>
+					<span
+						class={shareSuccess
+							? 'icon-[ri--check-line] size-4'
+							: 'icon-[ri--share-forward-line] size-4'}
+						aria-hidden="true"
+					></span>
+					Share
+				</button>
+				<button
+					role="menuitem"
+					class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer min-w-0"
+					onclick={handleOpen}
+					draggable="false"
+				>
+					<span class="icon-[ri--external-link-line] size-4" aria-hidden="true"></span>
+					Open
+				</button>
+			</div>
+		{/if}
+	</div>
+</li>
 
 <style>
 	.bookmark-open:active,

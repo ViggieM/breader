@@ -5,6 +5,7 @@
 	import type { TagNode } from '$lib/stores/navigation.svelte';
 	import { onMount } from 'svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
+	import NavigationMenuBookmark from './NavigationMenuBookmark.svelte';
 	import { db } from '$lib/db';
 	import { updateBookmarkTags } from '$lib/db/bookmarks';
 	import { updateTagParent } from '$lib/db/tags';
@@ -33,8 +34,6 @@
 	const storageKey = `navigation-expanded-${node.tag.id}`;
 	let isOpen = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
-
-	const dragHelpId = 'bookmark-drag-help';
 
 	onMount(() => {
 		// Load saved state from localStorage
@@ -192,30 +191,7 @@
 
 				<!-- Direct bookmarks for this tag -->
 				{#each node.bookmarks as bookmark (bookmark.id)}
-					<li draggable="true">
-						<a
-							href="/bookmark/{bookmark.id}"
-							aria-label="Open {bookmark.title || 'Untitled'}"
-							aria-describedby={dragHelpId}
-							ondragstart={(e) => {
-								if (!e.dataTransfer) return;
-								e.dataTransfer.effectAllowed = 'copyMove';
-								e.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
-							}}
-						>
-							<img
-								src={bookmark.faviconUrl}
-								alt=""
-								draggable="false"
-								loading="lazy"
-								class="w-4 h-4 shrink-0"
-								onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-							/>
-							<span class="truncate" title={bookmark.title || 'Untitled'}
-								>{bookmark.title || 'Untitled'}</span
-							>
-						</a>
-					</li>
+					<NavigationMenuBookmark {bookmark} />
 				{/each}
 			</ul>
 			{#if isOpen}

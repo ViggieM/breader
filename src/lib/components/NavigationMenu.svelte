@@ -125,6 +125,9 @@
 		Drag tags to reorganize the hierarchy. Drop on another tag to make it a child, or drop in the
 		space above the tags to make it a root-level tag.
 	</span>
+	<span id="bookmark-actions-help" class="sr-only">
+		Expand bookmark to access notes, edit, share, and open actions
+	</span>
 	<ul class="menu rounded-box w-full p-0 mt-4">
 		<!-- Static top-level links -->
 		<li>
@@ -152,37 +155,9 @@
 			class="border-t border-base-300 py-4 mt-4"
 			class:bg-base-200={isRootDropTarget}
 		>
-			<li>
-				<NavigationMenuBookmark>
-					The Illusion of Thinking: Understanding the Strengths and Limitations of Reasoning Models
-					via the Lens of Problem Complexity
-				</NavigationMenuBookmark>
-			</li>
 			<!-- Untagged bookmarks section -->
 			{#each $navigationData.untagged as bookmark (bookmark.id)}
-				<li>
-					<a
-						draggable="true"
-						href="/bookmark/{bookmark.id}"
-						aria-label="Open {bookmark.title || 'Untitled'}"
-						aria-describedby={dragHelpId}
-						ondragstart={(e) => {
-							if (!e.dataTransfer) return;
-							e.dataTransfer.effectAllowed = 'move';
-							e.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
-						}}
-					>
-						<img
-							src={bookmark.faviconUrl}
-							alt=""
-							draggable="false"
-							loading="lazy"
-							class="w-4 h-4 shrink-0"
-							onerror={(e) => ((e.currentTarget as HTMLImageElement).style.display = 'none')}
-						/>
-						<span class="truncate">{bookmark.title || 'Untitled'}</span>
-					</a>
-				</li>
+				<NavigationMenuBookmark {bookmark} />
 			{/each}
 
 			<!-- Tag tree with nested tags and bookmarks -->
