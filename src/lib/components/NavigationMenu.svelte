@@ -7,6 +7,7 @@
 	import { updateTagParent, updateTagName, deleteTag } from '$lib/db/tags';
 	import TagForm from './TagForm.svelte';
 	import { tick } from 'svelte';
+	import NavigationMenuBookmark from './NavigationMenuBookmark.svelte';
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement>();
@@ -151,6 +152,12 @@
 			class="border-t border-base-300 py-4 mt-4"
 			class:bg-base-200={isRootDropTarget}
 		>
+			<li>
+				<NavigationMenuBookmark>
+					The Illusion of Thinking: Understanding the Strengths and Limitations of Reasoning Models
+					via the Lens of Problem Complexity
+				</NavigationMenuBookmark>
+			</li>
 			<!-- Untagged bookmarks section -->
 			{#each $navigationData.untagged as bookmark (bookmark.id)}
 				<li>

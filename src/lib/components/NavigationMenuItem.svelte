@@ -55,6 +55,7 @@
 {#if level < 5}
 	<li>
 		<details
+			class="relative"
 			id={node.tag.id}
 			bind:this={detailsElement}
 			open={isOpen}
@@ -182,59 +183,6 @@
 			>
 				<span class="icon-[ri--price-tag-3-fill] shrink-0" aria-hidden="true"></span>
 				<span class="flex-1 truncate" title={node.tag.name}>{node.tag.name}</span>
-				{#if isOpen}
-					<div class="dropdown dropdown-bottom dropdown-end">
-						<button
-							tabindex="0"
-							type="button"
-							class="btn btn-ghost btn-xs btn-square hover:bg-base-200"
-							aria-label="Tag options for {node.tag.name}"
-							aria-haspopup="menu"
-							onclick={(e) => {
-								e.preventDefault();
-								e.stopPropagation();
-							}}
-						>
-							<span class="icon-[ri--more-2-fill] shrink-0" aria-hidden="true"></span>
-						</button>
-						<ul
-							role="menu"
-							tabindex="-1"
-							class="dropdown-content menu bg-base-100 rounded-box z-[1] w-42 p-2 shadow-lg mt-1"
-						>
-							<li role="menuitem">
-								<button
-									type="button"
-									onclick={() =>
-										onEditTag?.({
-											id: node.tag.id,
-											name: node.tag.name,
-											parentId: node.tag.parentId,
-											childrenCount: node.children.length
-										})}
-								>
-									<span class="icon-[ri--edit-line]"></span>
-									Edit
-								</button>
-							</li>
-							<li role="menuitem">
-								<button
-									type="button"
-									onclick={() =>
-										onDeleteTag?.({
-											id: node.tag.id,
-											name: node.tag.name,
-											parentId: node.tag.parentId,
-											childrenCount: node.children.length
-										})}
-								>
-									<span class="icon-[ri--delete-bin-line]"></span>
-									Delete
-								</button>
-							</li>
-						</ul>
-					</div>
-				{/if}
 			</summary>
 			<ul>
 				<!-- Child tags (recursive) -->
@@ -270,6 +218,59 @@
 					</li>
 				{/each}
 			</ul>
+			{#if isOpen}
+				<div class="dropdown dropdown-bottom dropdown-end absolute top-0 right-0">
+					<button
+						tabindex="0"
+						type="button"
+						class="btn btn-ghost btn-sm btn-square hover:bg-base-200"
+						aria-label="Tag options for {node.tag.name}"
+						aria-haspopup="menu"
+						onclick={(e) => {
+							e.preventDefault();
+							e.stopPropagation();
+						}}
+					>
+						<span class="icon-[ri--more-2-fill] shrink-0" aria-hidden="true"></span>
+					</button>
+					<ul
+						role="menu"
+						tabindex="-1"
+						class="dropdown-content menu bg-base-100 rounded-box z-[1] w-42 p-2 shadow-lg mt-1"
+					>
+						<li role="menuitem">
+							<button
+								type="button"
+								onclick={() =>
+									onEditTag?.({
+										id: node.tag.id,
+										name: node.tag.name,
+										parentId: node.tag.parentId,
+										childrenCount: node.children.length
+									})}
+							>
+								<span class="icon-[ri--edit-line]"></span>
+								Edit
+							</button>
+						</li>
+						<li role="menuitem">
+							<button
+								type="button"
+								onclick={() =>
+									onDeleteTag?.({
+										id: node.tag.id,
+										name: node.tag.name,
+										parentId: node.tag.parentId,
+										childrenCount: node.children.length
+									})}
+							>
+								<span class="icon-[ri--delete-bin-line]"></span>
+								Delete
+							</button>
+						</li>
+					</ul>
+				</div>
+			{/if}
 		</details>
 	</li>
 {/if}
