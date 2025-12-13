@@ -4,13 +4,118 @@
 <script lang="ts">
 	import { navigationData } from '$lib/stores/navigation.svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
-	import { updateTagParent } from '$lib/db/tags';
+	import { updateTagParent, updateTagName, deleteTag } from '$lib/db/tags';
 	import TagForm from './TagForm.svelte';
+	import { tick } from 'svelte';
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement>();
 	let isRootDropTarget = $state(false);
 	let addTagDialogRef = $state() as HTMLDialogElement;
+
+	// Edit tag dialog state
+	let editDialog = $state<HTMLDialogElement>();
+	let editForm = $state<HTMLFormElement>();
+	let editTagName = $state('');
+	let isEditing = $state(false);
+	let editError = $state<string | null>(null);
+
+	// Delete tag dialog state
+	let deleteDialog = $state<HTMLDialogElement>();
+	let isDeleting = $state(false);
+	let deleteError = $state<string | null>(null);
+
+	// Current tag being edited/deleted
+	let currentTag = $state<{
+		id: string;
+		name: string;
+		parentId: string | null;
+		childrenCount: number;
+	} | null>(null);
+
+	async function handleEditTag(tag: {
+		id: string;
+		name: string;
+		parentId: string | null;
+		childrenCount: number;
+	}) {
+		currentTag = tag;
+		editTagName = tag.name;
+		editError = null;
+		editDialog?.showModal();
+		await tick();
+		editDialog?.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
+	}
+
+	async function handleEditSubmit(e: Event) {
+		e.preventDefault();
+		editError = null;
+
+		if (!currentTag) return;
+
+		const trimmedName = editTagName.trim();
+
+		// Validate: name should not be empty and should be different
+		if (!trimmedName || trimmedName === currentTag.name) {
+			editDialog?.close();
+			return;
+		}
+
+		// Additional validation
+		if (trimmedName.length > 100) {
+			editError = 'Tag name must be 100 characters or less';
+			return;
+		}
+
+		isEditing = true;
+		try {
+			await updateTagName(currentTag.id, trimmedName);
+			editDialog?.close();
+			editForm?.reset();
+			editTagName = '';
+			currentTag = null;
+		} catch (error) {
+			console.error('Failed to rename tag:', error);
+			editError = 'Failed to rename tag. Please try again.';
+		} finally {
+			isEditing = false;
+		}
+	}
+
+	function handleDeleteClick(tag: {
+		id: string;
+		name: string;
+		parentId: string | null;
+		childrenCount: number;
+	}) {
+		currentTag = tag;
+		deleteError = null;
+		deleteDialog?.showModal();
+	}
+
+	function handleDeleteCancel() {
+		deleteError = null;
+		deleteDialog?.close();
+		currentTag = null;
+	}
+
+	async function handleDeleteConfirm() {
+		deleteError = null;
+
+		if (!currentTag) return;
+
+		isDeleting = true;
+		try {
+			await deleteTag(currentTag.id);
+			deleteDialog?.close();
+			currentTag = null;
+		} catch (error) {
+			console.error('Failed to delete tag:', error);
+			deleteError = 'Failed to delete tag. Please try again.';
+		} finally {
+			isDeleting = false;
+		}
+	}
 </script>
 
 {#if $navigationData}
@@ -75,7 +180,11 @@
 
 			<!-- Tag tree with nested tags and bookmarks -->
 			{#each $navigationData.tagTree as tagNode (tagNode.tag.id)}
-				<NavigationMenuItem node={tagNode} />
+				<NavigationMenuItem
+					node={tagNode}
+					onEditTag={handleEditTag}
+					onDeleteTag={handleDeleteClick}
+				/>
 			{/each}
 		</div>
 
@@ -105,6 +214,130 @@
 		<form method="dialog" class="modal-backdrop">
 			<button>close</button>
 		</form>
+	</dialog>
+
+	<!-- Edit Tag Dialog -->
+	<dialog bind:this={editDialog} class="modal" aria-labelledby="edit-tag-title">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+					>✕</button
+				>
+			</form>
+
+			<h3 id="edit-tag-title" class="text-lg font-bold">Edit Tag</h3>
+			<form bind:this={editForm} class="mt-4" onsubmit={handleEditSubmit}>
+				{#if editError}
+					<div class="alert alert-error mb-4">
+						<span class="icon-[ri--error-warning-fill]"></span>
+						<span>{editError}</span>
+					</div>
+				{/if}
+				<div class="form-group">
+					<label class="input input-bordered flex items-center gap-2 w-full">
+						<span class="icon-[ri--price-tag-3-fill] shrink-0"></span>
+						<input
+							bind:value={editTagName}
+							name="name"
+							type="text"
+							placeholder="Tag name"
+							required
+							autofocus
+							maxlength="100"
+							class="grow"
+							disabled={isEditing}
+						/>
+					</label>
+				</div>
+				<div class="mt-4 text-right">
+					<button
+						class="btn btn-primary"
+						type="submit"
+						disabled={!editTagName.trim() ||
+							(currentTag && editTagName.trim() === currentTag.name) ||
+							isEditing}
+					>
+						{#if isEditing}
+							<span class="loading loading-spinner"></span>
+						{/if}
+						Save
+					</button>
+					<button
+						class="btn"
+						type="button"
+						disabled={isEditing}
+						onclick={() => {
+							editDialog?.close();
+							editForm?.reset();
+							editError = null;
+							currentTag = null;
+						}}
+					>
+						Cancel
+					</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+
+	<!-- Delete Tag Confirmation Dialog -->
+	<dialog bind:this={deleteDialog} class="modal" aria-labelledby="delete-tag-title">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+					>✕</button
+				>
+			</form>
+
+			<h3 id="delete-tag-title" class="text-lg font-bold">Delete Tag</h3>
+			{#if currentTag}
+				<div class="mt-4">
+					{#if deleteError}
+						<div class="alert alert-error mb-4">
+							<span class="icon-[ri--error-warning-fill]"></span>
+							<span>{deleteError}</span>
+						</div>
+					{/if}
+					<div class="alert alert-warning">
+						<span class="icon-[ri--alert-fill]"></span>
+						<div class="flex flex-col gap-2">
+							<p>
+								Are you sure you want to delete the tag <strong>{currentTag.name}</strong>?
+							</p>
+							<ul class="list-disc list-inside text-sm">
+								<li>This tag will be removed from all bookmarks</li>
+								{#if currentTag.parentId}
+									<li>Bookmarks will receive the parent tag instead</li>
+								{/if}
+								{#if currentTag.childrenCount > 0}
+									<li>
+										Child tags will be reassigned to {currentTag.parentId
+											? 'the parent tag'
+											: 'root level'}
+									</li>
+								{/if}
+							</ul>
+						</div>
+					</div>
+				</div>
+			{/if}
+			<div class="mt-4 text-right">
+				<button
+					class="btn btn-error"
+					type="button"
+					onclick={handleDeleteConfirm}
+					disabled={isDeleting}
+				>
+					{#if isDeleting}
+						<span class="loading loading-spinner"></span>
+					{/if}
+					Confirm Delete
+				</button>
+				<button class="btn" type="button" onclick={handleDeleteCancel} disabled={isDeleting}>
+					Cancel
+				</button>
+			</div>
+		</div>
 	</dialog>
 {:else}
 	<!-- Loading state -->
