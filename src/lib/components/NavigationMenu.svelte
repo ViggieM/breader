@@ -350,12 +350,16 @@
 		currentlyDragedOver?.classList.remove('dragover');
 	}}
 	ondragend={() => {
+		console.log('🔴 [WINDOW] dragend - cleaning up dragover classes');
 		document.querySelector('.dragover')?.classList.remove('dragover');
 		isRootDropTarget = false;
 	}}
 	ondragover={(e) => {
 		e.preventDefault();
-		if (!e.dataTransfer) return;
+		if (!e.dataTransfer) {
+			console.warn('⚠️ [WINDOW ROOT] dragover - No dataTransfer');
+			return;
+		}
 
 		// Only accept tag drops at root level
 		if (!e.dataTransfer.types.includes('application/x-tag-id')) {
@@ -363,31 +367,53 @@
 			return;
 		}
 
+		console.log('🟡 [WINDOW ROOT] dragover - tag over root area', {
+			dataTransferTypes: Array.from(e.dataTransfer.types),
+			timestamp: new Date().toISOString()
+		});
+
 		e.dataTransfer.dropEffect = 'move';
 		isRootDropTarget = true;
 	}}
 	ondragleave={() => {
+		console.log('🔴 [WINDOW ROOT] dragleave');
 		isRootDropTarget = false;
 	}}
 	ondrop={async (e) => {
 		e.preventDefault();
 		isRootDropTarget = false;
 
-		if (!e.dataTransfer) return;
+		console.log('🟣 [WINDOW ROOT] drop event triggered', {
+			timestamp: new Date().toISOString()
+		});
+
+		if (!e.dataTransfer) {
+			console.error('❌ [WINDOW ROOT] drop - No dataTransfer');
+			return;
+		}
+
+		console.log('🟣 [WINDOW ROOT] dataTransfer types:', Array.from(e.dataTransfer.types));
 
 		// Only handle tag drops
-		if (!e.dataTransfer.types.includes('application/x-tag-id')) return;
+		if (!e.dataTransfer.types.includes('application/x-tag-id')) {
+			console.log('ℹ️ [WINDOW ROOT] drop - not a tag drop, ignoring');
+			return;
+		}
 
 		const tagId = e.dataTransfer.getData('application/x-tag-id');
+		console.log('🟣 [WINDOW ROOT] Tag drop to root detected', { tagId });
+
 		if (!tagId) {
-			console.error('No tag ID found in drag data');
+			console.error('❌ [WINDOW ROOT] No tag ID found in drag data');
 			return;
 		}
 
 		try {
+			console.log('✅ [WINDOW ROOT] Moving tag to root level', { tagId });
 			await updateTagParent(tagId, null);
+			console.log('✅ [WINDOW ROOT] Tag moved to root successfully');
 		} catch (error) {
-			console.error('Failed to move tag to root:', error);
+			console.error('❌ [WINDOW ROOT] Failed to move tag to root:', error);
 		}
 	}}
 />

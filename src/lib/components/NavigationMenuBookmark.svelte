@@ -2,6 +2,8 @@
 <!-- ABOUTME: Wraps in draggable <li> for drag-and-drop support, handles web share API with clipboard fallback -->
 
 <script lang="ts">
+	import type { DragEventHandler } from 'svelte/elements';
+
 	interface Props {
 		bookmark: {
 			id: string;
@@ -76,10 +78,38 @@
 	}
 
 	function handleDragStart(event: DragEvent) {
+		console.log('🔵 [BOOKMARK DRAG] dragstart', {
+			bookmarkId: bookmark.id,
+			title: bookmark.title,
+			timestamp: new Date().toISOString(),
+			eventType: event.type,
+			isTouchEvent: 'touches' in event
+		});
 		if (event.dataTransfer) {
 			event.dataTransfer.effectAllowed = 'move';
 			event.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
+			console.log('🔵 [BOOKMARK DRAG] dataTransfer set:', {
+				type: 'application/x-bookmark-id',
+				value: bookmark.id,
+				effectAllowed: event.dataTransfer.effectAllowed
+			});
+		} else {
+			console.warn('⚠️ [BOOKMARK DRAG] No dataTransfer available');
 		}
+	}
+
+	function handleTouchStart(event: TouchEvent) {
+		console.log('📱 [BOOKMARK TOUCH] touchstart', {
+			bookmarkId: bookmark.id,
+			title: bookmark.title,
+			timestamp: new Date().toISOString(),
+			eventType: event.type,
+			touchCount: event.touches.length,
+			touchX: event.touches[0]?.clientX,
+			touchY: event.touches[0]?.clientY,
+			targetElement: event.target instanceof Element ? event.target.tagName : 'unknown',
+			event
+		});
 	}
 </script>
 
@@ -87,6 +117,7 @@
 	bind:this={containerElement}
 	draggable="true"
 	ondragstart={handleDragStart}
+	ontouchstart={handleTouchStart}
 	aria-describedby="bookmark-drag-help"
 	class={className}
 >
