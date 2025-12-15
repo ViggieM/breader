@@ -44,24 +44,16 @@
 		}
 	});
 
-	function handleToggle() {
+	function handleToggle(): void {
 		if (detailsElement) {
 			isOpen = detailsElement.open;
 			localStorage.setItem(storageKey, String(isOpen));
 		}
 	}
 
-	function handleTouchStart(event: TouchEvent) {
-		console.log('📱 [TAG TOUCH] touchstart', {
-			tagId: node.tag.id,
-			tagName: node.tag.name,
-			timestamp: new Date().toISOString(),
-			eventType: event.type,
-			touchCount: event.touches.length,
-			touchX: event.touches[0]?.clientX,
-			touchY: event.touches[0]?.clientY,
-			targetElement: event.target instanceof Element ? event.target.tagName : 'unknown'
-		});
+	function handleTouchStart(_event: TouchEvent): void {
+		// Touch start handler for mobile drag-and-drop support
+		// The actual drag state is set in ondragstart
 	}
 </script>
 
@@ -76,7 +68,6 @@
 			ondragover={(e) => {
 				e.preventDefault();
 				if (!e.dataTransfer) {
-					console.warn('⚠️ [TAG DROP ZONE] dragover - No dataTransfer');
 					return;
 				}
 
@@ -86,19 +77,8 @@
 				const hasTag =
 					e.dataTransfer.types.includes('application/x-tag-id') || Boolean(dragState.getTagId());
 
-				console.log('🟡 [TAG DROP ZONE] dragover', {
-					event: e,
-					tagId: node.tag.id,
-					tagName: node.tag.name,
-					hasBookmark,
-					hasTag,
-					dataTransferTypes: Array.from(e.dataTransfer.types),
-					timestamp: new Date().toISOString()
-				});
-
 				if (!hasBookmark && !hasTag) {
 					e.dataTransfer.dropEffect = 'none';
-					console.log('🟡 [TAG DROP ZONE] dragover - rejected (no valid data type)');
 					return;
 				}
 
@@ -108,36 +88,17 @@
 			ondragenter={(e) => {
 				e.preventDefault();
 				e.stopPropagation();
-				console.log('🟢 [TAG DROP ZONE] dragenter', {
-					tagId: node.tag.id,
-					tagName: node.tag.name,
-					timestamp: new Date().toISOString()
-				});
 			}}
 			ondragleave={(e) => {
 				e.stopPropagation();
-				console.log('🔴 [TAG DROP ZONE] dragleave', {
-					tagId: node.tag.id,
-					tagName: node.tag.name,
-					timestamp: new Date().toISOString()
-				});
 			}}
 			ondrop={async (e) => {
 				e.preventDefault();
 				e.stopPropagation();
 
-				console.log('🟣 [TAG DROP ZONE] drop event triggered', {
-					tagId: node.tag.id,
-					tagName: node.tag.name,
-					timestamp: new Date().toISOString()
-				});
-
 				if (!e.dataTransfer) {
-					console.error('❌ [TAG DROP ZONE] drop - No dataTransfer');
 					return;
 				}
-
-				console.log('🟣 [TAG DROP ZONE] dataTransfer types:', Array.from(e.dataTransfer.types));
 
 				// Handle bookmark drops
 				if (
@@ -149,20 +110,10 @@
 
 					// Fallback to global state if dataTransfer is empty (mobile)
 					if (!bookmarkId) {
-						bookmarkId = dragState.getBookmarkId();
-						if (bookmarkId) {
-							console.log('📱 [MOBILE FALLBACK] Using stored bookmark ID:', bookmarkId);
-						}
+						bookmarkId = dragState.getBookmarkId() as string;
 					}
 
-					console.log('🟣 [TAG DROP ZONE] Bookmark drop detected', {
-						bookmarkId,
-						targetTagId: node.tag.id,
-						targetTagName: node.tag.name
-					});
-
 					if (!bookmarkId) {
-						console.error('❌ [TAG DROP ZONE] No bookmark ID found in drag data');
 						return;
 					}
 
@@ -170,13 +121,11 @@
 						// Get current bookmark
 						const bookmark = await db.bookmarks.get(bookmarkId);
 						if (!bookmark) {
-							console.error('❌ [TAG DROP ZONE] Bookmark not found:', bookmarkId);
 							return;
 						}
 
 						// Check if tag exists
 						if (!node.tag || !node.tag.id) {
-							console.error('❌ [TAG DROP ZONE] Invalid tag node:', node);
 							return;
 						}
 
@@ -189,19 +138,11 @@
 							$ancestorMap.get(node.tag.id)?.forEach((id) => {
 								newTags = newTags.filter((tagId) => tagId !== id);
 							});
-							console.log('✅ [TAG DROP ZONE] Updating bookmark tags', {
-								bookmarkId,
-								newTags,
-								targetTagId: node.tag.id
-							});
 							// Add the new tag to the existing tags
 							await updateBookmarkTags(bookmarkId, newTags);
-							console.log('✅ [TAG DROP ZONE] Bookmark tags updated successfully');
-						} else {
-							console.log('ℹ️ [TAG DROP ZONE] Tag already exists on bookmark, skipping');
 						}
 					} catch (error) {
-						console.error('❌ [TAG DROP ZONE] Failed to update bookmark tags:', error);
+						console.error('Failed to update bookmark tags:', error);
 					}
 				}
 
@@ -212,52 +153,34 @@
 
 					// Fallback to global state if dataTransfer is empty (mobile)
 					if (!draggedTagId) {
-						draggedTagId = dragState.getTagId();
-						if (draggedTagId) {
-							console.log('📱 [MOBILE FALLBACK] Using stored tag ID:', draggedTagId);
-						}
+						draggedTagId = dragState.getTagId() as string;
 					}
 
-					console.log('🟣 [TAG DROP ZONE] Tag drop detected', {
-						draggedTagId,
-						targetTagId: node.tag.id,
-						targetTagName: node.tag.name
-					});
-
 					if (!draggedTagId) {
-						console.error('❌ [TAG DROP ZONE] No tag ID found in drag data');
 						return;
 					}
 
 					// Prevent dropping tag on itself
 					if (draggedTagId === node.tag.id) {
-						console.warn('⚠️ [TAG DROP ZONE] Cannot drop tag on itself');
 						return;
 					}
 
 					// Prevent circular references: cannot drop on descendants
 					const descendants = $descendantMap.get(draggedTagId) || [];
 					if (descendants.includes(node.tag.id)) {
-						console.warn('⚠️ [TAG DROP ZONE] Cannot drop tag on its descendant');
 						return;
 					}
 
 					// Prevent dropping on current parent (no-op)
 					const draggedTag = $tagMap.get(draggedTagId);
 					if (draggedTag && draggedTag.parentId === node.tag.id) {
-						console.info('ℹ️ [TAG DROP ZONE] Tag is already a child of this parent');
 						return;
 					}
 
 					try {
-						console.log('✅ [TAG DROP ZONE] Updating tag parent', {
-							draggedTagId,
-							newParentId: node.tag.id
-						});
 						await updateTagParent(draggedTagId, node.tag.id);
-						console.log('✅ [TAG DROP ZONE] Tag parent updated successfully');
 					} catch (error) {
-						console.error('❌ [TAG DROP ZONE] Failed to update tag parent:', error);
+						console.error('Failed to update tag parent:', error);
 					}
 				}
 
@@ -274,25 +197,10 @@
 					.name} tag. Drag to reorganize hierarchy or drop bookmarks to add this tag."
 				ontouchstart={handleTouchStart}
 				ondragstart={(e) => {
-					console.log('🔵 [TAG DRAG] dragstart', {
-						tagId: node.tag.id,
-						tagName: node.tag.name,
-						timestamp: new Date().toISOString(),
-						eventType: e.type,
-						isTouchEvent: 'touches' in e
-					});
-
 					// Set in dataTransfer (works on desktop)
 					if (e.dataTransfer) {
 						e.dataTransfer.effectAllowed = 'move';
 						e.dataTransfer.setData('application/x-tag-id', node.tag.id);
-						console.log('🔵 [TAG DRAG] dataTransfer set:', {
-							type: 'application/x-tag-id',
-							value: node.tag.id,
-							effectAllowed: e.dataTransfer.effectAllowed
-						});
-					} else {
-						console.warn('⚠️ [TAG DRAG] No dataTransfer available');
 					}
 
 					// ALSO set in global state (fallback for mobile)
@@ -301,11 +209,6 @@
 					e.currentTarget.style.cursor = 'grabbing';
 				}}
 				ondragend={(e) => {
-					console.log('🔴 [TAG DRAG] dragend', {
-						tagId: node.tag.id,
-						tagName: node.tag.name,
-						timestamp: new Date().toISOString()
-					});
 					dragState.clear();
 					e.currentTarget.style.cursor = '';
 				}}

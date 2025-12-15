@@ -7,9 +7,8 @@ let currentDragData = $state<{
 }>({ type: null, id: null });
 
 export const dragState = {
-	set(type: 'bookmark' | 'tag', id: string) {
+	set(type: 'bookmark' | 'tag', id: string): void {
 		currentDragData = { type, id };
-		console.log('💾 [DRAG STATE] Stored fallback:', { type, id });
 	},
 
 	get(): { type: 'bookmark' | 'tag' | null; id: string | null } {
@@ -24,8 +23,7 @@ export const dragState = {
 		return currentDragData.type === 'tag' ? currentDragData.id : null;
 	},
 
-	clear() {
-		console.log('🧹 [DRAG STATE] Cleared fallback');
+	clear(): void {
 		currentDragData = { type: null, id: null };
 	}
 };

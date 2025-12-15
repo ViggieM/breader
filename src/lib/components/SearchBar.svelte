@@ -126,7 +126,6 @@
 					name="text"
 					placeholder="Write your note here..."
 					required
-					autofocus
 					class="textarea textarea-bordered w-full min-h-[150px]"
 				></textarea>
 			</div>

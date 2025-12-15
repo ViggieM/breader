@@ -2,7 +2,6 @@
 <!-- ABOUTME: Wraps in draggable <li> for drag-and-drop support, handles web share API with clipboard fallback -->
 
 <script lang="ts">
-	import type { DragEventHandler } from 'svelte/elements';
 	import { dragState } from '$lib/stores/dragState.svelte';
 
 	interface Props {
@@ -21,7 +20,7 @@
 	let dropdownId = `dropdown-${Math.random().toString(36).substr(2, 9)}`;
 	let containerElement = $state<HTMLLIElement>();
 
-	function toggle() {
+	function toggle(): void {
 		isOpen = !isOpen;
 	}
 
@@ -43,7 +42,7 @@
 		};
 	});
 
-	function handleKeydown(event: KeyboardEvent) {
+	function handleKeydown(event: KeyboardEvent): void {
 		if (event.key === 'Enter' || event.key === ' ') {
 			event.preventDefault();
 			toggle();
@@ -52,7 +51,7 @@
 		}
 	}
 
-	async function handleShare() {
+	async function handleShare(): Promise<void> {
 		try {
 			if (navigator.share) {
 				// Use Web Share API on mobile/supported browsers
@@ -74,48 +73,24 @@
 		}
 	}
 
-	function handleOpen() {
+	function handleOpen(): void {
 		window.open(bookmark.url, '_blank', 'noopener,noreferrer');
 	}
 
-	function handleDragStart(event: DragEvent) {
-		console.log('🔵 [BOOKMARK DRAG] dragstart', {
-			bookmarkId: bookmark.id,
-			title: bookmark.title,
-			timestamp: new Date().toISOString(),
-			eventType: event.type,
-			isTouchEvent: 'touches' in event
-		});
-
+	function handleDragStart(event: DragEvent): void {
 		// Set in dataTransfer (works on desktop)
 		if (event.dataTransfer) {
 			event.dataTransfer.effectAllowed = 'move';
 			event.dataTransfer.setData('application/x-bookmark-id', bookmark.id);
-			console.log('🔵 [BOOKMARK DRAG] dataTransfer set:', {
-				type: 'application/x-bookmark-id',
-				value: bookmark.id,
-				effectAllowed: event.dataTransfer.effectAllowed
-			});
-		} else {
-			console.warn('⚠️ [BOOKMARK DRAG] No dataTransfer available');
 		}
 
 		// ALSO set in global state (fallback for mobile)
 		dragState.set('bookmark', bookmark.id);
 	}
 
-	function handleTouchStart(event: TouchEvent) {
-		console.log('📱 [BOOKMARK TOUCH] touchstart', {
-			bookmarkId: bookmark.id,
-			title: bookmark.title,
-			timestamp: new Date().toISOString(),
-			eventType: event.type,
-			touchCount: event.touches.length,
-			touchX: event.touches[0]?.clientX,
-			touchY: event.touches[0]?.clientY,
-			targetElement: event.target instanceof Element ? event.target.tagName : 'unknown',
-			event
-		});
+	function handleTouchStart(_event: TouchEvent): void {
+		// Touch start handler for mobile drag-and-drop support
+		// The actual drag state is set in handleDragStart
 	}
 </script>
 
@@ -124,7 +99,6 @@
 	draggable="true"
 	ondragstart={handleDragStart}
 	ondragend={() => {
-		console.log('🔴 [BOOKMARK DRAG] dragend - clearing state');
 		dragState.clear();
 	}}
 	ontouchstart={handleTouchStart}

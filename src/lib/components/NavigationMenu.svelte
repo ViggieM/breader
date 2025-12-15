@@ -11,9 +11,9 @@
 	import { dragState } from '$lib/stores/dragState.svelte';
 
 	const dragHelpId = 'bookmark-drag-help';
-	let currentlyDragedOver = $state<HTMLElement>();
-	let isRootDropTarget = $state(false);
-	let addTagDialogRef = $state() as HTMLDialogElement;
+	let currentlyDragedOver = $state<HTMLElement | undefined>();
+	let isRootDropTarget = $state<boolean>(false);
+	let addTagDialogRef = $state<HTMLDialogElement>() as HTMLDialogElement;
 
 	// Edit tag dialog state
 	let editDialog = $state<HTMLDialogElement>();
@@ -40,7 +40,7 @@
 		name: string;
 		parentId: string | null;
 		childrenCount: number;
-	}) {
+	}): Promise<void> {
 		currentTag = tag;
 		editTagName = tag.name;
 		editError = null;
@@ -49,7 +49,7 @@
 		editDialog?.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
 	}
 
-	async function handleEditSubmit(e: Event) {
+	async function handleEditSubmit(e: Event): Promise<void> {
 		e.preventDefault();
 		editError = null;
 
@@ -89,19 +89,19 @@
 		name: string;
 		parentId: string | null;
 		childrenCount: number;
-	}) {
+	}): void {
 		currentTag = tag;
 		deleteError = null;
 		deleteDialog?.showModal();
 	}
 
-	function handleDeleteCancel() {
+	function handleDeleteCancel(): void {
 		deleteError = null;
 		deleteDialog?.close();
 		currentTag = null;
 	}
 
-	async function handleDeleteConfirm() {
+	async function handleDeleteConfirm(): Promise<void> {
 		deleteError = null;
 
 		if (!currentTag) return;
@@ -129,47 +129,20 @@
 	<span id="bookmark-actions-help" class="sr-only">
 		Expand bookmark to access notes, edit, share, and open actions
 	</span>
-	<ul class="menu rounded-box w-full p-0 mt-4">
-		<!-- Static top-level links -->
-		<li>
-			<a href="/list/favorites" aria-label="View favorite bookmarks">
-				<span class="icon-[ri--star-line] shrink-0" aria-hidden="true"></span>
-				Favorites
-			</a>
-		</li>
-		<li>
-			<a href="/list/archived" aria-label="View archived bookmarks">
-				<span class="icon-[ri--archive-2-line] shrink-0" aria-hidden="true"></span>
-				Archive
-			</a>
-		</li>
-		<li>
-			<a href="/list/notes" aria-label="View notes">
-				<span class="icon-[ri--sticky-note-line] shrink-0" aria-hidden="true"></span>
-				Notes
-			</a>
-		</li>
+	<ul class="menu rounded-box w-full px-0 border-t border-base-300 py-4 mt-4">
+		<!-- Untagged bookmarks section -->
+		{#each $navigationData.untagged as bookmark (bookmark.id)}
+			<NavigationMenuBookmark {bookmark} />
+		{/each}
 
-		<div
-			role="region"
-			aria-label="Tag organization area"
-			class="border-t border-base-300 py-4 mt-4"
-			class:bg-base-200={isRootDropTarget}
-		>
-			<!-- Untagged bookmarks section -->
-			{#each $navigationData.untagged as bookmark (bookmark.id)}
-				<NavigationMenuBookmark {bookmark} />
-			{/each}
-
-			<!-- Tag tree with nested tags and bookmarks -->
-			{#each $navigationData.tagTree as tagNode (tagNode.tag.id)}
-				<NavigationMenuItem
-					node={tagNode}
-					onEditTag={handleEditTag}
-					onDeleteTag={handleDeleteClick}
-				/>
-			{/each}
-		</div>
+		<!-- Tag tree with nested tags and bookmarks -->
+		{#each $navigationData.tagTree as tagNode (tagNode.tag.id)}
+			<NavigationMenuItem
+				node={tagNode}
+				onEditTag={handleEditTag}
+				onDeleteTag={handleDeleteClick}
+			/>
+		{/each}
 
 		<!-- Empty state -->
 		{#if $navigationData.tagTree.length === 0 && $navigationData.untagged.length === 0}
@@ -225,7 +198,6 @@
 							type="text"
 							placeholder="Tag name"
 							required
-							autofocus
 							maxlength="100"
 							class="grow"
 							disabled={isEditing}
@@ -351,14 +323,12 @@
 		currentlyDragedOver?.classList.remove('dragover');
 	}}
 	ondragend={() => {
-		console.log('🔴 [WINDOW] dragend - cleaning up dragover classes');
 		document.querySelector('.dragover')?.classList.remove('dragover');
 		isRootDropTarget = false;
 	}}
 	ondragover={(e) => {
 		e.preventDefault();
 		if (!e.dataTransfer) {
-			console.warn('⚠️ [WINDOW ROOT] dragover - No dataTransfer');
 			return;
 		}
 
@@ -368,37 +338,22 @@
 			return;
 		}
 
-		console.log('🟡 [WINDOW ROOT] dragover - tag over root area', {
-			dataTransferTypes: Array.from(e.dataTransfer.types),
-			hasFallbackTag: Boolean(dragState.getTagId()),
-			timestamp: new Date().toISOString()
-		});
-
 		e.dataTransfer.dropEffect = 'move';
 		isRootDropTarget = true;
 	}}
 	ondragleave={() => {
-		console.log('🔴 [WINDOW ROOT] dragleave');
 		isRootDropTarget = false;
 	}}
 	ondrop={async (e) => {
 		e.preventDefault();
 		isRootDropTarget = false;
 
-		console.log('🟣 [WINDOW ROOT] drop event triggered', {
-			timestamp: new Date().toISOString()
-		});
-
 		if (!e.dataTransfer) {
-			console.error('❌ [WINDOW ROOT] drop - No dataTransfer');
 			return;
 		}
 
-		console.log('🟣 [WINDOW ROOT] dataTransfer types:', Array.from(e.dataTransfer.types));
-
 		// Only handle tag drops (check both dataTransfer and fallback state)
 		if (!e.dataTransfer.types.includes('application/x-tag-id') && !dragState.getTagId()) {
-			console.log('ℹ️ [WINDOW ROOT] drop - not a tag drop, ignoring');
 			return;
 		}
 
@@ -407,25 +362,17 @@
 
 		// Fallback to global state if dataTransfer is empty (mobile)
 		if (!tagId) {
-			tagId = dragState.getTagId();
-			if (tagId) {
-				console.log('📱 [MOBILE FALLBACK] Using stored tag ID:', tagId);
-			}
+			tagId = dragState.getTagId() as string;
 		}
 
-		console.log('🟣 [WINDOW ROOT] Tag drop to root detected', { tagId });
-
 		if (!tagId) {
-			console.error('❌ [WINDOW ROOT] No tag ID found in drag data');
 			return;
 		}
 
 		try {
-			console.log('✅ [WINDOW ROOT] Moving tag to root level', { tagId });
 			await updateTagParent(tagId, null);
-			console.log('✅ [WINDOW ROOT] Tag moved to root successfully');
 		} catch (error) {
-			console.error('❌ [WINDOW ROOT] Failed to move tag to root:', error);
+			console.error('Failed to move tag to root:', error);
 		} finally {
 			// Clear drag state after drop
 			dragState.clear();
