@@ -34,11 +34,6 @@
 		</summary>
 		<ul class="menu dropdown-content rounded-box bg-base-100 z-1 w-52 shadow p-2 space-y-1">
 			<li>
-				<a href="/tags" class="flex justify-between"
-					>Manage Tags <span class="icon-[ri--price-tag-3-fill]"></span></a
-				>
-			</li>
-			<li>
 				<button
 					class="flex justify-between"
 					onclick={() => {
