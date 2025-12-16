@@ -3,7 +3,7 @@
 
 import Dexie from 'dexie';
 import { db } from '$lib/db';
-import type { BookmarkData, BookmarkMetaData, BookmarkStatus } from '$lib/types/bookmark';
+import { BookmarkStatus, type BookmarkData, type BookmarkMetaData } from '$lib/types/bookmark';
 
 const { liveQuery } = Dexie;
 
@@ -28,11 +28,43 @@ export function getBookmark(id: string) {
  */
 export function getAllBookmarks() {
 	return liveQuery(async () => {
-		const bookmarks = await db.bookmarks.toArray();
+		const bookmarks = await db.bookmarks.where('status').above(BookmarkStatus.ARCHIVED).toArray();
 		// Sort by modified / created date, newest first
 		return bookmarks.sort((a, b) =>
 			(b.modified || b.created).localeCompare(a.modified || a.created)
 		);
+	});
+}
+
+/**
+ * Get archived bookmarks sorted by created date using liveQuery.
+ * Returns a Dexie Observable that reactively updates when bookmarks change.
+ *
+ * @returns Observable that emits BookmarkData[] sorted by created date (newest first)
+ */
+export function getArchivedBookmarks() {
+	return liveQuery(async () => {
+		const bookmarks = await db.bookmarks.where('status').equals(BookmarkStatus.ARCHIVED).toArray();
+		// Sort by modified / created date, newest first
+		return bookmarks.sort((a, b) =>
+			(b.modified || b.created).localeCompare(a.modified || a.created)
+		);
+	});
+}
+
+/**
+ * Get favorite bookmarks sorted by created date using liveQuery.
+ * Returns a Dexie Observable that reactively updates when bookmarks change.
+ *
+ * @returns Observable that emits BookmarkData[] sorted by created date (newest first)
+ */
+export function getFavoriteBookmarks() {
+	return liveQuery(async () => {
+		const bookmarks = await db.bookmarks.toArray();
+		// Sort by modified / created date, newest first
+		return bookmarks
+			.filter((b) => b.isStarred)
+			.sort((a, b) => (b.modified || b.created).localeCompare(a.modified || a.created));
 	});
 }
 

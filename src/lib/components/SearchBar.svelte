@@ -1,28 +1,15 @@
-<script module lang="ts">
-	import { derived } from 'svelte/store';
-	import { engine, filters } from '$lib/stores/search.svelte';
-	import { Bookmark, BookmarkStatus } from '$lib/types';
-
-	export const results = derived([engine, filters], ([$engine, $filters]) => {
-		if (!$engine) return [];
-		let results = $engine.search($filters.query.trim());
-
-		if ($filters.showUnread) {
-			results = results.filter(
-				(b) => b.status === BookmarkStatus.WANT_TO_READ || b.status === BookmarkStatus.READING
-			);
-		}
-		if ($filters.isStarred) {
-			results = results.filter((b) => b.isStarred);
-		}
-
-		return results?.map((b) => new Bookmark(b));
-	});
-</script>
-
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
 	import { db } from '$lib/db';
+	import TagForm from './TagForm.svelte';
+	import type { Writable } from 'svelte/store';
+
+	interface Props {
+		filters: Writable<{ query: string }>;
+		placeholder?: string;
+	}
+
+	let { filters, placeholder }: Props = $props();
 
 	// Update URL when query changes (for bookmarking/sharing)
 	function updateURL() {
@@ -67,6 +54,9 @@
 			console.error('Failed to create note:', error);
 		}
 	}
+
+	// Add Tag functionality
+	let addTagDialog = $state() as HTMLDialogElement;
 </script>
 
 <div class="flex gap-2">
@@ -76,7 +66,7 @@
 		type="search"
 		bind:value={$filters.query}
 		oninput={updateURL}
-		placeholder="Search..."
+		placeholder={placeholder || 'Search...'}
 		class="input w-full"
 	/>
 	<div class="dropdown dropdown-bottom dropdown-end">
@@ -97,6 +87,12 @@
 				<button onclick={() => addNoteDialog.showModal()}>
 					<span class="icon-[ri--sticky-note-line]"></span>
 					Add Note
+				</button>
+			</li>
+			<li>
+				<button onclick={() => addTagDialog.showModal()}>
+					<span class="icon-[ri--price-tag-3-line]"></span>
+					Add Tag
 				</button>
 			</li>
 		</ul>
@@ -145,4 +141,19 @@
 			>
 		</div>
 	</div>
+</dialog>
+
+<dialog bind:this={addTagDialog} class="modal">
+	<div class="modal-box">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
+		</form>
+
+		<h3 class="text-lg font-bold mb-4">Add a new tag</h3>
+
+		<TagForm onSuccess={() => addTagDialog.close()} />
+	</div>
+	<form method="dialog" class="modal-backdrop">
+		<button>close</button>
+	</form>
 </dialog>

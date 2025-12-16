@@ -1,11 +1,10 @@
 // ABOUTME: Creates navigation menu data structure by combining bookmarks and tags into a hierarchical tree
 // ABOUTME: with untagged bookmarks section and recursive tag nodes with their associated bookmarks
 
-import { derived } from 'svelte/store';
+import { derived, type Readable } from 'svelte/store';
 import { SvelteMap, SvelteSet } from 'svelte/reactivity';
-import { results } from '$lib/components/SearchBar.svelte';
 import { childrenMap, tagMap } from '$lib/stores/tags.svelte';
-import type { Bookmark, Tag } from '$lib/types';
+import { Bookmark, type BookmarkData, type Tag } from '$lib/types';
 
 export interface TagNode {
 	tag: Tag;
@@ -18,20 +17,30 @@ export interface NavigationData {
 	tagTree: TagNode[];
 }
 
-export const navigationData = derived(
-	[results, childrenMap, tagMap],
-	([$results, $childrenMap, $tagMap]) => {
+/**
+ * Creates a derived store that builds navigation data from bookmarks and tags
+ * @param bookmarksStore - Store containing the bookmarks to process
+ * @param hideTagsWithoutBookmarks - Hide tags that have not bookmarks
+ * @returns Derived store with navigation data structure
+ */
+export function createNavigationData(
+	bookmarksStore: Readable<BookmarkData[]>,
+	hideTagsWithoutBookmarks: boolean = true
+) {
+	return derived([bookmarksStore, childrenMap, tagMap], ([$bookmarks, $childrenMap, $tagMap]) => {
 		// Filter untagged bookmarks (bookmarks with no tags)
-		const untagged = $results.filter((bookmark) => bookmark.tags.length === 0);
+		const untagged = $bookmarks
+			.filter((bookmark) => bookmark.tags.length === 0)
+			.map((data) => new Bookmark(data));
 
 		// Build a map of tag IDs to their bookmarks
 		const tagBookmarksMap = new SvelteMap<string, Bookmark[]>();
-		$results.forEach((bookmark) => {
+		$bookmarks.forEach((bookmark) => {
 			bookmark.tags.forEach((tagId) => {
 				if (!tagBookmarksMap.has(tagId)) {
 					tagBookmarksMap.set(tagId, []);
 				}
-				tagBookmarksMap.get(tagId)!.push(bookmark);
+				tagBookmarksMap.get(tagId)!.push(new Bookmark(bookmark));
 			});
 		});
 
@@ -70,6 +79,9 @@ export const navigationData = derived(
 				const tag = $tagMap.get(tagId);
 				if (!tag) continue;
 
+				// Only include tags that have bookmarks or children with bookmarks
+				if (hideTagsWithoutBookmarks && !hasBookmarks(tagId)) continue;
+
 				const newVisited = new SvelteSet(visited);
 				newVisited.add(tagId);
 
@@ -92,5 +104,5 @@ export const navigationData = derived(
 			untagged,
 			tagTree
 		};
-	}
-);
+	});
+}

@@ -2,18 +2,26 @@
 <!-- ABOUTME: and hierarchical tag structure with collapsible sections and nested bookmarks -->
 
 <script lang="ts">
-	import { navigationData } from '$lib/stores/navigation.svelte';
 	import NavigationMenuItem from './NavigationMenuItem.svelte';
 	import { updateTagParent, updateTagName, deleteTag } from '$lib/db/tags';
-	import TagForm from './TagForm.svelte';
 	import { tick } from 'svelte';
 	import NavigationMenuBookmark from './NavigationMenuBookmark.svelte';
 	import { dragState } from '$lib/stores/dragState.svelte';
+	import type { NavigationData } from '$lib/stores/navigation.svelte';
+	import type { Readable } from 'svelte/store';
+	import { db } from '$lib/db';
+	import { browser } from '$app/environment';
+
+	interface Props {
+		bookmarksLiveData: Readable<NavigationData>;
+		class?: string;
+	}
+
+	let { bookmarksLiveData, class: className }: Props = $props();
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement | undefined>();
 	let isRootDropTarget = $state<boolean>(false);
-	let addTagDialogRef = $state<HTMLDialogElement>() as HTMLDialogElement;
 
 	// Edit tag dialog state
 	let editDialog = $state<HTMLDialogElement>();
@@ -120,7 +128,7 @@
 	}
 </script>
 
-{#if $navigationData}
+{#if $bookmarksLiveData}
 	<span id={dragHelpId} class="sr-only">Drag bookmarks to tags to add that tag</span>
 	<span id="tag-drag-help" class="sr-only">
 		Drag tags to reorganize the hierarchy. Drop on another tag to make it a child, or drop in the
@@ -129,14 +137,14 @@
 	<span id="bookmark-actions-help" class="sr-only">
 		Expand bookmark to access notes, edit, share, and open actions
 	</span>
-	<ul class="menu rounded-box w-full px-0 border-t border-base-300 py-4 mt-4">
+	<ul class={['menu w-full px-0 py-4', className]}>
 		<!-- Untagged bookmarks section -->
-		{#each $navigationData.untagged as bookmark (bookmark.id)}
+		{#each $bookmarksLiveData.untagged as bookmark (bookmark.id)}
 			<NavigationMenuBookmark {bookmark} />
 		{/each}
 
 		<!-- Tag tree with nested tags and bookmarks -->
-		{#each $navigationData.tagTree as tagNode (tagNode.tag.id)}
+		{#each $bookmarksLiveData.tagTree as tagNode (tagNode.tag.id)}
 			<NavigationMenuItem
 				node={tagNode}
 				onEditTag={handleEditTag}
@@ -145,32 +153,28 @@
 		{/each}
 
 		<!-- Empty state -->
-		{#if $navigationData.tagTree.length === 0 && $navigationData.untagged.length === 0}
-			<li class="text-center py-4 text-base-content/60">
-				<p>No bookmarks yet</p>
+		{#if !browser}
+			<li class="py-4 text-base-content/60">
+				<p>Loading Bookmarks</p>
 			</li>
+		{:else if $bookmarksLiveData.tagTree.length === 0 && $bookmarksLiveData.untagged.length === 0}
+			{#await db.bookmarks.count()}
+				<li class="py-4 text-base-content/60">
+					<p>Loading Bookmarks</p>
+				</li>
+			{:then count}
+				{#if count > 0}
+					<li class="py-4 text-base-content/60">
+						<p>Loading Bookmarks</p>
+					</li>
+				{:else}
+					<li class="py-4 text-base-content/60">
+						<p>No bookmarks</p>
+					</li>
+				{/if}
+			{/await}
 		{/if}
 	</ul>
-	<div class="px-3">
-		<button class="btn btn-sm btn-outline" onclick={() => addTagDialogRef.showModal()}>
-			<span class="icon-[ri--add-large-fill]"></span> Add a new tag
-		</button>
-	</div>
-
-	<dialog bind:this={addTagDialogRef} class="modal">
-		<div class="modal-box">
-			<form method="dialog">
-				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
-			</form>
-
-			<h3 class="text-lg font-bold mb-4">Add a new tag</h3>
-
-			<TagForm onSuccess={() => addTagDialogRef.close()} />
-		</div>
-		<form method="dialog" class="modal-backdrop">
-			<button>close</button>
-		</form>
-	</dialog>
 
 	<!-- Edit Tag Dialog -->
 	<dialog bind:this={editDialog} class="modal" aria-labelledby="edit-tag-title">

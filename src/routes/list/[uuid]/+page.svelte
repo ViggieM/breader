@@ -1,33 +1,64 @@
+<script lang="ts" module>
+	import { bookmarksData, FuseSearchEngine } from '$lib/stores/search.svelte';
+	import { derived, writable } from 'svelte/store';
+	import { descendantMap } from '$lib/stores/tags.svelte.js';
+	import { BookmarkStatus } from '$lib/types';
+	import { createNavigationData } from '$lib/stores/navigation.svelte';
+
+	const filters = writable({
+		query: '',
+		showUnread: false,
+		isStarred: false
+	});
+</script>
+
 <script lang="ts">
 	import { Tag } from '$lib/types';
-	import UrlList from '$lib/components/UrlList.svelte';
-	import { results } from '$lib/components/SearchBar.svelte';
-	import { derived } from 'svelte/store';
-	import { descendantMap } from '$lib/stores/tags.svelte.js';
+	import SearchBar from '$lib/components/SearchBar.svelte';
+	import NavigationMenu from '$lib/components/NavigationMenu.svelte';
 
 	const { data } = $props();
 	let tag: Tag = $state(data.tag);
 
-	const bookmarks = derived([results, descendantMap], ([results, descendantMap]) => {
-		const decendants = descendantMap.get(tag.id) || [];
-		const tags = [tag.id, ...decendants];
-		return results.filter(
+	// Filter bookmarks by tag and descendants
+	const tagBookmarks = derived([bookmarksData, descendantMap], ([$bookmarks, $descendantMap]) => {
+		const descendants = $descendantMap.get(tag.id) || [];
+		const tags = [tag.id, ...descendants];
+		return $bookmarks.filter(
 			(b) => b.tags && b.tags.some((bookmarkTag) => tags.includes(bookmarkTag))
 		);
 	});
+
+	// Create search engine for tag bookmarks
+	const engine = derived(tagBookmarks, ($tagBookmarks) => new FuseSearchEngine($tagBookmarks));
+
+	// Apply search filters
+	const searchResults = derived([engine, filters], ([$engine, $filters]) => {
+		if (!$engine) return [];
+		let results = $engine.search($filters.query.trim());
+
+		if ($filters.showUnread) {
+			results = results.filter(
+				(b) => b.status === BookmarkStatus.WANT_TO_READ || b.status === BookmarkStatus.READING
+			);
+		}
+		if ($filters.isStarred) {
+			results = results.filter((b) => b.isStarred);
+		}
+
+		return results;
+	});
+
+	// Create navigation data from filtered results
+	const navigationData = createNavigationData(searchResults);
 </script>
 
-<section class="mt-4">
-	{#if $bookmarks.length > 0}
-		<h2 class="mt-8 mb-2">{tag.name}</h2>
-		<UrlList items={$bookmarks} />
-	{:else if $bookmarks}
-		<p class="flex items-center justify-center gap-2 text-base-content/60">
-			No bookmarks found matching your search criteria.
-		</p>
-	{:else}
-		<p class="flex items-center justify-center gap-2">
-			<span class="loading loading-spinner loading-lg"></span> Loading bookmarks...
-		</p>
-	{/if}
-</section>
+<svelte:head>
+	<title>{tag.name} | Breader</title>
+</svelte:head>
+
+<main id="main-content">
+	<SearchBar {filters} />
+
+	<NavigationMenu bookmarksLiveData={navigationData} />
+</main>

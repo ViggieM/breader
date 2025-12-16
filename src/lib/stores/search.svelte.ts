@@ -1,19 +1,26 @@
-import Fuse, { type FuseIndex, type FuseSearchOptions } from 'fuse.js';
+import Fuse, { type FuseIndex, type IFuseOptions } from 'fuse.js';
 import { derived, readable, writable } from 'svelte/store';
-import { getAllBookmarks } from '$lib/db/bookmarks';
+import { getAllBookmarks, getArchivedBookmarks, getFavoriteBookmarks } from '$lib/db/bookmarks';
 import type { BookmarkData } from '$lib/types';
 
-class FuseSearchEngine {
+export class FuseSearchEngine {
 	public data: BookmarkData[];
 	private readonly fuse: Fuse<BookmarkData>;
 
-	constructor(data: BookmarkData[], options?: FuseSearchOptions, index?: FuseIndex<BookmarkData>) {
-		const defaultOptions = {
+	constructor(
+		data: BookmarkData[],
+		options?: IFuseOptions<BookmarkData>,
+		index?: FuseIndex<BookmarkData>
+	) {
+		const defaultOptions: IFuseOptions<BookmarkData> = {
 			threshold: 0.3,
 			keys: [
 				{ name: 'title', weight: 1.0 },
 				{ name: 'keywords', weight: 0.7 },
-				{ name: 'tags', weight: 0.5 }
+				{
+					name: 'tags',
+					weight: 0.5
+				}
 			]
 		};
 		const searchOptions = { ...defaultOptions, ...options };
@@ -38,13 +45,20 @@ export const bookmarksData = readable<BookmarkData[]>([], (set) => {
 	return () => subscription.unsubscribe();
 });
 
-export const engine = derived(
-	bookmarksData,
-	($bookmarksData) => new FuseSearchEngine($bookmarksData)
-);
+export const archivedBookmarks = readable<BookmarkData[]>([], (set) => {
+	const observable = getArchivedBookmarks();
+	const subscription = observable.subscribe((data: BookmarkData[]) => {
+		if (data) set(data);
+	});
 
-export const filters = writable({
-	query: '',
-	showUnread: false,
-	isStarred: false
+	return () => subscription.unsubscribe();
+});
+
+export const favoriteBookmarks = readable<BookmarkData[]>([], (set) => {
+	const observable = getFavoriteBookmarks();
+	const subscription = observable.subscribe((data: BookmarkData[]) => {
+		if (data) set(data);
+	});
+
+	return () => subscription.unsubscribe();
 });

@@ -248,6 +248,12 @@
 						class="dropdown-content menu bg-base-100 rounded-box z-[1] w-42 p-2 shadow-lg mt-1"
 					>
 						<li role="menuitem">
+							<a href="/list/{node.tag.id}">
+								<span class="icon-[ri--list-check]"></span>
+								View List
+							</a>
+						</li>
+						<li role="menuitem">
 							<button
 								type="button"
 								onclick={() =>
