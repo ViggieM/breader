@@ -60,5 +60,5 @@
 <main id="main-content">
 	<SearchBar {filters} />
 
-	<NavigationMenu bookmarksLiveData={navigationData} />
+	<NavigationMenu bookmarksLiveData={navigationData} hideTagsWithoutBookmarks={true} />
 </main>

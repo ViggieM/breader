@@ -46,5 +46,5 @@
 <main id="main-content">
 	<SearchBar {filters} placeholder="Search Archive..." />
 
-	<NavigationMenu bookmarksLiveData={data} />
+	<NavigationMenu bookmarksLiveData={data} hideTagsWithoutBookmarks={true} />
 </main>

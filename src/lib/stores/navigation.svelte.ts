@@ -10,6 +10,7 @@ export interface TagNode {
 	tag: Tag;
 	bookmarks: Bookmark[];
 	children: TagNode[];
+	hasBookmarks: boolean;
 }
 
 export interface NavigationData {
@@ -23,10 +24,7 @@ export interface NavigationData {
  * @param hideTagsWithoutBookmarks - Hide tags that have not bookmarks
  * @returns Derived store with navigation data structure
  */
-export function createNavigationData(
-	bookmarksStore: Readable<BookmarkData[]>,
-	hideTagsWithoutBookmarks: boolean = true
-) {
+export function createNavigationData(bookmarksStore: Readable<BookmarkData[]>) {
 	return derived([bookmarksStore, childrenMap, tagMap], ([$bookmarks, $childrenMap, $tagMap]) => {
 		// Filter untagged bookmarks (bookmarks with no tags)
 		const untagged = $bookmarks
@@ -79,16 +77,14 @@ export function createNavigationData(
 				const tag = $tagMap.get(tagId);
 				if (!tag) continue;
 
-				// Only include tags that have bookmarks or children with bookmarks
-				if (hideTagsWithoutBookmarks && !hasBookmarks(tagId)) continue;
-
 				const newVisited = new SvelteSet(visited);
 				newVisited.add(tagId);
 
 				const node: TagNode = {
 					tag,
 					bookmarks: tagBookmarksMap.get(tagId) || [],
-					children: buildTagTree(tagId, depth + 1, newVisited)
+					children: buildTagTree(tagId, depth + 1, newVisited),
+					hasBookmarks: hasBookmarks(tagId)
 				};
 
 				nodes.push(node);

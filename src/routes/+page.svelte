@@ -33,6 +33,10 @@
 	const data = createNavigationData(searchResults);
 </script>
 
+<script lang="ts">
+	let hideTagsWithoutBookmarks = $derived($filters.query.trim() !== '');
+</script>
+
 <svelte:head>
 	<title>Breader</title>
 </svelte:head>
@@ -60,5 +64,9 @@
 			</a>
 		</li>
 	</ul>
-	<NavigationMenu bookmarksLiveData={data} class="border-t border-base-300 mt-4" />
+	<NavigationMenu
+		bookmarksLiveData={data}
+		class="border-t border-base-300 mt-4"
+		{hideTagsWithoutBookmarks}
+	/>
 </main>

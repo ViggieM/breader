@@ -15,9 +15,14 @@
 	interface Props {
 		bookmarksLiveData: Readable<NavigationData>;
 		class?: string;
+		hideTagsWithoutBookmarks: boolean;
 	}
 
-	let { bookmarksLiveData, class: className }: Props = $props();
+	let {
+		bookmarksLiveData,
+		class: className,
+		hideTagsWithoutBookmarks = $bindable()
+	}: Props = $props();
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement | undefined>();
@@ -145,11 +150,14 @@
 
 		<!-- Tag tree with nested tags and bookmarks -->
 		{#each $bookmarksLiveData.tagTree as tagNode (tagNode.tag.id)}
-			<NavigationMenuItem
-				node={tagNode}
-				onEditTag={handleEditTag}
-				onDeleteTag={handleDeleteClick}
-			/>
+			{#if !hideTagsWithoutBookmarks || tagNode.hasBookmarks}
+				<NavigationMenuItem
+					node={tagNode}
+					onEditTag={handleEditTag}
+					onDeleteTag={handleDeleteClick}
+					{hideTagsWithoutBookmarks}
+				/>
+			{/if}
 		{/each}
 
 		<!-- Empty state -->

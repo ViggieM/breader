@@ -27,9 +27,16 @@
 			parentId: string | null;
 			childrenCount: number;
 		}) => void;
+		hideTagsWithoutBookmarks: boolean;
 	}
 
-	let { node, level = 0, onEditTag, onDeleteTag }: Props = $props();
+	let {
+		node,
+		level = 0,
+		onEditTag,
+		onDeleteTag,
+		hideTagsWithoutBookmarks = $bindable()
+	}: Props = $props();
 
 	// Persistent expand/collapse state
 	const storageKey = `navigation-expanded-${node.tag.id}`;
@@ -49,11 +56,6 @@
 			isOpen = detailsElement.open;
 			localStorage.setItem(storageKey, String(isOpen));
 		}
-	}
-
-	function handleTouchStart(_event: TouchEvent): void {
-		// Touch start handler for mobile drag-and-drop support
-		// The actual drag state is set in ondragstart
 	}
 </script>
 
@@ -190,12 +192,12 @@
 		>
 			<summary
 				class="font-normal"
+				class:after:hidden={node.children.length === 0 && node.bookmarks.length === 0}
 				data-open={isOpen}
 				draggable="true"
 				aria-describedby="tag-drag-help"
 				aria-label="{node.tag
 					.name} tag. Drag to reorganize hierarchy or drop bookmarks to add this tag."
-				ontouchstart={handleTouchStart}
 				ondragstart={(e) => {
 					// Set in dataTransfer (works on desktop)
 					if (e.dataTransfer) {
@@ -219,7 +221,15 @@
 			<ul>
 				<!-- Child tags (recursive) -->
 				{#each node.children as childNode (childNode.tag.id)}
-					<NavigationMenuItem node={childNode} level={level + 1} {onEditTag} {onDeleteTag} />
+					{#if !hideTagsWithoutBookmarks || childNode.hasBookmarks}
+						<NavigationMenuItem
+							node={childNode}
+							level={level + 1}
+							{onEditTag}
+							{onDeleteTag}
+							{hideTagsWithoutBookmarks}
+						/>
+					{/if}
 				{/each}
 
 				<!-- Direct bookmarks for this tag -->

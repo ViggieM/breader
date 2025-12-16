@@ -1,5 +1,5 @@
 import Fuse, { type FuseIndex, type IFuseOptions } from 'fuse.js';
-import { derived, readable, writable } from 'svelte/store';
+import { readable } from 'svelte/store';
 import { getAllBookmarks, getArchivedBookmarks, getFavoriteBookmarks } from '$lib/db/bookmarks';
 import type { BookmarkData } from '$lib/types';
 
