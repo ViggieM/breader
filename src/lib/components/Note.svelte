@@ -58,6 +58,17 @@
 		await onDelete(note.id);
 	}
 
+	function handleKeydown(event: KeyboardEvent) {
+		// Check for Ctrl+Enter or Cmd+Enter (Mac)
+		if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+			// Only save if there are unsaved changes
+			if (hasChanges) {
+				event.preventDefault();
+				save();
+			}
+		}
+	}
+
 	function handleToggle(event: Event) {
 		const currentDetails = event.target as HTMLDetailsElement;
 		if (currentDetails.open) {
@@ -99,14 +110,13 @@
 	bind:this={detailsElement}
 >
 	<summary>
-		<span class="icon-[ri--sticky-note-line]"></span>
+		<span class="icon-[ri--sticky-note-fill] text-base-content/50"></span>
 		<span class="group-not-open:truncate">
 			<form onsubmit={save}>
 				<input
 					bind:value={title}
 					type="text"
-					class="text-base w-full"
-					class:font-semibold={Boolean(title)}
+					class="text-sm w-full"
 					placeholder={`Untitled Note${note.text ? ': ' + note.text.substring(0, 20) : ''}${note.text.length > 20 ? '...' : ''}`}
 					name="title"
 					onclick={(e) => {
@@ -118,12 +128,20 @@
 				/>
 			</form>
 		</span>
-		<span class="text-xs text-base-content/60 whitespace-nowrap">
-			{formatDateAndTime(note.created)}
+		<span class="note-created-date text-xs text-base-content/60 whitespace-nowrap">
+			{formatDateAndTime(note.modified || note.created)}
 		</span>
 	</summary>
 	<article class="group-open:shadow space-y-4 mt-2">
-		<OvertypeEditor bind:content={text} class="border-b border-base-300" />
+		<OvertypeEditor
+			bind:content={text}
+			class="border-b border-base-300 mb-1"
+			onkeydown={handleKeydown}
+		/>
+		<p class="text-xs text-base-content/60">
+			You can use <a href="https://www.markdownguide.org/getting-started/" class="link">Markdown</a>
+			for editing notes
+		</p>
 		{#if hasChanges}
 			<div class="flex gap-2">
 				<button class="btn btn-xs btn-success" onclick={save}> Save </button>
@@ -147,5 +165,8 @@
 <style>
 	details[open] {
 		margin-bottom: 2rem;
+		.note-created-date {
+			display: none;
+		}
 	}
 </style>

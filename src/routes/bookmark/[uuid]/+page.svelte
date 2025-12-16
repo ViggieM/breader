@@ -278,8 +278,8 @@
 			</div>
 		</dl>
 
-		<details class="collapse collapse-arrow overflow-visible" bind:this={detailsElement}>
-			<summary class="collapse-title text-sm p-0">Details</summary>
+		<details class="hidden collapse collapse-arrow overflow-visible" bind:this={detailsElement}>
+			<summary class="collapse-title p-0"><h2>Details</h2></summary>
 			<div class="collapse-content space-y-4 p-0 mt-2">
 				<div>
 					<dt class="text-sm font-medium opacity-70 mb-1">URL</dt>
@@ -368,11 +368,8 @@
 </dialog>
 
 <style>
-	.collapse-title {
-		padding-left: 20px;
-	}
 	.collapse-title:after {
-		left: 0;
-		top: 10px;
+		left: 4rem;
+		top: 0.7rem;
 	}
 </style>

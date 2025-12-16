@@ -5,10 +5,11 @@
 	interface Props {
 		content: string;
 		class?: string;
-		options?: OverTypeOptions;
+		onkeydown?: (event: KeyboardEvent) => void;
+		overtypeOptions?: OverTypeOptions;
 	}
 
-	let { content = $bindable(), class: className, ...options }: Props = $props();
+	let { content = $bindable(), class: className, overtypeOptions, ...restProps }: Props = $props();
 
 	const initialValue = content;
 	let node = $state() as HTMLDivElement;
@@ -43,7 +44,7 @@
 					selection: 'color-mix(in oklab, var(--color-secondary) 50%)'
 				}
 			},
-			...options
+			...overtypeOptions
 		});
 	});
 
@@ -55,4 +56,4 @@
 	}
 </script>
 
-<div bind:this={node} class={className}></div>
+<div bind:this={node} class={className} {...restProps}></div>
