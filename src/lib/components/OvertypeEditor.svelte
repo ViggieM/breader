@@ -1,8 +1,14 @@
 <script lang="ts">
-	import OverType, { type OverTypeInstance } from 'overtype';
+	import OverType, { type OverTypeInstance, type OverTypeOptions } from 'overtype';
 	import { onMount } from 'svelte';
 
-	let { content = $bindable(), ...options } = $props();
+	interface Props {
+		content: string;
+		class?: string;
+		options?: OverTypeOptions;
+	}
+
+	let { content = $bindable(), class: className, ...options }: Props = $props();
 
 	const initialValue = content;
 	let node = $state() as HTMLDivElement;
@@ -20,7 +26,7 @@
 			theme: {
 				colors: {
 					bgPrimary: 'var(--color-base-100)',
-					bgSecondary: 'var(--color-base-200)',
+					bgSecondary: 'var(--color-base-100)',
 					text: 'var(--color-base-content)',
 					h1: 'var(--color-error)',
 					h2: 'var(--color-warning)',
@@ -49,4 +55,4 @@
 	}
 </script>
 
-<div bind:this={node}></div>
+<div bind:this={node} class={className}></div>

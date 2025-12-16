@@ -3,6 +3,7 @@
 <script lang="ts">
 	import { formatDateAndTime } from '$lib';
 	import type { Note } from '$lib/types';
+	import OvertypeEditor from './OvertypeEditor.svelte';
 
 	type NoteProps = {
 		note: Note;
@@ -55,23 +56,6 @@
 
 	async function deleteNote() {
 		await onDelete(note.id);
-	}
-
-	// Autogrow textarea action
-	function autogrow(node: HTMLTextAreaElement) {
-		function resize() {
-			node.style.height = 'auto';
-			node.style.height = node.scrollHeight + 'px';
-		}
-
-		resize();
-		node.addEventListener('input', resize);
-
-		return {
-			destroy() {
-				node.removeEventListener('input', resize);
-			}
-		};
 	}
 
 	function handleToggle(event: Event) {
@@ -139,13 +123,7 @@
 		</span>
 	</summary>
 	<article class="group-open:shadow space-y-4 mt-2">
-		<textarea
-			bind:value={text}
-			use:autogrow
-			class="textarea textarea-ghost textarea-bordered w-full min-h-[100px] resize-none overflow-hidden"
-			placeholder="Write your note here..."
-			name="text"
-		></textarea>
+		<OvertypeEditor bind:content={text} class="border-b border-base-300" />
 		{#if hasChanges}
 			<div class="flex gap-2">
 				<button class="btn btn-xs btn-success" onclick={save}> Save </button>
@@ -165,3 +143,9 @@
 		{/if}
 	</article>
 </details>
+
+<style>
+	details[open] {
+		margin-bottom: 2rem;
+	}
+</style>
