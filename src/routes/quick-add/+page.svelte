@@ -7,6 +7,7 @@
 	import { processTagsForSave } from '$lib/utils/tags';
 	import { BookmarkStatus } from '$lib/types';
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
+	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 	const { data }: PageProps = $props();
 
@@ -34,6 +35,8 @@
 				isStarred: false
 			});
 
+			toastSuccess('Bookmark created');
+
 			// trigger a fetch of the metadata.
 			// This request is intercepted and handled by the service worker
 			await fetch(`/api/fetch-metadata`, {
@@ -45,6 +48,9 @@
 			});
 
 			window.close();
+		} catch (error) {
+			toastError('Failed to create bookmark');
+			console.error('Error saving bookmark:', error);
 		} finally {
 			saving = false;
 		}

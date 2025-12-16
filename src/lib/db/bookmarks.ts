@@ -4,7 +4,6 @@
 import Dexie from 'dexie';
 import { db } from '$lib/db';
 import { BookmarkStatus, type BookmarkData, type BookmarkMetaData } from '$lib/types/bookmark';
-import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 const { liveQuery } = Dexie;
 
@@ -77,27 +76,21 @@ export function getFavoriteBookmarks() {
  * @returns Promise that resolves to the auto-generated bookmark ID
  */
 export async function createBookmark(data: Partial<BookmarkData>): Promise<string> {
-	try {
-		const bookmarkData: Omit<BookmarkData, 'id'> = {
-			url: data.url ?? '',
-			title: data.title ?? null,
-			description: data.description ?? '',
-			created: new Date().toISOString(),
-			modified: null,
-			keywords: data.keywords ?? [],
-			tags: data.tags ?? [],
-			status: data.status ?? 3, // WANT_TO_READ
-			isStarred: data.isStarred ?? false,
-			meta: data.meta ?? null
-		};
+	const bookmarkData: Omit<BookmarkData, 'id'> = {
+		url: data.url ?? '',
+		title: data.title ?? null,
+		description: data.description ?? '',
+		created: new Date().toISOString(),
+		modified: null,
+		keywords: data.keywords ?? [],
+		tags: data.tags ?? [],
+		status: data.status ?? 3, // WANT_TO_READ
+		isStarred: data.isStarred ?? false,
+		meta: data.meta ?? null
+	};
 
-		const id = await db.bookmarks.add(bookmarkData as BookmarkData);
-		toastSuccess('Bookmark created');
-		return id as string;
-	} catch (error) {
-		toastError('Failed to create bookmark');
-		throw error;
-	}
+	const id = await db.bookmarks.add(bookmarkData as BookmarkData);
+	return id as string;
 }
 
 /**
@@ -122,13 +115,7 @@ export async function updateBookmark(id: string, updates: Partial<BookmarkData>)
  * @returns Promise that resolves when the deletion is complete
  */
 export async function deleteBookmark(id: string): Promise<void> {
-	try {
-		await db.bookmarks.delete(id);
-		toastSuccess('Bookmark deleted');
-	} catch (error) {
-		toastError('Failed to delete bookmark');
-		throw error;
-	}
+	await db.bookmarks.delete(id);
 }
 
 /**

@@ -5,6 +5,7 @@
 	import Note from '$lib/components/Note.svelte';
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
+	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 	// Types
 	type BookmarkNotesProps = {
@@ -26,8 +27,10 @@
 	async function addNote() {
 		try {
 			const noteId = await createNote(bookmarkId, '');
+			toastSuccess('Note created');
 			newlyCreatedNoteId = noteId; // Track newly created note
 		} catch (error) {
+			toastError('Failed to create note');
 			console.error('Failed to create note:', error);
 		}
 	}
@@ -35,7 +38,9 @@
 	async function saveNote(noteId: string, newText: string, newTitle: string | null) {
 		try {
 			await updateNote(noteId, newText, newTitle);
+			toastSuccess('Note updated');
 		} catch (error) {
+			toastError('Failed to update note');
 			console.error('Failed to save note:', error);
 			throw error; // Re-throw so Note component can handle it
 		}
@@ -44,7 +49,9 @@
 	async function deleteNote(noteId: string) {
 		try {
 			await deleteNoteFromDb(noteId);
+			toastSuccess('Note deleted');
 		} catch (error) {
+			toastError('Failed to delete note');
 			console.error('Failed to delete note:', error);
 			throw error; // Re-throw so Note component can handle it
 		}

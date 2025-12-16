@@ -17,6 +17,7 @@
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
 	import { formatDate, formatDateAndTime } from '$lib';
 	import { goto } from '$app/navigation';
+	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 	const { data } = $props();
 
@@ -139,9 +140,11 @@
 	async function handleDeleteBookmark() {
 		try {
 			await deleteBookmark(bookmark.id);
+			toastSuccess('Bookmark deleted');
 			deleteDialog.close();
 			goto('/');
 		} catch (error) {
+			toastError('Failed to delete bookmark');
 			console.error('Failed to delete bookmark:', error);
 		}
 	}

@@ -7,6 +7,7 @@
 	import type { ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave } from '$lib/utils/tags';
 	import { BookmarkStatus } from '$lib/types';
+	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 	const { data }: PageProps = $props();
 
@@ -39,6 +40,8 @@
 				isStarred
 			});
 
+			toastSuccess('Bookmark created');
+
 			// trigger a fetch of the metadata.
 			// This request is intercepted and handled by the service worker, so we don't need to await here
 			fetch(`/api/fetch-metadata`, {
@@ -53,7 +56,7 @@
 			// use replaceState to prevent browser back button from returning to this form
 			await goto(`/bookmark/${id}`, { replaceState: true });
 		} catch (error) {
-			// todo: add a notification here instead of just a console error
+			toastError('Failed to create bookmark');
 			console.error('Error saving bookmark:', error);
 		} finally {
 			saving = false;

@@ -5,6 +5,7 @@
 	import Note from '$lib/components/Note.svelte';
 	import { updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
 	import type { NoteData } from '$lib/types/note';
+	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 	const { liveQuery } = Dexie;
 
@@ -24,7 +25,9 @@
 	async function handleSave(noteId: string, text: string, title: string | null) {
 		try {
 			await updateNote(noteId, text, title);
+			toastSuccess('Note updated');
 		} catch (error) {
+			toastError('Failed to update note');
 			console.error('Failed to save note:', error);
 			throw error;
 		}
@@ -35,7 +38,9 @@
 		if (confirm('Are you sure you want to delete this note?')) {
 			try {
 				await deleteNoteFromDb(noteId);
+				toastSuccess('Note deleted');
 			} catch (error) {
+				toastError('Failed to delete note');
 				console.error('Failed to delete note:', error);
 				throw error;
 			}
