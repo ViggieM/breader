@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import SearchBar from '$lib/components/SearchBar.svelte';
-	import NavigationMenu from '$lib/components/NavigationMenu.svelte';
+	import TagMenu from '$lib/components/TagMenu.svelte';
 	import { createNavigationData } from '$lib/stores/navigation.svelte';
 	import { bookmarksData, FuseSearchEngine } from '$lib/stores/search.svelte';
 	import { derived, writable } from 'svelte/store';
@@ -64,7 +64,7 @@
 			</a>
 		</li>
 	</ul>
-	<NavigationMenu
+	<TagMenu
 		bookmarksLiveData={data}
 		class="border-t border-base-300 mt-4"
 		{hideTagsWithoutBookmarks}

@@ -15,7 +15,7 @@
 <script lang="ts">
 	import { Tag } from '$lib/types';
 	import SearchBar from '$lib/components/SearchBar.svelte';
-	import NavigationMenu from '$lib/components/NavigationMenu.svelte';
+	import TagMenu from '$lib/components/TagMenu.svelte';
 
 	const { data } = $props();
 	let tag: Tag = $state(data.tag);
@@ -60,5 +60,5 @@
 <main id="main-content">
 	<SearchBar {filters} />
 
-	<NavigationMenu bookmarksLiveData={navigationData} hideTagsWithoutBookmarks={true} />
+	<TagMenu bookmarksLiveData={navigationData} hideTagsWithoutBookmarks={true} />
 </main>

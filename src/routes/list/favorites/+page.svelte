@@ -36,7 +36,7 @@
 
 <script lang="ts">
 	import SearchBar from '$lib/components/SearchBar.svelte';
-	import NavigationMenu from '$lib/components/NavigationMenu.svelte';
+	import TagMenu from '$lib/components/TagMenu.svelte';
 </script>
 
 <svelte:head>
@@ -46,5 +46,5 @@
 <main id="main-content">
 	<SearchBar {filters} placeholder="Search Favorites..." />
 
-	<NavigationMenu bookmarksLiveData={data} hideTagsWithoutBookmarks={true} />
+	<TagMenu bookmarksLiveData={data} hideTagsWithoutBookmarks={true} />
 </main>

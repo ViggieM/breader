@@ -1,88 +1,393 @@
-<script>
+<!-- ABOUTME: Main navigation menu component that displays favorites, archive, notes, untagged bookmarks, -->
+<!-- ABOUTME: and hierarchical tag structure with collapsible sections and nested bookmarks -->
+
+<script lang="ts">
+	import TagMenuItem from './TagMenuItem.svelte';
+	import { updateTagParent, updateTagName, deleteTag } from '$lib/db/tags';
+	import { tick } from 'svelte';
+	import TagMenuBookmark from './TagMenuBookmark.svelte';
+	import { dragState } from '$lib/stores/dragState.svelte';
+	import type { NavigationData } from '$lib/stores/navigation.svelte';
+	import type { Readable } from 'svelte/store';
+	import { db } from '$lib/db';
+	import { browser } from '$app/environment';
+
+	interface Props {
+		bookmarksLiveData: Readable<NavigationData>;
+		class?: string;
+		hideTagsWithoutBookmarks: boolean;
+	}
+
+	let {
+		bookmarksLiveData,
+		class: className,
+		hideTagsWithoutBookmarks = $bindable()
+	}: Props = $props();
+
+	const dragHelpId = 'bookmark-drag-help';
+	let currentlyDragedOver = $state<HTMLElement | undefined>();
+	let isRootDropTarget = $state<boolean>(false);
+
+	// Edit tag dialog state
+	let editDialog = $state<HTMLDialogElement>();
+	let editForm = $state<HTMLFormElement>();
+	let editTagName = $state('');
+	let isEditing = $state(false);
+	let editError = $state<string | null>(null);
+
+	// Delete tag dialog state
+	let deleteDialog = $state<HTMLDialogElement>();
+	let isDeleting = $state(false);
+	let deleteError = $state<string | null>(null);
+
+	// Current tag being edited/deleted
+	let currentTag = $state<{
+		id: string;
+		name: string;
+		parentId: string | null;
+		childrenCount: number;
+	} | null>(null);
+
+	async function handleEditTag(tag: {
+		id: string;
+		name: string;
+		parentId: string | null;
+		childrenCount: number;
+	}): Promise<void> {
+		currentTag = tag;
+		editTagName = tag.name;
+		editError = null;
+		editDialog?.showModal();
+		await tick();
+		editDialog?.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
+	}
+
+	async function handleEditSubmit(e: Event): Promise<void> {
+		e.preventDefault();
+		editError = null;
+
+		if (!currentTag) return;
+
+		const trimmedName = editTagName.trim();
+
+		// Validate: name should not be empty and should be different
+		if (!trimmedName || trimmedName === currentTag.name) {
+			editDialog?.close();
+			return;
+		}
+
+		// Additional validation
+		if (trimmedName.length > 100) {
+			editError = 'Tag name must be 100 characters or less';
+			return;
+		}
+
+		isEditing = true;
+		try {
+			await updateTagName(currentTag.id, trimmedName);
+			editDialog?.close();
+			editForm?.reset();
+			editTagName = '';
+			currentTag = null;
+		} catch (error) {
+			console.error('Failed to rename tag:', error);
+			editError = 'Failed to rename tag. Please try again.';
+		} finally {
+			isEditing = false;
+		}
+	}
+
+	function handleDeleteClick(tag: {
+		id: string;
+		name: string;
+		parentId: string | null;
+		childrenCount: number;
+	}): void {
+		currentTag = tag;
+		deleteError = null;
+		deleteDialog?.showModal();
+	}
+
+	function handleDeleteCancel(): void {
+		deleteError = null;
+		deleteDialog?.close();
+		currentTag = null;
+	}
+
+	async function handleDeleteConfirm(): Promise<void> {
+		deleteError = null;
+
+		if (!currentTag) return;
+
+		isDeleting = true;
+		try {
+			await deleteTag(currentTag.id);
+			deleteDialog?.close();
+			currentTag = null;
+		} catch (error) {
+			console.error('Failed to delete tag:', error);
+			deleteError = 'Failed to delete tag. Please try again.';
+		} finally {
+			isDeleting = false;
+		}
+	}
 </script>
 
-<ul class="menu rounded-box w-full p-0 mt-4">
-	<li>
-		<a href="#favorites">
-			<span class="icon-[ri--star-line] shrink-0"></span>
-			Favorites
-		</a>
-	</li>
-	<li>
-		<a href="#archive">
-			<span class="icon-[ri--archive-2-line] shrink-0"></span>
-			Archive
-		</a>
-	</li>
-	<li>
-		<a href="#notes">
-			<span class="icon-[ri--sticky-note-line] shrink-0"></span>
-			Notes
-		</a>
-	</li>
-	<li>
-		<a href="#ai">
-			<span class="icon-[ri--price-tag-3-fill]"></span>
-			AI
-		</a>
-	</li>
-	<li>
-		<details>
-			<summary>
-				<span class="icon-[ri--price-tag-3-fill]"></span>
-				Frontend
-			</summary>
-			<ul>
-				<li>
-					<a href="#thoughts">
-						<span class="icon-[ri--sticky-note-line] shrink-0"></span>
-						Thoughts on Frontend Development
-					</a>
+{#if $bookmarksLiveData}
+	<span id={dragHelpId} class="sr-only">Drag bookmarks to tags to add that tag</span>
+	<span id="tag-drag-help" class="sr-only">
+		Drag tags to reorganize the hierarchy. Drop on another tag to make it a child, or drop in the
+		space above the tags to make it a root-level tag.
+	</span>
+	<span id="bookmark-actions-help" class="sr-only">
+		Expand bookmark to access notes, edit, share, and open actions
+	</span>
+	<ul class={['menu w-full px-0 py-4', className]}>
+		<!-- Untagged bookmarks section -->
+		{#each $bookmarksLiveData.untagged as bookmark (bookmark.id)}
+			<TagMenuBookmark {bookmark} />
+		{/each}
+
+		<!-- Tag tree with nested tags and bookmarks -->
+		{#each $bookmarksLiveData.tagTree as tagNode (tagNode.tag.id)}
+			{#if !hideTagsWithoutBookmarks || tagNode.hasBookmarks}
+				<TagMenuItem
+					node={tagNode}
+					onEditTag={handleEditTag}
+					onDeleteTag={handleDeleteClick}
+					{hideTagsWithoutBookmarks}
+				/>
+			{/if}
+		{/each}
+
+		<!-- Empty state -->
+		{#if !browser}
+			<li class="py-4 text-base-content/60">
+				<p>Loading Bookmarks</p>
+			</li>
+		{:else if $bookmarksLiveData.tagTree.length === 0 && $bookmarksLiveData.untagged.length === 0}
+			{#await db.bookmarks.count()}
+				<li class="py-4 text-base-content/60">
+					<p>Loading Bookmarks</p>
 				</li>
-				<li>
-					<details>
-						<summary>
-							<span class="icon-[ri--price-tag-3-fill]"></span>
-							Svelte
-						</summary>
-						<ul>
-							<li>
-								<a href="#docker">
-									<img
-										src="https://www.google.com/s2/favicons?domain=hynek.me"
-										alt=""
-										draggable="false"
-										loading="lazy"
-									/>
-									Production-ready Python Docker Containers with uv
-								</a>
-							</li>
-							<li>
-								<a href="#svelte-docs">
-									<img
-										src="https://www.google.com/s2/favicons?domain=svelte.dev"
-										alt=""
-										draggable="false"
-										loading="lazy"
-									/>
-									Svelte Docs
-								</a>
-							</li>
-						</ul>
-					</details>
-				</li>
-			</ul>
-		</details>
-	</li>
-	<li>
-		<a href="#daisyui">
-			<img
-				src="https://www.google.com/s2/favicons?domain=daisyui.com"
-				alt=""
-				draggable="false"
-				loading="lazy"
-			/>
-			DaisyUI
-		</a>
-	</li>
-</ul>
+			{:then count}
+				{#if count > 0}
+					<li class="py-4 text-base-content/60">
+						<p>Loading Bookmarks</p>
+					</li>
+				{:else}
+					<li class="py-4 text-base-content/60">
+						<p>No bookmarks</p>
+					</li>
+				{/if}
+			{/await}
+		{/if}
+	</ul>
+
+	<!-- Edit Tag Dialog -->
+	<dialog bind:this={editDialog} class="modal" aria-labelledby="edit-tag-title">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+					>✕</button
+				>
+			</form>
+
+			<h3 id="edit-tag-title" class="text-lg font-bold">Edit Tag</h3>
+			<form bind:this={editForm} class="mt-4" onsubmit={handleEditSubmit}>
+				{#if editError}
+					<div class="alert alert-error mb-4">
+						<span class="icon-[ri--error-warning-fill]"></span>
+						<span>{editError}</span>
+					</div>
+				{/if}
+				<div class="form-group">
+					<label class="input input-bordered flex items-center gap-2 w-full">
+						<span class="icon-[ri--price-tag-3-fill] shrink-0"></span>
+						<input
+							bind:value={editTagName}
+							name="name"
+							type="text"
+							placeholder="Tag name"
+							required
+							maxlength="100"
+							class="grow"
+							disabled={isEditing}
+						/>
+					</label>
+				</div>
+				<div class="mt-4 text-right">
+					<button
+						class="btn btn-primary"
+						type="submit"
+						disabled={!editTagName.trim() ||
+							(currentTag && editTagName.trim() === currentTag.name) ||
+							isEditing}
+					>
+						{#if isEditing}
+							<span class="loading loading-spinner"></span>
+						{/if}
+						Save
+					</button>
+					<button
+						class="btn"
+						type="button"
+						disabled={isEditing}
+						onclick={() => {
+							editDialog?.close();
+							editForm?.reset();
+							editError = null;
+							currentTag = null;
+						}}
+					>
+						Cancel
+					</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+
+	<!-- Delete Tag Confirmation Dialog -->
+	<dialog bind:this={deleteDialog} class="modal" aria-labelledby="delete-tag-title">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+					>✕</button
+				>
+			</form>
+
+			<h3 id="delete-tag-title" class="text-lg font-bold">Delete Tag</h3>
+			{#if currentTag}
+				<div class="mt-4">
+					{#if deleteError}
+						<div class="alert alert-error mb-4">
+							<span class="icon-[ri--error-warning-fill]"></span>
+							<span>{deleteError}</span>
+						</div>
+					{/if}
+					<div class="alert alert-warning">
+						<span class="icon-[ri--alert-fill]"></span>
+						<div class="flex flex-col gap-2">
+							<p>
+								Are you sure you want to delete the tag <strong>{currentTag.name}</strong>?
+							</p>
+							<ul class="list-disc list-inside text-sm">
+								<li>This tag will be removed from all bookmarks</li>
+								{#if currentTag.parentId}
+									<li>Bookmarks will receive the parent tag instead</li>
+								{/if}
+								{#if currentTag.childrenCount > 0}
+									<li>
+										Child tags will be reassigned to {currentTag.parentId
+											? 'the parent tag'
+											: 'root level'}
+									</li>
+								{/if}
+							</ul>
+						</div>
+					</div>
+				</div>
+			{/if}
+			<div class="mt-4 text-right">
+				<button
+					class="btn btn-error"
+					type="button"
+					onclick={handleDeleteConfirm}
+					disabled={isDeleting}
+				>
+					{#if isDeleting}
+						<span class="loading loading-spinner"></span>
+					{/if}
+					Confirm Delete
+				</button>
+				<button class="btn" type="button" onclick={handleDeleteCancel} disabled={isDeleting}>
+					Cancel
+				</button>
+			</div>
+		</div>
+	</dialog>
+{:else}
+	<!-- Loading state -->
+	<div class="flex justify-center items-center p-8">
+		<span class="loading loading-spinner loading-lg"></span>
+	</div>
+{/if}
+
+<svelte:window
+	ondrag={(e) => {
+		const el = document.elementFromPoint(e.clientX, e.clientY);
+
+		// Check if dragging over a tag details element
+		let node: HTMLElement | null | undefined = el?.closest('details');
+		if (node && [...node.classList].includes('dragover')) return;
+
+		if (node) {
+			currentlyDragedOver?.classList.remove('dragover');
+			currentlyDragedOver = node;
+			currentlyDragedOver.classList.add('dragover');
+			return;
+		}
+
+		// Check if dragging over root drop area
+		const rootArea = el?.closest('.border-t.border-base-300');
+		if (rootArea && rootArea.classList.contains('dragover')) return;
+
+		currentlyDragedOver?.classList.remove('dragover');
+	}}
+	ondragend={() => {
+		document.querySelector('.dragover')?.classList.remove('dragover');
+		isRootDropTarget = false;
+	}}
+	ondragover={(e) => {
+		e.preventDefault();
+		if (!e.dataTransfer) {
+			return;
+		}
+
+		// Only accept tag drops at root level (check both dataTransfer and fallback)
+		if (!e.dataTransfer.types.includes('application/x-tag-id') && !dragState.getTagId()) {
+			e.dataTransfer.dropEffect = 'none';
+			return;
+		}
+
+		e.dataTransfer.dropEffect = 'move';
+		isRootDropTarget = true;
+	}}
+	ondragleave={() => {
+		isRootDropTarget = false;
+	}}
+	ondrop={async (e) => {
+		e.preventDefault();
+		isRootDropTarget = false;
+
+		if (!e.dataTransfer) {
+			return;
+		}
+
+		// Only handle tag drops (check both dataTransfer and fallback state)
+		if (!e.dataTransfer.types.includes('application/x-tag-id') && !dragState.getTagId()) {
+			return;
+		}
+
+		// Try dataTransfer first (desktop)
+		let tagId = e.dataTransfer.getData('application/x-tag-id');
+
+		// Fallback to global state if dataTransfer is empty (mobile)
+		if (!tagId) {
+			tagId = dragState.getTagId() as string;
+		}
+
+		if (!tagId) {
+			return;
+		}
+
+		try {
+			await updateTagParent(tagId, null);
+		} catch (error) {
+			console.error('Failed to move tag to root:', error);
+		} finally {
+			// Clear drag state after drop
+			dragState.clear();
+		}
+	}}
+/>

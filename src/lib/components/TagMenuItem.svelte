@@ -4,8 +4,8 @@
 <script lang="ts">
 	import type { TagNode } from '$lib/stores/navigation.svelte';
 	import { onMount } from 'svelte';
-	import NavigationMenuItem from './NavigationMenuItem.svelte';
-	import NavigationMenuBookmark from './NavigationMenuBookmark.svelte';
+	import TagMenuItem from './TagMenuItem.svelte';
+	import TagMenuBookmark from './TagMenuBookmark.svelte';
 	import { db } from '$lib/db';
 	import { updateBookmarkTags } from '$lib/db/bookmarks';
 	import { updateTagParent } from '$lib/db/tags';
@@ -222,7 +222,7 @@
 				<!-- Child tags (recursive) -->
 				{#each node.children as childNode (childNode.tag.id)}
 					{#if !hideTagsWithoutBookmarks || childNode.hasBookmarks}
-						<NavigationMenuItem
+						<TagMenuItem
 							node={childNode}
 							level={level + 1}
 							{onEditTag}
@@ -234,7 +234,7 @@
 
 				<!-- Direct bookmarks for this tag -->
 				{#each node.bookmarks as bookmark (bookmark.id)}
-					<NavigationMenuBookmark {bookmark} />
+					<TagMenuBookmark {bookmark} />
 				{/each}
 			</ul>
 			{#if isOpen}
