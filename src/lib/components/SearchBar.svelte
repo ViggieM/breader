@@ -3,6 +3,7 @@
 	import { db } from '$lib/db';
 	import TagForm from './TagForm.svelte';
 	import type { Writable } from 'svelte/store';
+	import { onMount } from 'svelte';
 
 	interface Props {
 		filters: Writable<{ query: string }>;
@@ -10,6 +11,9 @@
 	}
 
 	let { filters, placeholder }: Props = $props();
+
+	// Search input reference
+	let searchInput = $state() as HTMLInputElement;
 
 	// Update URL when query changes (for bookmarking/sharing)
 	function updateURL() {
@@ -21,6 +25,22 @@
 		}
 		replaceState(url, {});
 	}
+
+	// Keyboard shortcut: Ctrl+K (or Cmd+K on Mac) to focus search
+	onMount(() => {
+		function handleKeydown(event: KeyboardEvent) {
+			if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+				event.preventDefault();
+				searchInput?.focus();
+			}
+		}
+
+		window.addEventListener('keydown', handleKeydown);
+
+		return () => {
+			window.removeEventListener('keydown', handleKeydown);
+		};
+	});
 
 	// Add Note functionality
 	let addNoteDialog = $state() as HTMLDialogElement;
@@ -62,6 +82,7 @@
 <div class="flex gap-2">
 	<label for="search-input" class="sr-only">Search for content</label>
 	<input
+		bind:this={searchInput}
 		id="search-input"
 		type="search"
 		bind:value={$filters.query}
