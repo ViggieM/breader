@@ -1,7 +1,7 @@
 <script lang="ts" module>
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import TagMenu from '$lib/components/TagMenu.svelte';
-	import { createNavigationData } from '$lib/stores/navigation.svelte';
+	import { createTagMenuData } from '$lib/stores/tags.svelte';
 	import { bookmarksData, FuseSearchEngine } from '$lib/stores/search.svelte';
 	import { derived, writable } from 'svelte/store';
 	import { BookmarkStatus } from '$lib/types';
@@ -30,7 +30,7 @@
 		return results;
 	});
 
-	const data = createNavigationData(searchResults);
+	const data = createTagMenuData(searchResults);
 </script>
 
 <script lang="ts">

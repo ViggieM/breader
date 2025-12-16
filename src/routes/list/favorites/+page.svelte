@@ -2,7 +2,7 @@
 	import { favoriteBookmarks, FuseSearchEngine } from '$lib/stores/search.svelte';
 	import { derived, writable } from 'svelte/store';
 	import { BookmarkStatus } from '$lib/types';
-	import { createNavigationData } from '$lib/stores/navigation.svelte';
+	import { createTagMenuData } from '$lib/stores/tags.svelte';
 
 	const filters = writable({
 		query: '',
@@ -31,7 +31,7 @@
 		return results;
 	});
 
-	const data = createNavigationData(searchResults);
+	const data = createTagMenuData(searchResults);
 </script>
 
 <script lang="ts">

@@ -47,20 +47,22 @@
 	<title>Notes | Breader</title>
 </svelte:head>
 
-<h1 class="sr-only">Notes</h1>
+<main id="main-content">
+	<h1 class="sr-only">Notes</h1>
 
-<section class="mt-4">
-	{#if notes.length === 0}
-		<div class="text-center text-base-content/60 py-8">
-			<p>No notes yet. Create your first note!</p>
-		</div>
-	{:else}
-		<ul class="space-y-1">
-			{#each notes as note (note.id)}
-				<li>
-					<Note {note} onSave={handleSave} onDelete={handleDelete} />
-				</li>
-			{/each}
-		</ul>
-	{/if}
-</section>
+	<section class="mt-4">
+		{#if notes.length === 0}
+			<div class="text-center text-base-content/60 py-8">
+				<p>No notes yet. Create your first note!</p>
+			</div>
+		{:else}
+			<ul class="space-y-1">
+				{#each notes as note (note.id)}
+					<li>
+						<Note {note} onSave={handleSave} onDelete={handleDelete} />
+					</li>
+				{/each}
+			</ul>
+		{/if}
+	</section>
+</main>

@@ -7,7 +7,7 @@
 	import { tick } from 'svelte';
 	import TagMenuBookmark from './TagMenuBookmark.svelte';
 	import { dragState } from '$lib/stores/dragState.svelte';
-	import type { NavigationData } from '$lib/stores/navigation.svelte';
+	import type { NavigationData } from '$lib/stores/tags.svelte';
 	import type { Readable } from 'svelte/store';
 	import { db } from '$lib/db';
 	import { browser } from '$app/environment';

@@ -3,7 +3,7 @@
 	import { derived, writable } from 'svelte/store';
 	import { descendantMap } from '$lib/stores/tags.svelte.js';
 	import { BookmarkStatus } from '$lib/types';
-	import { createNavigationData } from '$lib/stores/navigation.svelte';
+	import { createTagMenuData } from '$lib/stores/tags.svelte';
 
 	const filters = writable({
 		query: '',
@@ -50,7 +50,7 @@
 	});
 
 	// Create navigation data from filtered results
-	const navigationData = createNavigationData(searchResults);
+	const navigationData = createTagMenuData(searchResults);
 </script>
 
 <svelte:head>

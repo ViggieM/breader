@@ -2,7 +2,7 @@
 <!-- ABOUTME: Uses self-imports for recursive rendering of nested tag structures with depth limiting -->
 
 <script lang="ts">
-	import type { TagNode } from '$lib/stores/navigation.svelte';
+	import type { TagNode } from '$lib/stores/tags.svelte';
 	import { onMount } from 'svelte';
 	import TagMenuItem from './TagMenuItem.svelte';
 	import TagMenuBookmark from './TagMenuBookmark.svelte';
