@@ -4,6 +4,7 @@
 import Dexie from 'dexie';
 import { db } from '$lib/db';
 import type { NoteData } from '$lib/types/note';
+import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 const { liveQuery } = Dexie;
 
@@ -37,16 +38,22 @@ export async function createNote(
 	text: string,
 	title: string | null = null
 ): Promise<string> {
-	const noteData: Omit<NoteData, 'id'> = {
-		text,
-		title,
-		created: new Date().toISOString(),
-		modified: null,
-		bookmarks: [bookmarkId]
-	};
+	try {
+		const noteData: Omit<NoteData, 'id'> = {
+			text,
+			title,
+			created: new Date().toISOString(),
+			modified: null,
+			bookmarks: [bookmarkId]
+		};
 
-	const id = await db.notes.add(noteData as NoteData);
-	return id as string;
+		const id = await db.notes.add(noteData as NoteData);
+		toastSuccess('Note created');
+		return id as string;
+	} catch (error) {
+		toastError('Failed to create note');
+		throw error;
+	}
 }
 
 /**
@@ -63,11 +70,17 @@ export async function updateNote(
 	text: string,
 	title: string | null = null
 ): Promise<void> {
-	await db.notes.update(noteId, {
-		text,
-		title,
-		modified: new Date().toISOString()
-	});
+	try {
+		await db.notes.update(noteId, {
+			text,
+			title,
+			modified: new Date().toISOString()
+		});
+		toastSuccess('Note updated');
+	} catch (error) {
+		toastError('Failed to update note');
+		throw error;
+	}
 }
 
 /**
@@ -77,5 +90,11 @@ export async function updateNote(
  * @returns Promise that resolves when the deletion is complete
  */
 export async function deleteNote(noteId: string): Promise<void> {
-	await db.notes.delete(noteId);
+	try {
+		await db.notes.delete(noteId);
+		toastSuccess('Note deleted');
+	} catch (error) {
+		toastError('Failed to delete note');
+		throw error;
+	}
 }

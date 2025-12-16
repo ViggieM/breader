@@ -4,6 +4,7 @@
 	import { onMount } from 'svelte';
 	import Logo from '$lib/components/Logo.svelte';
 	import MainMenu from '$lib/components/MainMenu.svelte';
+	import Toaster from '$lib/components/Toaster.svelte';
 	import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
 	import { initializeTheme } from '$lib/stores/theme.svelte';
 	import { page } from '$app/state';
@@ -63,3 +64,5 @@
 {#await import('$lib/components/ReloadPrompt.svelte') then { default: ReloadPrompt }}
 	<ReloadPrompt />
 {/await}
+
+<Toaster />

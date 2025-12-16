@@ -3,6 +3,7 @@
 
 import { db } from '$lib/db';
 import { updateBookmarkTags } from './bookmarks';
+import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 
 /**
  * Updates the parent of a tag, moving it in the hierarchy
@@ -19,7 +20,13 @@ export async function updateTagParent(tagId: string, newParentId: string | null)
  * @param newName - New name for the tag
  */
 export async function updateTagName(tagId: string, newName: string): Promise<void> {
-	await db.tags.update(tagId, { name: newName });
+	try {
+		await db.tags.update(tagId, { name: newName });
+		toastSuccess('Tag renamed');
+	} catch (error) {
+		toastError('Failed to rename tag');
+		throw error;
+	}
 }
 
 /**
@@ -115,32 +122,39 @@ export async function deleteTag(tagId: string): Promise<{
 	updatedBookmarks: number;
 	reassignedTags: number;
 }> {
-	// Fetch the tag to get its parentId
-	const tag = await db.tags.get(tagId);
-	if (!tag) {
-		throw new Error(`Tag with ID ${tagId} not found`);
+	try {
+		// Fetch the tag to get its parentId
+		const tag = await db.tags.get(tagId);
+		if (!tag) {
+			throw new Error(`Tag with ID ${tagId} not found`);
+		}
+
+		// Perform all operations in a transaction for atomicity
+		let updatedBookmarks = 0;
+		let reassignedTags = 0;
+
+		await db.transaction('rw', [db.bookmarks, db.tags], async () => {
+			// Step 1: Remove tag from bookmarks and substitute with parent if exists
+			const bookmarkResult = await removeTagFromBookmarks(tagId, tag.parentId);
+			updatedBookmarks = bookmarkResult.updatedBookmarks;
+
+			// Step 2: Reassign child tags to grandparent (or null for root)
+			const childResult = await reassignChildTags(tagId, tag.parentId);
+			reassignedTags = childResult.reassignedTags;
+
+			// Step 3: Delete the tag itself
+			await db.tags.delete(tagId);
+		});
+
+		toastSuccess('Tag deleted');
+
+		return {
+			deletedTagId: tagId,
+			updatedBookmarks,
+			reassignedTags
+		};
+	} catch (error) {
+		toastError('Failed to delete tag');
+		throw error;
 	}
-
-	// Perform all operations in a transaction for atomicity
-	let updatedBookmarks = 0;
-	let reassignedTags = 0;
-
-	await db.transaction('rw', [db.bookmarks, db.tags], async () => {
-		// Step 1: Remove tag from bookmarks and substitute with parent if exists
-		const bookmarkResult = await removeTagFromBookmarks(tagId, tag.parentId);
-		updatedBookmarks = bookmarkResult.updatedBookmarks;
-
-		// Step 2: Reassign child tags to grandparent (or null for root)
-		const childResult = await reassignChildTags(tagId, tag.parentId);
-		reassignedTags = childResult.reassignedTags;
-
-		// Step 3: Delete the tag itself
-		await db.tags.delete(tagId);
-	});
-
-	return {
-		deletedTagId: tagId,
-		updatedBookmarks,
-		reassignedTags
-	};
 }
