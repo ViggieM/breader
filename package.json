@@ -68,7 +68,7 @@
 		"dexie-cloud-addon": "^4.2.0",
 		"fuse.js": "^7.1.0",
 		"marked": "^16.4.0",
-		"overtype": "^1.2.7",
+		"overtype": "^2.1.1",
 		"workbox-background-sync": "^7.4.0",
 		"workbox-core": "^7.4.0",
 		"workbox-precaching": "^7.4.0",
