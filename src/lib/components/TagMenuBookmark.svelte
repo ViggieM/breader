@@ -6,6 +6,7 @@
 	import { dragState } from '$lib/stores/dragState.svelte';
 	import type { Bookmark } from '$lib/types';
 	import { updateBookmarkStar } from '$lib/db/bookmarks';
+	import { toastSuccess } from '$lib/stores/notifications.svelte';
 
 	interface Props {
 		bookmark: Bookmark;
@@ -62,6 +63,7 @@
 			} else {
 				// Fallback to clipboard on desktop
 				await navigator.clipboard.writeText(bookmark.url);
+				toastSuccess('Copied to Clipboard');
 				shareSuccess = true;
 				setTimeout(() => {
 					shareSuccess = false;
@@ -167,7 +169,7 @@
 							: 'icon-[ri--share-forward-line] size-4'}
 						aria-hidden="true"
 					></span>
-					<span class="text-xs">Share</span>
+					<span class="text-xs">{shareSuccess ? 'Copied URL' : 'Share'}</span>
 				</button>
 				<button
 					role="menuitem"
