@@ -233,7 +233,7 @@
 						Console Logs ({consoleLogs.length})
 					</summary>
 					<div class="collapse-content text-xs text-left space-y-2 max-h-96 overflow-auto">
-						{#each consoleLogs.slice(-20) as log}
+						{#each consoleLogs.slice(-20) as log, i (i)}
 							<div
 								class="p-2 rounded border-l-4 {log.type === 'error'
 									? 'border-error bg-error/10'

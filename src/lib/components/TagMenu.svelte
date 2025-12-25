@@ -28,7 +28,6 @@
 
 	const dragHelpId = 'bookmark-drag-help';
 	let currentlyDragedOver = $state<HTMLElement | undefined>();
-	let isRootDropTarget = $state<boolean>(false);
 
 	// Edit tag dialog state
 	let editTagDialog = $state<HTMLDialogElement>();
@@ -531,7 +530,6 @@
 	}}
 	ondragend={() => {
 		document.querySelector('.dragover')?.classList.remove('dragover');
-		isRootDropTarget = false;
 	}}
 	ondragover={(e) => {
 		e.preventDefault();
@@ -546,14 +544,12 @@
 		}
 
 		e.dataTransfer.dropEffect = 'move';
-		isRootDropTarget = true;
 	}}
 	ondragleave={() => {
-		isRootDropTarget = false;
+		// Drag leave handler
 	}}
 	ondrop={async (e) => {
 		e.preventDefault();
-		isRootDropTarget = false;
 
 		if (!e.dataTransfer) {
 			return;

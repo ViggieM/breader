@@ -4,19 +4,14 @@
 	import { descendantMap, ancestorMap, childrenMap, tagMap } from '$lib/stores/tags.svelte';
 	import { derived } from 'svelte/store';
 
-	let {
-		selectedTags = $bindable(),
-		onAdd,
-		onRemove,
-		onRemoveAll,
-		...restProps
-	}: {
+	interface Props extends Partial<MultiSelectProps<ObjectOption>> {
 		selectedTags: ObjectOption[];
 		onAdd?: () => void;
 		onRemove?: () => void;
 		onRemoveAll?: () => void;
-		[key: string]: any; // todo: fix typing, use MultiSelectProps?
-	} = $props();
+	}
+
+	let { selectedTags = $bindable(), onAdd, onRemove, onRemoveAll, ...restProps }: Props = $props();
 
 	const options = derived([childrenMap, tagMap], ([childrenMap, tagMap]) => {
 		const result: ObjectOption[] = [];
