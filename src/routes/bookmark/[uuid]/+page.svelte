@@ -54,6 +54,7 @@
 	let detailsElement = $state<HTMLDetailsElement>();
 	let disabled = $derived(saving);
 	let deleteDialog = $state() as HTMLDialogElement;
+	let statusDialog = $state() as HTMLDialogElement;
 	let youtubeVideoInfo = $derived(parseYouTubeUrl(bookmark.url));
 	let isYouTubeVideo = $derived(youtubeVideoInfo !== null);
 
@@ -227,6 +228,12 @@
 							Edit Title
 						</button>
 					</li>
+					<li>
+						<button onclick={() => statusDialog.showModal()}>
+							<span class="icon-[ri--book-shelf-line]"></span>
+							Change Status
+						</button>
+					</li>
 					{#if bookmark.isStarred}
 						<li>
 							<button
@@ -273,20 +280,6 @@
 					onRemove={checkForChanges}
 					onRemoveAll={checkForChanges}
 				></TagMultiselect>
-			</div>
-
-			<div>
-				<dt class="text-sm font-medium opacity-70 mb-1">Status</dt>
-				<dd class="w-52">
-					<BookmarkStatusSelect
-						bind:status
-						bind:saving
-						bind:disabled
-						handleClick={handleStatusClick}
-						position="bottom"
-						size="small"
-					/>
-				</dd>
 			</div>
 		</dl>
 
@@ -437,6 +430,32 @@
 				</button>
 			</div>
 		</form>
+	</div>
+</dialog>
+
+<!-- Change Status Dialog -->
+<dialog bind:this={statusDialog} class="modal" aria-labelledby="change-status-title">
+	<div class="modal-box min-h-72">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+				>✕</button
+			>
+		</form>
+
+		<h3 id="change-status-title" class="text-lg font-bold mb-4">Change Status</h3>
+
+		<BookmarkStatusSelect
+			bind:status
+			bind:saving
+			bind:disabled
+			handleClick={handleStatusClick}
+			position="bottom"
+			size="medium"
+		/>
+
+		<div class="modal-action mt-36">
+			<button class="btn" onclick={() => statusDialog.close()}>Done</button>
+		</div>
 	</div>
 </dialog>
 

@@ -85,16 +85,14 @@
 
 <section class="mt-2">
 	<div>
-		<header class="flex items-center p-0 gap-2">
-			<h2>Notes</h2>
-			<button onclick={addNote} class="btn btn-ghost btn-xs" aria-label="Add note"
-				><span class="icon-[ri--add-large-fill]"></span></button
-			>
-		</header>
-		<ul class="mt-4 space-y-1">
+		<ul class="space-y-1">
 			{#each sortedNotes as note (note.id)}
 				<li><Note {note} onSave={saveNote} onDelete={deleteNote} /></li>
 			{/each}
 		</ul>
+		<button onclick={addNote} class="btn btn-outline btn-sm mt-4" aria-label="Add note">
+			<span class="icon-[ri--add-large-fill]"></span>
+			Add note
+		</button>
 	</div>
 </section>
