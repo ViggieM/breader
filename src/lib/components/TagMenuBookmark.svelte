@@ -3,18 +3,17 @@
 
 <script lang="ts">
 	import { dragState } from '$lib/stores/dragState.svelte';
+	import type { Bookmark } from '$lib/types';
+	import { updateBookmarkStar } from '$lib/db/bookmarks';
 
 	interface Props {
-		bookmark: {
-			id: string;
-			title?: string | null;
-			faviconUrl: string;
-			url: string;
-		};
+		bookmark: Bookmark;
 		class?: string;
+		onEditBookmark?: (bookmark: { id: string; title: string | null }) => void;
+		onDeleteBookmark?: (bookmark: { id: string; title: string | null }) => void;
 	}
 
-	let { bookmark, class: className }: Props = $props();
+	let { bookmark, class: className, onEditBookmark, onDeleteBookmark }: Props = $props();
 	let isOpen = $state(false);
 	let shareSuccess = $state(false);
 	let dropdownId = `dropdown-${Math.random().toString(36).substr(2, 9)}`;
@@ -88,9 +87,12 @@
 		dragState.set('bookmark', bookmark.id);
 	}
 
-	function handleTouchStart(_event: TouchEvent): void {
-		// Touch start handler for mobile drag-and-drop support
-		// The actual drag state is set in handleDragStart
+	async function handleToggleFavorite(): Promise<void> {
+		try {
+			await updateBookmarkStar(bookmark.id, !bookmark.isStarred);
+		} catch (error) {
+			console.error('Failed to toggle favorite:', error);
+		}
 	}
 </script>
 
@@ -101,7 +103,6 @@
 	ondragend={() => {
 		dragState.clear();
 	}}
-	ontouchstart={handleTouchStart}
 	aria-describedby="bookmark-drag-help"
 	class={className}
 >
@@ -174,6 +175,51 @@
 					<span class="icon-[ri--external-link-line] size-4" aria-hidden="true"></span>
 					<span class="text-xs">Open</span>
 				</button>
+			</div>
+
+			<!-- Dropdown menu in top-right corner -->
+			<div class="dropdown dropdown-bottom dropdown-end absolute top-0 right-0">
+				<button
+					type="button"
+					class="btn btn-ghost btn-sm btn-square"
+					aria-label="Bookmark options for {bookmark.title}"
+					aria-haspopup="menu"
+				>
+					<span class="icon-[ri--more-2-fill] size-4" aria-hidden="true"></span>
+				</button>
+				<ul
+					tabindex="-1"
+					class="dropdown-content menu bg-base-100 rounded-box z-[1] w-54 p-2 shadow-lg mt-1"
+				>
+					<li>
+						<button
+							type="button"
+							onclick={() => onEditBookmark?.({ id: bookmark.id, title: bookmark.title ?? null })}
+						>
+							<span class="icon-[ri--pencil-line]" aria-hidden="true"></span>
+							Edit Title
+						</button>
+					</li>
+					<li>
+						<button type="button" onclick={handleToggleFavorite}>
+							<span
+								class={bookmark.isStarred ? 'icon-[ri--star-off-line]' : 'icon-[ri--star-line]'}
+								aria-hidden="true"
+							></span>
+							{bookmark.isStarred ? 'Remove from favorites' : 'Mark as favorite'}
+						</button>
+					</li>
+					<li>
+						<button
+							type="button"
+							class="text-error"
+							onclick={() => onDeleteBookmark?.({ id: bookmark.id, title: bookmark.title ?? null })}
+						>
+							<span class="icon-[ri--delete-bin-line]" aria-hidden="true"></span>
+							Delete
+						</button>
+					</li>
+				</ul>
 			</div>
 		{/if}
 	</div>

@@ -53,7 +53,7 @@ export async function removeTagFromBookmarks(
 	await Promise.all(
 		bookmarks.map(async (bookmark) => {
 			// Remove the deleted tag from the tags array
-			let newTags = bookmark.tags.filter((id) => id !== tagId);
+			const newTags = bookmark.tags.filter((id) => id !== tagId);
 
 			// If there's a parent tag and it's not already in the tags, add it
 			if (parentTagId && !newTags.includes(parentTagId)) {

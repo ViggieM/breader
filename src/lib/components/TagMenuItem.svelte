@@ -27,6 +27,8 @@
 			parentId: string | null;
 			childrenCount: number;
 		}) => void;
+		onEditBookmark?: (bookmark: { id: string; title: string | null }) => void;
+		onDeleteBookmark?: (bookmark: { id: string; title: string | null }) => void;
 		hideTagsWithoutBookmarks: boolean;
 	}
 
@@ -35,6 +37,8 @@
 		level = 0,
 		onEditTag,
 		onDeleteTag,
+		onEditBookmark,
+		onDeleteBookmark,
 		hideTagsWithoutBookmarks = $bindable()
 	}: Props = $props();
 
@@ -227,6 +231,8 @@
 							level={level + 1}
 							{onEditTag}
 							{onDeleteTag}
+							{onEditBookmark}
+							{onDeleteBookmark}
 							{hideTagsWithoutBookmarks}
 						/>
 					{/if}
@@ -234,7 +240,7 @@
 
 				<!-- Direct bookmarks for this tag -->
 				{#each node.bookmarks as bookmark (bookmark.id)}
-					<TagMenuBookmark {bookmark} />
+					<TagMenuBookmark {bookmark} {onEditBookmark} {onDeleteBookmark} />
 				{/each}
 			</ul>
 			{#if isOpen}

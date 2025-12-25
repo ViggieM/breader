@@ -4,6 +4,8 @@
 <script lang="ts">
 	import TagMenuItem from './TagMenuItem.svelte';
 	import { updateTagParent, updateTagName, deleteTag } from '$lib/db/tags';
+	import { updateBookmarkTitle, deleteBookmark } from '$lib/db/bookmarks';
+	import { toastSuccess } from '$lib/stores/notifications.svelte';
 	import { tick } from 'svelte';
 	import TagMenuBookmark from './TagMenuBookmark.svelte';
 	import { dragState } from '$lib/stores/dragState.svelte';
@@ -29,16 +31,16 @@
 	let isRootDropTarget = $state<boolean>(false);
 
 	// Edit tag dialog state
-	let editDialog = $state<HTMLDialogElement>();
-	let editForm = $state<HTMLFormElement>();
+	let editTagDialog = $state<HTMLDialogElement>();
+	let editTagForm = $state<HTMLFormElement>();
 	let editTagName = $state('');
-	let isEditing = $state(false);
-	let editError = $state<string | null>(null);
+	let isEditingTag = $state(false);
+	let editTagError = $state<string | null>(null);
 
 	// Delete tag dialog state
-	let deleteDialog = $state<HTMLDialogElement>();
-	let isDeleting = $state(false);
-	let deleteError = $state<string | null>(null);
+	let deleteTagDialog = $state<HTMLDialogElement>();
+	let isDeletingTag = $state(false);
+	let deleteTagError = $state<string | null>(null);
 
 	// Current tag being edited/deleted
 	let currentTag = $state<{
@@ -46,6 +48,23 @@
 		name: string;
 		parentId: string | null;
 		childrenCount: number;
+	} | null>(null);
+
+	// Edit bookmark dialog state
+	let editBookmarkDialog = $state<HTMLDialogElement>();
+	let editBookmarkForm = $state<HTMLFormElement>();
+	let editBookmarkTitle = $state('');
+	let isEditingBookmark = $state(false);
+	let editBookmarkError = $state<string | null>(null);
+
+	// Delete bookmark dialog state
+	let deleteBookmarkDialog = $state<HTMLDialogElement>();
+	let isDeletingBookmark = $state(false);
+
+	// Current bookmark being edited/deleted
+	let currentBookmark = $state<{
+		id: string;
+		title: string | null;
 	} | null>(null);
 
 	async function handleEditTag(tag: {
@@ -56,15 +75,15 @@
 	}): Promise<void> {
 		currentTag = tag;
 		editTagName = tag.name;
-		editError = null;
-		editDialog?.showModal();
+		editTagError = null;
+		editTagDialog?.showModal();
 		await tick();
-		editDialog?.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
+		editTagDialog?.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
 	}
 
-	async function handleEditSubmit(e: Event): Promise<void> {
+	async function handleEditTagSubmit(e: Event): Promise<void> {
 		e.preventDefault();
-		editError = null;
+		editTagError = null;
 
 		if (!currentTag) return;
 
@@ -72,28 +91,87 @@
 
 		// Validate: name should not be empty and should be different
 		if (!trimmedName || trimmedName === currentTag.name) {
-			editDialog?.close();
+			editTagDialog?.close();
 			return;
 		}
 
 		// Additional validation
 		if (trimmedName.length > 100) {
-			editError = 'Tag name must be 100 characters or less';
+			editTagError = 'Tag name must be 100 characters or less';
 			return;
 		}
 
-		isEditing = true;
+		isEditingTag = true;
 		try {
 			await updateTagName(currentTag.id, trimmedName);
-			editDialog?.close();
-			editForm?.reset();
+			editTagDialog?.close();
+			editTagForm?.reset();
 			editTagName = '';
 			currentTag = null;
 		} catch (error) {
 			console.error('Failed to rename tag:', error);
-			editError = 'Failed to rename tag. Please try again.';
+			editTagError = 'Failed to rename tag. Please try again.';
 		} finally {
-			isEditing = false;
+			isEditingTag = false;
+		}
+	}
+
+	async function handleEditBookmark(bookmark: { id: string; title: string | null }): Promise<void> {
+		currentBookmark = bookmark;
+		editBookmarkTitle = bookmark.title || '';
+		editBookmarkError = null;
+		editBookmarkDialog?.showModal();
+		await tick();
+		editBookmarkDialog?.querySelector<HTMLInputElement>('input[name="title"]')?.focus();
+	}
+
+	async function handleEditBookmarkSubmit(e: Event): Promise<void> {
+		e.preventDefault();
+		editBookmarkError = null;
+
+		if (!currentBookmark) return;
+
+		const trimmedTitle = editBookmarkTitle.trim();
+
+		// Validate: title should be different
+		if (trimmedTitle === currentBookmark.title?.trim()) {
+			editBookmarkDialog?.close();
+			return;
+		}
+
+		isEditingBookmark = true;
+		try {
+			await updateBookmarkTitle(currentBookmark.id, trimmedTitle);
+			editBookmarkDialog?.close();
+			editBookmarkForm?.reset();
+			editBookmarkTitle = '';
+			currentBookmark = null;
+		} catch (error) {
+			console.error('Failed to update title:', error);
+			editBookmarkError = 'Failed to update title. Please try again.';
+		} finally {
+			isEditingBookmark = false;
+		}
+	}
+
+	function handleDeleteBookmark(bookmark: { id: string; title: string | null }): void {
+		currentBookmark = bookmark;
+		deleteBookmarkDialog?.showModal();
+	}
+
+	async function handleDeleteBookmarkConfirm(): Promise<void> {
+		if (!currentBookmark) return;
+
+		isDeletingBookmark = true;
+		try {
+			await deleteBookmark(currentBookmark.id);
+			deleteBookmarkDialog?.close();
+			toastSuccess(`Deleted "${currentBookmark.title || 'Untitled'}"`);
+			currentBookmark = null;
+		} catch (error) {
+			console.error('Failed to delete bookmark:', error);
+		} finally {
+			isDeletingBookmark = false;
 		}
 	}
 
@@ -104,31 +182,31 @@
 		childrenCount: number;
 	}): void {
 		currentTag = tag;
-		deleteError = null;
-		deleteDialog?.showModal();
+		deleteTagError = null;
+		deleteTagDialog?.showModal();
 	}
 
 	function handleDeleteCancel(): void {
-		deleteError = null;
-		deleteDialog?.close();
+		deleteTagError = null;
+		deleteTagDialog?.close();
 		currentTag = null;
 	}
 
 	async function handleDeleteConfirm(): Promise<void> {
-		deleteError = null;
+		deleteTagError = null;
 
 		if (!currentTag) return;
 
-		isDeleting = true;
+		isDeletingTag = true;
 		try {
 			await deleteTag(currentTag.id);
-			deleteDialog?.close();
+			deleteTagDialog?.close();
 			currentTag = null;
 		} catch (error) {
 			console.error('Failed to delete tag:', error);
-			deleteError = 'Failed to delete tag. Please try again.';
+			deleteTagError = 'Failed to delete tag. Please try again.';
 		} finally {
-			isDeleting = false;
+			isDeletingTag = false;
 		}
 	}
 </script>
@@ -145,7 +223,11 @@
 	<ul class={['menu w-full px-0 py-4', className]}>
 		<!-- Untagged bookmarks section -->
 		{#each $bookmarksLiveData.untagged as bookmark (bookmark.id)}
-			<TagMenuBookmark {bookmark} />
+			<TagMenuBookmark
+				{bookmark}
+				onEditBookmark={handleEditBookmark}
+				onDeleteBookmark={handleDeleteBookmark}
+			/>
 		{/each}
 
 		<!-- Tag tree with nested tags and bookmarks -->
@@ -155,6 +237,8 @@
 					node={tagNode}
 					onEditTag={handleEditTag}
 					onDeleteTag={handleDeleteClick}
+					onEditBookmark={handleEditBookmark}
+					onDeleteBookmark={handleDeleteBookmark}
 					{hideTagsWithoutBookmarks}
 				/>
 			{/if}
@@ -185,7 +269,7 @@
 	</ul>
 
 	<!-- Edit Tag Dialog -->
-	<dialog bind:this={editDialog} class="modal" aria-labelledby="edit-tag-title">
+	<dialog bind:this={editTagDialog} class="modal" aria-labelledby="edit-tag-title">
 		<div class="modal-box">
 			<form method="dialog">
 				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
@@ -194,11 +278,11 @@
 			</form>
 
 			<h3 id="edit-tag-title" class="text-lg font-bold">Edit Tag</h3>
-			<form bind:this={editForm} class="mt-4" onsubmit={handleEditSubmit}>
-				{#if editError}
+			<form bind:this={editTagForm} class="mt-4" onsubmit={handleEditTagSubmit}>
+				{#if editTagError}
 					<div class="alert alert-error mb-4">
 						<span class="icon-[ri--error-warning-fill]"></span>
-						<span>{editError}</span>
+						<span>{editTagError}</span>
 					</div>
 				{/if}
 				<div class="form-group">
@@ -212,7 +296,7 @@
 							required
 							maxlength="100"
 							class="grow"
-							disabled={isEditing}
+							disabled={isEditingTag}
 						/>
 					</label>
 				</div>
@@ -222,9 +306,9 @@
 						type="submit"
 						disabled={!editTagName.trim() ||
 							(currentTag && editTagName.trim() === currentTag.name) ||
-							isEditing}
+							isEditingTag}
 					>
-						{#if isEditing}
+						{#if isEditingTag}
 							<span class="loading loading-spinner"></span>
 						{/if}
 						Save
@@ -232,11 +316,11 @@
 					<button
 						class="btn"
 						type="button"
-						disabled={isEditing}
+						disabled={isEditingTag}
 						onclick={() => {
-							editDialog?.close();
-							editForm?.reset();
-							editError = null;
+							editTagDialog?.close();
+							editTagForm?.reset();
+							editTagError = null;
 							currentTag = null;
 						}}
 					>
@@ -247,8 +331,112 @@
 		</div>
 	</dialog>
 
+	<!-- Edit Bookmark Dialog -->
+	<dialog bind:this={editBookmarkDialog} class="modal" aria-labelledby="edit-bookmark-title">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+					>✕</button
+				>
+			</form>
+
+			<h3 id="edit-bookmark-title" class="text-lg font-bold">Edit Bookmark Title</h3>
+			<form bind:this={editBookmarkForm} class="mt-4" onsubmit={handleEditBookmarkSubmit}>
+				{#if editBookmarkError}
+					<div class="alert alert-error mb-4">
+						<span class="icon-[ri--error-warning-fill]"></span>
+						<span>{editBookmarkError}</span>
+					</div>
+				{/if}
+				<div class="form-group">
+					<label class="input input-bordered flex items-center gap-2 w-full">
+						<span class="icon-[ri--edit-line] shrink-0"></span>
+						<input
+							bind:value={editBookmarkTitle}
+							name="title"
+							type="text"
+							placeholder="Bookmark title"
+							class="grow"
+							disabled={isEditingBookmark}
+						/>
+					</label>
+				</div>
+				<div class="mt-4 text-right">
+					<button
+						class="btn btn-primary"
+						type="submit"
+						disabled={!editBookmarkTitle.trim() ||
+							(currentBookmark && editBookmarkTitle.trim() === currentBookmark.title?.trim()) ||
+							isEditingBookmark}
+					>
+						{#if isEditingBookmark}
+							<span class="loading loading-spinner"></span>
+						{/if}
+						Save
+					</button>
+					<button
+						class="btn"
+						type="button"
+						disabled={isEditingBookmark}
+						onclick={() => {
+							editBookmarkDialog?.close();
+							editBookmarkForm?.reset();
+							editBookmarkError = null;
+							currentBookmark = null;
+						}}
+					>
+						Cancel
+					</button>
+				</div>
+			</form>
+		</div>
+	</dialog>
+
+	<!-- Delete Bookmark Confirmation Dialog -->
+	<dialog bind:this={deleteBookmarkDialog} class="modal" aria-labelledby="delete-bookmark-title">
+		<div class="modal-box">
+			<form method="dialog">
+				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+					>✕</button
+				>
+			</form>
+
+			<h3 id="delete-bookmark-title" class="text-lg font-bold">Delete bookmark?</h3>
+			{#if currentBookmark}
+				<p class="py-4">
+					Are you sure you want to delete "{currentBookmark.title || 'Untitled'}"? This action
+					cannot be undone.
+				</p>
+			{/if}
+			<div class="modal-action">
+				<button
+					type="button"
+					class="btn"
+					onclick={() => {
+						deleteBookmarkDialog?.close();
+						currentBookmark = null;
+					}}
+					disabled={isDeletingBookmark}
+				>
+					Cancel
+				</button>
+				<button
+					type="button"
+					class="btn btn-error"
+					onclick={handleDeleteBookmarkConfirm}
+					disabled={isDeletingBookmark}
+				>
+					{#if isDeletingBookmark}
+						<span class="loading loading-spinner"></span>
+					{/if}
+					Delete
+				</button>
+			</div>
+		</div>
+	</dialog>
+
 	<!-- Delete Tag Confirmation Dialog -->
-	<dialog bind:this={deleteDialog} class="modal" aria-labelledby="delete-tag-title">
+	<dialog bind:this={deleteTagDialog} class="modal" aria-labelledby="delete-tag-title">
 		<div class="modal-box">
 			<form method="dialog">
 				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
@@ -259,10 +447,10 @@
 			<h3 id="delete-tag-title" class="text-lg font-bold">Delete Tag</h3>
 			{#if currentTag}
 				<div class="mt-4">
-					{#if deleteError}
+					{#if deleteTagError}
 						<div class="alert alert-error mb-4">
 							<span class="icon-[ri--error-warning-fill]"></span>
-							<span>{deleteError}</span>
+							<span>{deleteTagError}</span>
 						</div>
 					{/if}
 					<div class="alert alert-warning">
@@ -293,14 +481,14 @@
 					class="btn btn-error"
 					type="button"
 					onclick={handleDeleteConfirm}
-					disabled={isDeleting}
+					disabled={isDeletingTag}
 				>
-					{#if isDeleting}
+					{#if isDeletingTag}
 						<span class="loading loading-spinner"></span>
 					{/if}
 					Confirm Delete
 				</button>
-				<button class="btn" type="button" onclick={handleDeleteCancel} disabled={isDeleting}>
+				<button class="btn" type="button" onclick={handleDeleteCancel} disabled={isDeletingTag}>
 					Cancel
 				</button>
 			</div>
