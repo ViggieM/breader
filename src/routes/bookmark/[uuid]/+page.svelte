@@ -17,6 +17,7 @@
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
 	import { formatDate, formatDateAndTime } from '$lib';
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 	import { parseYouTubeUrl } from '$lib/utils/youtube';
 	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte';
@@ -32,7 +33,6 @@
 	let status = $state(data.bookmark.status);
 	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
 	let url = $state(data.bookmark.url);
-	let title = $state(data.bookmark.title ?? null);
 
 	// Edit title dialog state
 	let editTitleDialog = $state() as HTMLDialogElement;
@@ -181,7 +181,7 @@
 			await deleteBookmark(bookmark.id);
 			toastSuccess('Bookmark deleted');
 			deleteDialog.close();
-			goto('/');
+			goto(resolve('/'));
 		} catch (error) {
 			toastError('Failed to delete bookmark');
 			console.error('Failed to delete bookmark:', error);
@@ -303,6 +303,7 @@
 								></div>
 							</button>
 						</label>
+						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
 						<a href={bookmark.url} target="_blank" class="btn btn-sm btn-primary">Open</a>
 					</dd>
 					{#if url !== bookmark.url}

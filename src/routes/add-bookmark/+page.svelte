@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { createBookmark } from '$lib/db/bookmarks';
 	import type { PageProps } from './$types';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
@@ -54,7 +55,7 @@
 
 			// navigate to the newly created bookmark
 			// use replaceState to prevent browser back button from returning to this form
-			await goto(`/bookmark/${id}`, { replaceState: true });
+			await goto(resolve(`/bookmark/${id}`), { replaceState: true });
 		} catch (error) {
 			toastError('Failed to create bookmark');
 			console.error('Error saving bookmark:', error);
@@ -118,7 +119,7 @@
 	style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));"
 >
 	<div class="form-actions flex gap-2">
-		<a href="/" type="button" class="btn btn-error flex-1 md:flex-none"> Cancel </a>
+		<a href={resolve('/')} type="button" class="btn btn-error flex-1 md:flex-none"> Cancel </a>
 		<button
 			type="submit"
 			disabled={saving || !url}

@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import { resolve } from '$app/paths';
 	import SearchBar from '$lib/components/SearchBar.svelte';
 	import TagMenu from '$lib/components/TagMenu.svelte';
 	import { createTagMenuData } from '$lib/stores/tags.svelte';
@@ -46,19 +47,19 @@
 	<ul class="menu rounded-box w-full p-0 mt-4">
 		<!-- Static top-level links -->
 		<li>
-			<a href="/list/favorites" aria-label="View favorite bookmarks">
+			<a href={resolve('/list/favorites')} aria-label="View favorite bookmarks">
 				<span class="icon-[ri--star-line] shrink-0" aria-hidden="true"></span>
 				Favorites
 			</a>
 		</li>
 		<li>
-			<a href="/list/archived" aria-label="View archived bookmarks">
+			<a href={resolve('/list/archived')} aria-label="View archived bookmarks">
 				<span class="icon-[ri--archive-2-line] shrink-0" aria-hidden="true"></span>
 				Archive
 			</a>
 		</li>
 		<li>
-			<a href="/list/notes" aria-label="View notes">
+			<a href={resolve('/list/notes')} aria-label="View notes">
 				<span class="icon-[ri--sticky-note-line] shrink-0" aria-hidden="true"></span>
 				Notes
 			</a>

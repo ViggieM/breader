@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { resolve } from '$app/paths';
+</script>
+
 <svelte:head>
 	<title>Authentication Error - Breader</title>
 </svelte:head>
@@ -21,8 +25,8 @@
 		</div>
 
 		<div class="space-y-4">
-			<a href="/auth" class="btn btn-primary w-full"> Try signing in again </a>
-			<a href="/" class="btn btn-ghost w-full"> Go back home </a>
+			<a href={resolve('/auth')} class="btn btn-primary w-full"> Try signing in again </a>
+			<a href={resolve('/')} class="btn btn-ghost w-full"> Go back home </a>
 		</div>
 	</div>
 </main>

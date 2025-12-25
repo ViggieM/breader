@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { replaceState } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { db } from '$lib/db';
 	import TagForm from './TagForm.svelte';
 	import type { Writable } from 'svelte/store';
@@ -23,6 +24,7 @@
 		} else {
 			url.searchParams.set('q', $filters.query);
 		}
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		replaceState(url, {});
 	}
 
@@ -99,7 +101,7 @@
 			class="dropdown-content menu bg-base-100 rounded-box z-1 w-42 p-2 shadow-sm mt-1"
 		>
 			<li>
-				<a href="/add-bookmark">
+				<a href={resolve('/add-bookmark')}>
 					<span class="icon-[ri--bookmark-line]"></span>
 					Add Bookmark
 				</a>

@@ -2,6 +2,7 @@
 <!-- ABOUTME: Uses self-imports for recursive rendering of nested tag structures with depth limiting -->
 
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { TagNode } from '$lib/stores/tags.svelte';
 	import { onMount } from 'svelte';
 	import TagMenuItem from './TagMenuItem.svelte';
@@ -264,7 +265,7 @@
 						class="dropdown-content menu bg-base-100 rounded-box z-[1] w-42 p-2 shadow-lg mt-1"
 					>
 						<li role="menuitem">
-							<a href="/list/{node.tag.id}">
+							<a href={resolve(`/list/${node.tag.id}`)}>
 								<span class="icon-[ri--list-check]"></span>
 								View List
 							</a>

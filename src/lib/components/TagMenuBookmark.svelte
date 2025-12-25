@@ -2,6 +2,7 @@
 <!-- ABOUTME: Wraps in draggable <li> for drag-and-drop support, handles web share API with clipboard fallback -->
 
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { dragState } from '$lib/stores/dragState.svelte';
 	import type { Bookmark } from '$lib/types';
 	import { updateBookmarkStar } from '$lib/db/bookmarks';
@@ -146,7 +147,7 @@
 				class="mt-2 w-full grid grid-cols-3 gap-2 text-base-content/70"
 			>
 				<a
-					href="/bookmark/{bookmark.id}"
+					href={resolve(`/bookmark/${bookmark.id}`)}
 					role="menuitem"
 					class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer min-w-0"
 					draggable="false"

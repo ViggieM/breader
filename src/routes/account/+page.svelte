@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import type { SubmitFunction } from '@sveltejs/kit';
 	import { enhance } from '$app/forms';
 
@@ -31,5 +32,5 @@
 <h2 class="mt-8">Settings</h2>
 
 <div class="mt-4">
-	<a class="link link-accent text-sm" href="/">&larr; Back to your bookmarks</a>
+	<a class="link link-accent text-sm" href={resolve('/')}>&larr; Back to your bookmarks</a>
 </div>

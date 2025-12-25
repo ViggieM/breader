@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { afterNavigate } from '$app/navigation';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { installPWA, canInstall } from '$lib/stores/installPWA.svelte.js';
 	import ThemeSelector from '$lib/components/ThemeSelector.svelte';
@@ -44,13 +45,13 @@
 			</li>
 			{#if !session}
 				<li>
-					<a href="/auth" class="flex justify-between"
+					<a href={resolve('/auth')} class="flex justify-between"
 						>Login <span class="icon-[ri--login-box-line]"></span></a
 					>
 				</li>
 			{:else}
 				<li>
-					<a href="/account" class="flex justify-between"
+					<a href={resolve('/account')} class="flex justify-between"
 						>Account <span class="icon-[ri--user-settings-line]"></span></a
 					>
 				</li>

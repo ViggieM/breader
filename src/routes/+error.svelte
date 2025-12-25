@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { browser } from '$app/environment';
 	import svg404 from '$lib/assets/404.svg?raw';
@@ -203,7 +204,7 @@
 
 		<!-- Action buttons -->
 		<div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-			<a href="/" class="btn btn-primary btn-lg">
+			<a href={resolve('/')} class="btn btn-primary btn-lg">
 				<span class="icon-[material-symbols--home]"></span>
 				Go Home
 			</a>
