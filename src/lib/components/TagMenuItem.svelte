@@ -27,8 +27,8 @@
 			parentId: string | null;
 			childrenCount: number;
 		}) => void;
-		onEditBookmark?: (bookmark: { id: string; title: string | null }) => void;
-		onDeleteBookmark?: (bookmark: { id: string; title: string | null }) => void;
+		onEditBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
+		onDeleteBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
 		hideTagsWithoutBookmarks: boolean;
 	}
 

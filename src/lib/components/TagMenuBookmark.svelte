@@ -9,8 +9,8 @@
 	interface Props {
 		bookmark: Bookmark;
 		class?: string;
-		onEditBookmark?: (bookmark: { id: string; title: string | null }) => void;
-		onDeleteBookmark?: (bookmark: { id: string; title: string | null }) => void;
+		onEditBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
+		onDeleteBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
 	}
 
 	let { bookmark, class: className, onEditBookmark, onDeleteBookmark }: Props = $props();
@@ -196,7 +196,12 @@
 					<li>
 						<button
 							type="button"
-							onclick={() => onEditBookmark?.({ id: bookmark.id, title: bookmark.title ?? null })}
+							onclick={() =>
+								onEditBookmark?.({
+									id: bookmark.id,
+									title: bookmark.title ?? null,
+									faviconUrl: bookmark.faviconUrl
+								})}
 						>
 							<span class="icon-[ri--pencil-line]" aria-hidden="true"></span>
 							Edit Title
@@ -215,7 +220,12 @@
 						<button
 							type="button"
 							class="text-error"
-							onclick={() => onDeleteBookmark?.({ id: bookmark.id, title: bookmark.title ?? null })}
+							onclick={() =>
+								onDeleteBookmark?.({
+									id: bookmark.id,
+									title: bookmark.title ?? null,
+									faviconUrl: bookmark.faviconUrl
+								})}
 						>
 							<span class="icon-[ri--delete-bin-line]" aria-hidden="true"></span>
 							Delete

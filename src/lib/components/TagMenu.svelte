@@ -65,6 +65,7 @@
 	let currentBookmark = $state<{
 		id: string;
 		title: string | null;
+		faviconUrl: string;
 	} | null>(null);
 
 	async function handleEditTag(tag: {
@@ -116,7 +117,11 @@
 		}
 	}
 
-	async function handleEditBookmark(bookmark: { id: string; title: string | null }): Promise<void> {
+	async function handleEditBookmark(bookmark: {
+		id: string;
+		title: string | null;
+		faviconUrl: string;
+	}): Promise<void> {
 		currentBookmark = bookmark;
 		editBookmarkTitle = bookmark.title || '';
 		editBookmarkError = null;
@@ -154,7 +159,11 @@
 		}
 	}
 
-	function handleDeleteBookmark(bookmark: { id: string; title: string | null }): void {
+	function handleDeleteBookmark(bookmark: {
+		id: string;
+		title: string | null;
+		faviconUrl: string;
+	}): void {
 		currentBookmark = bookmark;
 		deleteBookmarkDialog?.showModal();
 	}
@@ -395,17 +404,15 @@
 	<!-- Delete Bookmark Confirmation Dialog -->
 	<dialog bind:this={deleteBookmarkDialog} class="modal" aria-labelledby="delete-bookmark-title">
 		<div class="modal-box">
-			<form method="dialog">
-				<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
-					>✕</button
-				>
-			</form>
-
-			<h3 id="delete-bookmark-title" class="text-lg font-bold">Delete bookmark?</h3>
 			{#if currentBookmark}
+				<h3 id="delete-bookmark-title">
+					<div class="flex items-center gap-3">
+						<img src={currentBookmark.faviconUrl} class="size-4 shrink-0" alt="Favicon" />
+						<span class="font-medium truncate">{currentBookmark.title || 'Untitled'}</span>
+					</div>
+				</h3>
 				<p class="py-4">
-					Are you sure you want to delete "{currentBookmark.title || 'Untitled'}"? This action
-					cannot be undone.
+					Are you sure you want to delete this bookmark? This action cannot be undone.
 				</p>
 			{/if}
 			<div class="modal-action">
