@@ -133,7 +133,9 @@
 				class:truncate={!isOpen}
 				class:text-pretty={isOpen}
 				title={!isOpen ? bookmark.title?.trim() || 'Untitled' : undefined}
-				>{bookmark.title?.trim() || 'Untitled'}</span
+				>{bookmark.title?.trim() || 'Untitled'}{#if isOpen && bookmark.isStarred}
+					<span class="icon-[ri--star-s-fill] text-amber-500 relative top-0.5 ml-2 shrink-0"></span>
+				{/if}</span
 			>
 		</button>
 
