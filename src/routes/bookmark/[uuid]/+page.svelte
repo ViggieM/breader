@@ -20,6 +20,7 @@
 	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 	import { parseYouTubeUrl } from '$lib/utils/youtube';
 	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte';
+	import { tick } from 'svelte';
 
 	const { data } = $props();
 
@@ -32,20 +33,18 @@
 	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
 	let url = $state(data.bookmark.url);
 	let title = $state(data.bookmark.title ?? null);
+
+	// Edit title dialog state
+	let editTitleDialog = $state() as HTMLDialogElement;
+	let editTitleForm = $state() as HTMLFormElement;
+	let editTitleValue = $state('');
 	let isEditingTitle = $state(false);
-	let titleInput = $state() as HTMLInputElement;
+	let editTitleError = $state<string | null>(null);
 
 	$effect(() => {
 		if ($liveData) {
 			selectedTags = tagIdsToOptions($liveData.tags, $tagMap);
 			bookmark = new Bookmark($liveData);
-		}
-	});
-
-	// Focus the title input when editing mode is activated
-	$effect(() => {
-		if (isEditingTitle && titleInput) {
-			titleInput.focus();
 		}
 	});
 
@@ -127,6 +126,41 @@
 		}
 	}
 
+	async function handleEditTitle(): Promise<void> {
+		editTitleValue = bookmark.title || '';
+		editTitleError = null;
+		editTitleDialog?.showModal();
+		await tick();
+		editTitleDialog?.querySelector<HTMLInputElement>('input[name="title"]')?.focus();
+	}
+
+	async function handleEditTitleSubmit(e: Event): Promise<void> {
+		e.preventDefault();
+		editTitleError = null;
+
+		const trimmedTitle = editTitleValue.trim();
+
+		// Validate: title should be different
+		if (trimmedTitle === bookmark.title?.trim()) {
+			editTitleDialog?.close();
+			return;
+		}
+
+		isEditingTitle = true;
+		try {
+			await updateBookmarkTitle(bookmark.id, trimmedTitle);
+			toastSuccess('Title updated');
+			editTitleDialog?.close();
+			editTitleForm?.reset();
+			editTitleValue = '';
+		} catch (error) {
+			console.error('Failed to update title:', error);
+			editTitleError = 'Failed to update title. Please try again.';
+		} finally {
+			isEditingTitle = false;
+		}
+	}
+
 	// Close details when clicking outside
 	$effect(() => {
 		if (!detailsElement) return;
@@ -171,104 +205,64 @@
 		{/if}
 
 		<!-- Header below video -->
-		<header class="flex items-center" class:px-0={isEditingTitle}>
-			{#if isEditingTitle}
-				<div class="w-full">
-					<form
-						onsubmit={async (evt) => {
-							evt.preventDefault();
-							await updateBookmarkTitle(bookmark.id, title);
-							isEditingTitle = false;
-						}}
-					>
-						<input type="text" bind:value={title} class="input w-full" bind:this={titleInput} />
-					</form>
-					<div class="mt-2">
-						<button
-							class="btn btn-xs btn-success"
-							disabled={title === bookmark.title}
-							onclick={async () => {
-								await updateBookmarkTitle(bookmark.id, title);
-								isEditingTitle = false;
-							}}>Save</button
-						>
-						<button
-							class="btn btn-xs btn-error"
-							onclick={() => {
-								isEditingTitle = false;
-								title = bookmark.title ?? null;
-							}}>Cancel</button
-						>
-					</div>
-				</div>
-			{:else}
-				<img src={bookmark.faviconUrl} class="size-4 mr-3" alt="Favicon" />
-				<h1 class="text-lg font-medium flex-1 mt-0">
-					{bookmark.title}{#if bookmark.isStarred}
-						<span class="icon-[ri--star-s-fill] text-amber-500 relative top-0.5 ml-2 shrink-0"
-						></span>
-					{/if}
-				</h1>
+		<header class="flex items-center">
+			<img src={bookmark.faviconUrl} class="size-4 mr-3" alt="Favicon" />
+			<h1 class="text-lg font-medium flex-1 mt-0">
+				{bookmark.title}{#if bookmark.isStarred}
+					<span class="icon-[ri--star-s-fill] text-amber-500 relative top-0.5 ml-2 shrink-0"></span>
+				{/if}
+			</h1>
 
-				<div class="dropdown dropdown-bottom dropdown-end">
-					<div
-						tabindex="0"
-						role="button"
-						class="btn btn-ghost rounded-full size-10 relative left-2"
-					>
-						<span class="icon-[ri--more-2-fill] shrink-0"></span>
-					</div>
-					<ul
-						tabindex="-1"
-						class="dropdown-content menu bg-base-100 rounded-box z-1 w-54 p-2 shadow-sm mt-1"
-					>
-						<li>
-							<button
-								onclick={() => {
-									isEditingTitle = true;
-								}}
-							>
-								<span class="icon-[ri--pencil-line]"></span>
-								Edit Title
-							</button>
-						</li>
-						{#if bookmark.isStarred}
-							<li>
-								<button
-									onclick={async () => {
-										await updateBookmarkStar(bookmark.id, false);
-									}}
-								>
-									<span class="icon-[ri--star-off-line]"></span>
-									Remove from favorites
-								</button>
-							</li>
-						{:else}
-							<li>
-								<button
-									onclick={async () => {
-										await updateBookmarkStar(bookmark.id, true);
-									}}
-								>
-									<span class="icon-[ri--star-line]"></span>
-									Mark as favorite
-								</button>
-							</li>
-						{/if}
-						<li>
-							<button
-								onclick={() => {
-									deleteDialog.showModal();
-								}}
-								class="text-error"
-							>
-								<span class="icon-[ri--delete-bin-line]"></span>
-								Delete Bookmark
-							</button>
-						</li>
-					</ul>
+			<div class="dropdown dropdown-bottom dropdown-end">
+				<div tabindex="0" role="button" class="btn btn-ghost rounded-full size-10 relative left-2">
+					<span class="icon-[ri--more-2-fill] shrink-0"></span>
 				</div>
-			{/if}
+				<ul
+					tabindex="-1"
+					class="dropdown-content menu bg-base-100 rounded-box z-1 w-54 p-2 shadow-sm mt-1"
+				>
+					<li>
+						<button onclick={handleEditTitle}>
+							<span class="icon-[ri--pencil-line]"></span>
+							Edit Title
+						</button>
+					</li>
+					{#if bookmark.isStarred}
+						<li>
+							<button
+								onclick={async () => {
+									await updateBookmarkStar(bookmark.id, false);
+								}}
+							>
+								<span class="icon-[ri--star-off-line]"></span>
+								Remove from favorites
+							</button>
+						</li>
+					{:else}
+						<li>
+							<button
+								onclick={async () => {
+									await updateBookmarkStar(bookmark.id, true);
+								}}
+							>
+								<span class="icon-[ri--star-line]"></span>
+								Mark as favorite
+							</button>
+						</li>
+					{/if}
+					<li>
+						<button
+							onclick={() => {
+								deleteDialog.showModal();
+							}}
+							class="text-error"
+						>
+							<span class="icon-[ri--delete-bin-line]"></span>
+							Delete Bookmark
+						</button>
+					</li>
+				</ul>
+			</div>
 		</header>
 
 		<dl class="space-y-4 mb-4">
@@ -382,6 +376,67 @@
 			<button class="btn" onclick={() => deleteDialog.close()}>Cancel</button>
 			<button class="btn btn-error" onclick={handleDeleteBookmark}>Delete</button>
 		</div>
+	</div>
+</dialog>
+
+<!-- Edit Title Dialog -->
+<dialog bind:this={editTitleDialog} class="modal" aria-labelledby="edit-title-title">
+	<div class="modal-box">
+		<form method="dialog">
+			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close"
+				>✕</button
+			>
+		</form>
+
+		<h3 id="edit-title-title" class="text-lg font-bold">Edit Bookmark Title</h3>
+		<form bind:this={editTitleForm} class="mt-4" onsubmit={handleEditTitleSubmit}>
+			{#if editTitleError}
+				<div class="alert alert-error mb-4">
+					<span class="icon-[ri--error-warning-fill]"></span>
+					<span>{editTitleError}</span>
+				</div>
+			{/if}
+			<div class="form-group">
+				<label class="input input-bordered flex items-center gap-2 w-full">
+					<img src={bookmark.faviconUrl} class="size-4 shrink-0" alt="Favicon" />
+					<input
+						bind:value={editTitleValue}
+						name="title"
+						type="text"
+						placeholder="Bookmark title"
+						class="grow"
+						disabled={isEditingTitle}
+					/>
+				</label>
+			</div>
+			<div class="mt-4 text-right">
+				<button
+					class="btn btn-primary"
+					type="submit"
+					disabled={!editTitleValue.trim() ||
+						editTitleValue.trim() === bookmark.title?.trim() ||
+						isEditingTitle}
+				>
+					{#if isEditingTitle}
+						<span class="loading loading-spinner"></span>
+					{/if}
+					Save
+				</button>
+				<button
+					class="btn"
+					type="button"
+					disabled={isEditingTitle}
+					onclick={() => {
+						editTitleDialog?.close();
+						editTitleForm?.reset();
+						editTitleError = null;
+						editTitleValue = '';
+					}}
+				>
+					Cancel
+				</button>
+			</div>
+		</form>
 	</div>
 </dialog>
 

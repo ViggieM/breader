@@ -358,7 +358,9 @@
 				{/if}
 				<div class="form-group">
 					<label class="input input-bordered flex items-center gap-2 w-full">
-						<span class="icon-[ri--edit-line] shrink-0"></span>
+						{#if currentBookmark}
+							<img src={currentBookmark.faviconUrl} class="size-4 shrink-0" alt="Favicon" />
+						{/if}
 						<input
 							bind:value={editBookmarkTitle}
 							name="title"
