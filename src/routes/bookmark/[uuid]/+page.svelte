@@ -18,6 +18,8 @@
 	import { formatDate, formatDateAndTime } from '$lib';
 	import { goto } from '$app/navigation';
 	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
+	import { parseYouTubeUrl } from '$lib/utils/youtube';
+	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte';
 
 	const { data } = $props();
 
@@ -53,6 +55,8 @@
 	let detailsElement = $state<HTMLDetailsElement>();
 	let disabled = $derived(saving);
 	let deleteDialog = $state() as HTMLDialogElement;
+	let youtubeVideoInfo = $derived(parseYouTubeUrl(bookmark.url));
+	let isYouTubeVideo = $derived(youtubeVideoInfo !== null);
 
 	async function saveChanges() {
 		saving = true;
@@ -156,6 +160,17 @@
 
 <main class="flex flex-col">
 	<div class="container mx-auto max-w-2xl">
+		<!-- YouTube embed at top -->
+		{#if isYouTubeVideo && youtubeVideoInfo}
+			<div>
+				<YouTubeEmbed
+					videoId={youtubeVideoInfo.videoId}
+					title={bookmark.title || 'YouTube video'}
+				/>
+			</div>
+		{/if}
+
+		<!-- Header below video -->
 		<header class="flex items-center" class:px-0={isEditingTitle}>
 			{#if isEditingTitle}
 				<div class="w-full">
