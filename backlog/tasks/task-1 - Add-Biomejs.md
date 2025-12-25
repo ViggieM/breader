@@ -4,12 +4,15 @@ title: Add Biomejs
 status: Done
 assignee: []
 created_date: '2025-08-14'
-updated_date: '2025-08-30 18:00'
+updated_date: '2025-12-25 12:52'
 labels: []
 dependencies: []
+ordinal: 8000
 ---
 
 ## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
 
 # Add Biomejs
 
@@ -112,3 +115,5 @@ repos:
 Add all files to git and then commit with the message "Add Biomejs".
 If the pre-commit hook for biomejs fails, try again a second time.
 If it also fails the second time, prompt the user for instructions
+
+<!-- SECTION:DESCRIPTION:END -->

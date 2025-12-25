@@ -1,16 +1,18 @@
 ---
 id: task-16
 title: PWA Style Update Detection Feature Specification
-status: To Do
+status: Done
 assignee: []
 created_date: '2025-09-03 08:23'
-updated_date: '2025-09-03 19:19'
+updated_date: '2025-12-25 12:52'
 labels: []
 dependencies: []
 ordinal: 11000
 ---
 
 ## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
 
 # PWA Style Update Detection Feature Specification
 
@@ -223,3 +225,4 @@ interface UpdateEventDetail {
 - User-configurable update check intervals
 - Automatic vs manual update modes
 - Update notification positioning preferences
+<!-- SECTION:DESCRIPTION:END -->

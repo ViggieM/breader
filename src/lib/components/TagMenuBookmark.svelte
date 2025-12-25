@@ -140,25 +140,16 @@
 			<div
 				id={dropdownId}
 				role="menu"
-				class="mt-2 w-full grid grid-cols-4 gap-2 text-base-content/70"
+				class="mt-2 w-full grid grid-cols-3 gap-2 text-base-content/70"
 			>
-				<a
-					href="/list/notes?bookmarkId={bookmark.id}"
-					role="menuitem"
-					class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer min-w-0"
-					draggable="false"
-				>
-					<span class="icon-[ri--sticky-note-line] size-4" aria-hidden="true"></span>
-					<span class="text-xs">Notes</span>
-				</a>
 				<a
 					href="/bookmark/{bookmark.id}"
 					role="menuitem"
 					class="flex flex-col items-center justify-center gap-1 p-2 rounded hover:bg-base-200 cursor-pointer min-w-0"
 					draggable="false"
 				>
-					<span class="icon-[ri--edit-2-line] size-4" aria-hidden="true"></span>
-					<span class="text-xs">Edit</span>
+					<span class="icon-[ri--book-open-line] size-4" aria-hidden="true"></span>
+					<span class="text-xs">Read</span>
 				</a>
 				<button
 					role="menuitem"

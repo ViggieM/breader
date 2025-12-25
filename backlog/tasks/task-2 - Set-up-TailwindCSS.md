@@ -4,12 +4,15 @@ title: Set up TailwindCSS
 status: Done
 assignee: []
 created_date: '2025-08-14'
-updated_date: '2025-08-30 18:00'
+updated_date: '2025-12-25 12:52'
 labels: []
 dependencies: []
+ordinal: 9000
 ---
 
 ## Description
+
+<!-- SECTION:DESCRIPTION:BEGIN -->
 
 # Instructions
 
@@ -114,3 +117,5 @@ Add the plugin to `app.css`
 # Cleanup
 
 Add all changes to git and commit with the message "Set up TailwindCSS"
+
+<!-- SECTION:DESCRIPTION:END -->
