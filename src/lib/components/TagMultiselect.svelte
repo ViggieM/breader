@@ -76,6 +76,7 @@
 		duplicates={true}
 		--sms-options-border-width="0px"
 		--sms-active-color="var(--color-neutral)"
+		--sms-bg="transparent"
 		{...restProps}
 		bind:selected={selectedTags}
 		options={$options}
