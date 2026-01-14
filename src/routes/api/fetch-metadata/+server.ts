@@ -6,7 +6,7 @@ import type { RequestHandler } from './$types';
 import type { UrlMetadata } from '$lib/utils/metadata';
 import { isValidHttpUrl } from '$lib/utils/url-validation';
 
-const MAX_RESPONSE_SIZE = 1024 * 1024; // 1MB limit
+const MAX_RESPONSE_SIZE = 20 * 1024 * 1024; // 20MB limit
 
 function extractMetadata(html: string, url: string): UrlMetadata {
 	// Limit HTML size for regex processing to prevent ReDoS

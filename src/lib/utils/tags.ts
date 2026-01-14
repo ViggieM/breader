@@ -25,12 +25,16 @@ export async function processTagsForSave(selectedTags: ObjectOption[]): Promise<
 }> {
 	// Filter new tags (those without a value property or with null/undefined values)
 	const newTags = selectedTags.filter(
-		(opt) => !('value' in opt) || opt.value === undefined || opt.value === null
+		(opt) =>
+			typeof opt !== 'object' || !('value' in opt) || opt.value === undefined || opt.value === null
 	);
 
 	// Extract existing tag IDs from tags that already have values
 	const existingTagIds = selectedTags
-		.filter((opt) => 'value' in opt && opt.value !== undefined && opt.value !== null)
+		.filter(
+			(opt) =>
+				typeof opt === 'object' && 'value' in opt && opt.value !== undefined && opt.value !== null
+		)
 		.map((opt) => opt.value as string);
 
 	// Create new tags in database if there are any
@@ -39,7 +43,7 @@ export async function processTagsForSave(selectedTags: ObjectOption[]): Promise<
 		const newTagsData: TagData[] = newTags.map(
 			(opt) =>
 				({
-					name: opt.label,
+					name: typeof opt === 'string' ? opt : opt.label,
 					parentId: null,
 					order: 0
 				}) as TagData

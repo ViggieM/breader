@@ -107,7 +107,7 @@
 		dragState.clear();
 	}}
 	aria-describedby="bookmark-drag-help"
-	class={className}
+	class={`${className} pb-0.5 pr-0.5`}
 >
 	<div
 		class={[

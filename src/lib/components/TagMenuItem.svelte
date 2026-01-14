@@ -257,7 +257,7 @@
 							e.stopPropagation();
 						}}
 					>
-						<span class="icon-[ri--more-2-fill] shrink-0" aria-hidden="true"></span>
+						<span class="icon-[ri--more-2-fill] size-4 shrink-0" aria-hidden="true"></span>
 					</button>
 					<ul
 						role="menu"

@@ -40,18 +40,22 @@
 	function handleAdd(data: { option: ObjectOption }) {
 		onAdd?.();
 		const tagId = data.option.value as string;
-		const newTags = selectedTags.filter((option) => !('value' in option));
+		const newTags = selectedTags.filter(
+			(option) => typeof option !== 'object' || !('value' in option)
+		);
 		const uniqueTags = [
 			...new Map(
-				selectedTags.filter((opt) => 'value' in opt).map((opt) => [opt.value, opt])
+				selectedTags
+					.filter((opt) => typeof opt === 'object' && 'value' in opt)
+					.map((opt) => [opt.value, opt])
 			).values()
 		];
 		selectedTags = [...uniqueTags, ...newTags];
 		$descendantMap.get(tagId)?.forEach((id) => {
-			selectedTags = selectedTags.filter((tag) => tag.value !== id);
+			selectedTags = selectedTags.filter((tag) => typeof tag === 'object' && tag.value !== id);
 		});
 		$ancestorMap.get(tagId)?.forEach((id) => {
-			selectedTags = selectedTags.filter((tag) => tag.value !== id);
+			selectedTags = selectedTags.filter((tag) => typeof tag === 'object' && tag.value !== id);
 		});
 	}
 
