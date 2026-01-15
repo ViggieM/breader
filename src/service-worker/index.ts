@@ -14,6 +14,9 @@ declare let self: ServiceWorkerGlobalScope;
 cleanupOutdatedCaches();
 precacheAndRoute(self.__WB_MANIFEST || []);
 
+// claim clients initially, on first website visit
+clientsClaim();
+
 // You need to include on your service worker at least this code
 // https://vite-pwa-org.netlify.app/guide/inject-manifest.html#service-worker-code-2
 self.addEventListener('message', (event) => {
