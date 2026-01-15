@@ -138,22 +138,18 @@
 			class="border-b border-base-300 mb-1"
 			onkeydown={handleKeydown}
 		/>
-		<p class="text-xs text-base-content/60">
+		<p class="text-xs text-base-content/60 mb-2">
 			You can use <a href="https://www.markdownguide.org/getting-started/" class="link">Markdown</a>
 			for editing notes
 		</p>
 		{#if hasChanges}
-			<div class="flex gap-2">
-				<button class="btn btn-xs btn-success" onclick={save}> Save </button>
-				<button class="btn btn-xs btn-error" onclick={cancel}> Cancel </button>
-				<button class="btn btn-xs btn-ghost ml-auto" onclick={deleteNote}>
-					<span class="icon-[ri--delete-bin-line]"></span>
-					Delete
-				</button>
+			<div class="flex gap-2 justify-end">
+				<button class="btn btn-sm btn-success grow" onclick={save}> Save </button>
+				<button class="btn btn-sm btn-error grow" onclick={cancel}> Cancel </button>
 			</div>
 		{:else}
 			<div class="flex justify-end">
-				<button class="btn btn-xs btn-ghost" onclick={deleteNote}>
+				<button class="btn btn-sm btn-ghost" onclick={deleteNote}>
 					<span class="icon-[ri--delete-bin-line]"></span>
 					Delete
 				</button>

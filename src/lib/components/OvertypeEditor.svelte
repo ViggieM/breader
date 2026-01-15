@@ -14,6 +14,7 @@
 	const initialValue = content;
 	let node = $state() as HTMLDivElement;
 	let editor = $state() as OverTypeInstance;
+	let internalValue = $state(content);
 
 	onMount(() => {
 		[editor] = OverType.init(node, {
@@ -22,6 +23,7 @@
 			padding: '0',
 			autoResize: true,
 			onChange: (value: string) => {
+				internalValue = value;
 				content = value;
 			},
 			theme: {
@@ -46,6 +48,14 @@
 			},
 			...overtypeOptions
 		});
+	});
+
+	// React to external changes to content (e.g., when parent resets the value)
+	$effect(() => {
+		if (editor && content !== internalValue) {
+			internalValue = content;
+			editor.setValue(content);
+		}
 	});
 
 	export function resetEditor() {
