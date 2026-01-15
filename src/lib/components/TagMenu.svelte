@@ -2,7 +2,7 @@
 <!-- ABOUTME: and hierarchical tag structure with collapsible sections and nested bookmarks -->
 
 <script lang="ts">
-	import TagMenuItem from './TagMenuItem.svelte';
+	import TagMenuTag from './TagMenuTag.svelte';
 	import { updateTagParent, updateTagName, deleteTag } from '$lib/db/tags';
 	import { updateBookmarkTitle, deleteBookmark } from '$lib/db/bookmarks';
 	import { toastSuccess } from '$lib/stores/notifications.svelte';
@@ -241,7 +241,7 @@
 		<!-- Tag tree with nested tags and bookmarks -->
 		{#each $bookmarksLiveData.tagTree as tagNode (tagNode.tag.id)}
 			{#if !hideTagsWithoutBookmarks || tagNode.hasBookmarks}
-				<TagMenuItem
+				<TagMenuTag
 					node={tagNode}
 					onEditTag={handleEditTag}
 					onDeleteTag={handleDeleteClick}

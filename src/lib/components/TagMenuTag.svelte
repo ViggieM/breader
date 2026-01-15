@@ -5,7 +5,7 @@
 	import { resolve } from '$app/paths';
 	import type { TagNode } from '$lib/stores/tags.svelte';
 	import { onMount } from 'svelte';
-	import TagMenuItem from './TagMenuItem.svelte';
+	import TagMenuTag from './TagMenuTag.svelte';
 	import TagMenuBookmark from './TagMenuBookmark.svelte';
 	import { db } from '$lib/db';
 	import { updateBookmarkTags } from '$lib/db/bookmarks';
@@ -196,7 +196,7 @@
 			}}
 		>
 			<summary
-				class="font-normal"
+				class="font-normal h-8 flex items-center"
 				class:after:hidden={node.children.length === 0 && node.bookmarks.length === 0}
 				data-open={isOpen}
 				draggable="true"
@@ -227,7 +227,7 @@
 				<!-- Child tags (recursive) -->
 				{#each node.children as childNode (childNode.tag.id)}
 					{#if !hideTagsWithoutBookmarks || childNode.hasBookmarks}
-						<TagMenuItem
+						<TagMenuTag
 							node={childNode}
 							level={level + 1}
 							{onEditTag}
