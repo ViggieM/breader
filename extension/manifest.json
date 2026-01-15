@@ -20,6 +20,6 @@
 			"description": "Save bookmark"
 		}
 	},
-	"permissions": ["activeTab"],
+	"permissions": ["activeTab", "contextMenus"],
 	"host_permissions": ["http://localhost:3000/*", "https://breader.app/*"]
 }
