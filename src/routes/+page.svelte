@@ -6,6 +6,7 @@
 	import { bookmarksData, FuseSearchEngine } from '$lib/stores/search.svelte';
 	import { derived, writable } from 'svelte/store';
 	import { BookmarkStatus } from '$lib/types';
+	import QuickActions from '$lib/components/QuickActions.svelte';
 
 	const filters = writable({
 		query: '',
@@ -71,3 +72,7 @@
 		{hideTagsWithoutBookmarks}
 	/>
 </main>
+
+<div class="fixed right-4 bottom-4 md:hidden">
+	<QuickActions class="btn btn-primary rounded-full size-12" />
+</div>
