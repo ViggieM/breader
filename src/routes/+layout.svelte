@@ -16,7 +16,13 @@
 		initializeTheme();
 	});
 
-	onMount(() => {
+	onMount(async () => {
+		// Load CSS anchor positioning polyfill if needed
+		if (!('anchorName' in document.documentElement.style)) {
+			const { default: polyfill } = await import('@oddbird/css-anchor-positioning/fn');
+			polyfill();
+		}
+
 		const { data } = supabase.auth.onAuthStateChange((_, newSession) => {
 			if (newSession?.expires_at !== session?.expires_at) {
 				invalidate('supabase:auth');
