@@ -183,59 +183,56 @@
 			</div>
 
 			<!-- Dropdown menu in top-right corner -->
-			<div class="dropdown dropdown-bottom dropdown-end absolute top-0 right-0">
-				<button
-					type="button"
-					class="btn btn-ghost btn-sm btn-square"
-					aria-label="Bookmark options for {bookmark.title}"
-					aria-haspopup="menu"
-				>
-					<span class="icon-[ri--more-2-fill] size-4" aria-hidden="true"></span>
-				</button>
-				<ul
-					tabindex="-1"
-					class="dropdown-content menu bg-base-100 rounded-box z-[1] w-54 p-2 shadow-lg mt-1"
-				>
-					<li>
-						<button
-							type="button"
-							onclick={() =>
-								onEditBookmark?.({
-									id: bookmark.id,
-									title: bookmark.title ?? null,
-									faviconUrl: bookmark.faviconUrl
-								})}
-						>
-							<span class="icon-[ri--pencil-line]" aria-hidden="true"></span>
-							Edit Title
-						</button>
-					</li>
-					<li>
-						<button type="button" onclick={handleToggleFavorite}>
-							<span
-								class={bookmark.isStarred ? 'icon-[ri--star-off-line]' : 'icon-[ri--star-line]'}
-								aria-hidden="true"
-							></span>
-							{bookmark.isStarred ? 'Remove from favorites' : 'Mark as favorite'}
-						</button>
-					</li>
-					<li>
-						<button
-							type="button"
-							class="text-error"
-							onclick={() =>
-								onDeleteBookmark?.({
-									id: bookmark.id,
-									title: bookmark.title ?? null,
-									faviconUrl: bookmark.faviconUrl
-								})}
-						>
-							<span class="icon-[ri--delete-bin-line]" aria-hidden="true"></span>
-							Delete
-						</button>
-					</li>
-				</ul>
-			</div>
+			<button
+				class="btn btn-ghost btn-sm btn-square hover:bg-base-200 absolute top-0 right-0"
+				popovertarget="bookmark-menu-popover-{bookmark.id}"
+				style="anchor-name:--anchor-{bookmark.id}"
+			>
+				<span class="icon-[ri--more-2-fill] size-4 shrink-0" aria-hidden="true"></span>
+			</button>
+			<ul
+				class="dropdown menu w-52 rounded-box bg-base-100 shadow-sm -mr-8"
+				popover
+				id="bookmark-menu-popover-{bookmark.id}"
+				style="position-anchor:--anchor-{bookmark.id}; inset: auto; position-area: bottom left; "
+			>
+				<li role="menuitem">
+					<button
+						type="button"
+						onclick={() =>
+							onEditBookmark?.({
+								id: bookmark.id,
+								title: bookmark.title ?? null,
+								faviconUrl: bookmark.faviconUrl
+							})}
+					>
+						<span class="icon-[ri--pencil-line]"></span>
+						Edit Title
+					</button>
+				</li>
+				<li role="menuitem">
+					<button type="button" onclick={handleToggleFavorite}>
+						<span class={bookmark.isStarred ? 'icon-[ri--star-off-line]' : 'icon-[ri--star-line]'}
+						></span>
+						{bookmark.isStarred ? 'Remove from favorites' : 'Mark as favorite'}
+					</button>
+				</li>
+				<li role="menuitem">
+					<button
+						type="button"
+						class="text-error"
+						onclick={() =>
+							onDeleteBookmark?.({
+								id: bookmark.id,
+								title: bookmark.title ?? null,
+								faviconUrl: bookmark.faviconUrl
+							})}
+					>
+						<span class="icon-[ri--delete-bin-line]"></span>
+						Delete
+					</button>
+				</li>
+			</ul>
 		{/if}
 	</div>
 </li>

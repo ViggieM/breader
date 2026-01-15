@@ -244,64 +244,58 @@
 					<TagMenuBookmark {bookmark} {onEditBookmark} {onDeleteBookmark} />
 				{/each}
 			</ul>
+
 			{#if isOpen}
-				<div class="dropdown dropdown-bottom dropdown-end absolute top-0 right-0">
-					<button
-						tabindex="0"
-						type="button"
-						class="btn btn-ghost btn-sm btn-square hover:bg-base-200"
-						aria-label="Tag options for {node.tag.name}"
-						aria-haspopup="menu"
-						onclick={(e) => {
-							e.preventDefault();
-							e.stopPropagation();
-						}}
-					>
-						<span class="icon-[ri--more-2-fill] size-4 shrink-0" aria-hidden="true"></span>
-					</button>
-					<ul
-						role="menu"
-						tabindex="-1"
-						class="dropdown-content menu bg-base-100 rounded-box z-[1] w-42 p-2 shadow-lg mt-1"
-					>
-						<li role="menuitem">
-							<a href={resolve(`/list/${node.tag.id}`)}>
-								<span class="icon-[ri--list-check]"></span>
-								View List
-							</a>
-						</li>
-						<li role="menuitem">
-							<button
-								type="button"
-								onclick={() =>
-									onEditTag?.({
-										id: node.tag.id,
-										name: node.tag.name,
-										parentId: node.tag.parentId,
-										childrenCount: node.children.length
-									})}
-							>
-								<span class="icon-[ri--edit-line]"></span>
-								Edit
-							</button>
-						</li>
-						<li role="menuitem">
-							<button
-								type="button"
-								onclick={() =>
-									onDeleteTag?.({
-										id: node.tag.id,
-										name: node.tag.name,
-										parentId: node.tag.parentId,
-										childrenCount: node.children.length
-									})}
-							>
-								<span class="icon-[ri--delete-bin-line]"></span>
-								Delete
-							</button>
-						</li>
-					</ul>
-				</div>
+				<button
+					class="btn btn-ghost btn-sm btn-square hover:bg-base-200 absolute top-0 right-0"
+					popovertarget="tag-menu-popover-{node.tag.id}"
+					style="anchor-name:--anchor-{node.tag.id}"
+				>
+					<span class="icon-[ri--more-2-fill] size-4 shrink-0" aria-hidden="true"></span>
+				</button>
+				<ul
+					class="dropdown menu w-52 rounded-box bg-base-100 shadow-sm -mr-8"
+					popover
+					id="tag-menu-popover-{node.tag.id}"
+					style="position-anchor:--anchor-{node.tag.id}; inset: auto; position-area: bottom left; "
+				>
+					<li role="menuitem">
+						<a href={resolve(`/list/${node.tag.id}`)}>
+							<span class="icon-[ri--list-check]"></span>
+							View List
+						</a>
+					</li>
+					<li role="menuitem">
+						<button
+							type="button"
+							onclick={() =>
+								onEditTag?.({
+									id: node.tag.id,
+									name: node.tag.name,
+									parentId: node.tag.parentId,
+									childrenCount: node.children.length
+								})}
+						>
+							<span class="icon-[ri--edit-line]"></span>
+							Edit
+						</button>
+					</li>
+					<li role="menuitem">
+						<button
+							type="button"
+							onclick={() =>
+								onDeleteTag?.({
+									id: node.tag.id,
+									name: node.tag.name,
+									parentId: node.tag.parentId,
+									childrenCount: node.children.length
+								})}
+						>
+							<span class="icon-[ri--delete-bin-line]"></span>
+							Delete
+						</button>
+					</li>
+				</ul>
 			{/if}
 		</details>
 	</li>
