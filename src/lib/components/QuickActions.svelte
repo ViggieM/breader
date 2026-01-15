@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { db } from '$lib/db';
+	import OvertypeEditor from './OvertypeEditor.svelte';
 	import TagForm from './TagForm.svelte';
 
 	interface Props {
@@ -74,7 +75,7 @@
 	</ul>
 </div>
 
-<dialog bind:this={addNoteDialog} class="modal">
+<dialog bind:this={addNoteDialog} class="modal modal-top md:modal-middle">
 	<div class="modal-box">
 		<form method="dialog">
 			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
@@ -83,22 +84,20 @@
 		<h3 class="text-lg font-bold">Add a new Note</h3>
 		<form bind:this={addNoteForm} id="add-note-form" class="mt-4" onsubmit={handleAddNote}>
 			<div class="form-group space-y-4">
-				<label class="input input-bordered flex items-center gap-2">
-					<input
-						bind:value={noteTitle}
-						name="title"
-						type="text"
-						placeholder="Note title (optional)"
-						class="grow"
-					/>
-				</label>
-				<textarea
-					bind:value={noteText}
-					name="text"
-					placeholder="Write your note here..."
-					required
-					class="textarea textarea-bordered w-full min-h-[150px]"
-				></textarea>
+				<input
+					bind:value={noteTitle}
+					name="title"
+					type="text"
+					placeholder="Title (optional)"
+					class="w-full outline-0 ring-0"
+				/>
+				<OvertypeEditor bind:content={noteText} class="border-b border-base-300 mb-1" />
+				<p class="text-xs text-base-content/60 mb-2">
+					You can use <a href="https://www.markdownguide.org/getting-started/" class="link"
+						>Markdown</a
+					>
+					for editing notes
+				</p>
 			</div>
 		</form>
 		<div class="mt-4 text-right">
@@ -118,7 +117,7 @@
 	</div>
 </dialog>
 
-<dialog bind:this={addTagDialog} class="modal">
+<dialog bind:this={addTagDialog} class="modal modal-top md:modal-middle">
 	<div class="modal-box">
 		<form method="dialog">
 			<button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">✕</button>
