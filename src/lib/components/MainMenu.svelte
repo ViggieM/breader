@@ -4,6 +4,7 @@
 	import { page } from '$app/state';
 	import { installPWA, canInstall } from '$lib/stores/installPWA.svelte.js';
 	import ThemeSelector from '$lib/components/ThemeSelector.svelte';
+	import ImportBookmarks from './ImportBookmarks.svelte';
 
 	let props = $props();
 	let session = $derived(page.data.session);
@@ -42,6 +43,9 @@
 						themeDialog.showModal();
 					}}>Change Theme <span class="icon-[ri--sparkling-2-fill]"></span></button
 				>
+			</li>
+			<li>
+				<ImportBookmarks />
 			</li>
 			{#if !session}
 				<li>
