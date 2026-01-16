@@ -294,7 +294,7 @@ export async function importBookmarksToDatabase(
 	try {
 		await db.bookmarks.bulkAdd(bookmarkDataArray as BookmarkData[], { allKeys: true });
 		result.successCount = bookmarkDataArray.length;
-	} catch (error) {
+	} catch {
 		// Bulk insert failed, fall back to individual inserts
 		for (let i = 0; i < bookmarkDataArray.length; i++) {
 			const bookmarkData = bookmarkDataArray[i];

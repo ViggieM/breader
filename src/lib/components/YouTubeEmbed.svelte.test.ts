@@ -10,7 +10,7 @@ describe('YouTubeEmbed', () => {
 	it('should render iframe element', async () => {
 		render(YouTubeEmbed, { videoId: 'dQw4w9WgXcQ' });
 
-		const iframe = page.getByRole('img'); // iframe elements are exposed as 'img' role in accessibility tree
+		const iframe = page.getByTitle('YouTube video');
 		await expect.element(iframe).toBeInTheDocument();
 	});
 });

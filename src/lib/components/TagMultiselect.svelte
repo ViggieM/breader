@@ -66,7 +66,6 @@
 
 <div class="flex gap-2 items-center">
 	<span class="icon-[ri--price-tag-3-fill] text-primary shrink-0"></span>
-	<!-- Note: allowUserOptions uses "true" string instead of boolean - works at runtime but causes type error -->
 	<MultiSelect
 		outerDivClass="h-auto w-full grow"
 		ulOptionsClass="!p-2 flex gap-2 flex-wrap !mt-3"
@@ -74,7 +73,7 @@
 		liActiveOptionClass="badge badge-soft badge-primary"
 		liSelectedClass="badge badge-primary"
 		liUserMsgClass="text-xs"
-		{...{ allowUserOptions: "true" }}
+		allowUserOptions={true}
 		placeholder="No tags selected"
 		selectedOptionsDraggable={false}
 		closeDropdownOnSelect={false}

@@ -187,6 +187,7 @@
 				class="btn btn-ghost btn-sm btn-square hover:bg-base-200 absolute top-0 right-0"
 				popovertarget="bookmark-menu-popover-{bookmark.id}"
 				style="anchor-name:--anchor-{bookmark.id}"
+				aria-label="Bookmark options menu"
 			>
 				<span class="icon-[ri--more-2-fill] size-4 shrink-0" aria-hidden="true"></span>
 			</button>
