@@ -161,7 +161,6 @@
 
 <style>
 	details[open] {
-		margin-bottom: 2rem;
 		.note-created-date {
 			display: none;
 		}

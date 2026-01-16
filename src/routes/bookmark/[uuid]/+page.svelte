@@ -17,7 +17,7 @@
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
-	import { formatDate, formatDateAndTime } from '$lib';
+	import { formatDateAndTime } from '$lib';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { toastSuccess, toastError, toastWarning } from '$lib/stores/notifications.svelte';
@@ -63,7 +63,6 @@
 
 	let hasUnsavedChanges = $state(false);
 	let saving = $state(false);
-	let copied = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
 	let disabled = $derived(saving);
 	let deleteDialog = $state() as HTMLDialogElement;
@@ -382,28 +381,45 @@
 		</header>
 
 		<dl class="space-y-4 mb-4">
-			<div>
+			<div class="relative">
 				<TagMultiselect
 					bind:selectedTags
 					onAdd={checkForChanges}
 					onRemove={checkForChanges}
 					onRemoveAll={checkForChanges}
 				></TagMultiselect>
+
+				{#if hasUnsavedChanges}
+					<div class="mt-4 w-full">
+						<div class="form-actions flex gap-2 w-full">
+							<button
+								type="button"
+								disabled={saving}
+								onclick={saveChanges}
+								class="btn btn-sm btn-success flex-1"
+								aria-label={saving ? 'Saving...' : 'Save Changes'}
+							>
+								<span class="icon-[ri--check-fill]"></span>
+								{saving ? 'Saving...' : 'Save Changes'}
+							</button>
+							<button type="button" onclick={cancelChanges} class="btn btn-sm btn-error flex-1">
+								<span class="icon-[ri--close-fill]"></span>
+								Cancel
+							</button>
+						</div>
+					</div>
+				{/if}
 			</div>
 		</dl>
 
-		<div role="menu" class="mt-2 grid grid-cols-5 gap-2 text-base-content">
-			<button role="menuitem" class="btn btn-sm" onclick={addNote} draggable="false">
-				<span class="icon-[ri--add-fill]" aria-hidden="true"></span>
-				<span class="text-xs">Add Note</span>
-			</button>
+		<div role="menu" class="mt-8 grid grid-cols-3 gap-2 text-base-content">
 			<button
 				role="menuitem"
 				class={['btn btn-sm', infoOpen && 'btn btn-primary btn-sm']}
 				onclick={handleInfo}
 				draggable="false"
 			>
-				<span class="icon-[ri--information-2-line] size-4" aria-hidden="true"></span>
+				<span class="icon-[ri--information-2-line] shrink-0" aria-hidden="true"></span>
 				<span class="text-xs">Info</span>
 			</button>
 			<button
@@ -415,25 +431,15 @@
 			>
 				<span
 					class={shareSuccess
-						? 'icon-[ri--check-line] size-4'
-						: 'icon-[ri--share-forward-line] size-4'}
+						? 'icon-[ri--check-line] shrink-0'
+						: 'icon-[ri--share-forward-line] shrink-0'}
 					aria-hidden="true"
 				></span>
 				<span class="text-xs">{shareSuccess ? 'Copied URL' : 'Share'}</span>
 			</button>
 			<button role="menuitem" class="btn btn-sm" onclick={handleOpen} draggable="false">
-				<span class="icon-[ri--external-link-line] size-4" aria-hidden="true"></span>
+				<span class="icon-[ri--external-link-line] shrink-0" aria-hidden="true"></span>
 				<span class="text-xs">Open</span>
-			</button>
-			<button
-				role="menuitem"
-				class="btn btn-sm"
-				onclick={handleSaveOffline}
-				draggable="false"
-				disabled
-			>
-				<span class="icon-[ri--download-2-line] size-4" aria-hidden="true"></span>
-				<span class="text-xs">Save offline</span>
 			</button>
 		</div>
 
@@ -480,34 +486,38 @@
 	</div>
 
 	<!-- Notes section -->
-	<section class="mt-8">
-		<ul class="space-y-1">
-			{#each sortedNotes as note (note.id)}
-				<li><Note {note} onSave={saveNote} onDelete={deleteNote} /></li>
-			{/each}
-		</ul>
+	<section class="mt-6">
+		{#if sortedNotes.length == 0}
+			<p class="p-2 bg-base-200 text-sm italic text-center">No notes</p>
+		{:else}
+			<ul class="space-y-1">
+				{#each sortedNotes as note (note.id)}
+					<li><Note {note} onSave={saveNote} onDelete={deleteNote} /></li>
+				{/each}
+			</ul>
+		{/if}
+
+		<div class="mt-2">
+			<button role="menuitem" class="btn btn-sm btn-ghost" onclick={addNote} draggable="false">
+				<span class="icon-[ri--add-fill]" aria-hidden="true"></span>
+				<span class="text-xs">Note</span>
+			</button>
+		</div>
 	</section>
 
-	{#if hasUnsavedChanges}
-		<div
-			class="sticky left-0 bottom-0 mt-auto md:mt-4 pt-2 md:static bg-base-100 border-t border-base-300 md:border-0"
-			style="padding-bottom: max(0.5rem, env(safe-area-inset-bottom));"
+	<!-- Offline -->
+	<div class="h-full flex items-end py-4">
+		<button
+			role="menuitem"
+			class="btn btn-sm w-full"
+			onclick={handleSaveOffline}
+			draggable="false"
+			disabled
 		>
-			<div class="form-actions flex gap-2">
-				<button type="button" onclick={cancelChanges} class="btn btn-error flex-1 md:flex-none">
-					Cancel
-				</button>
-				<button
-					type="button"
-					disabled={saving}
-					onclick={saveChanges}
-					class="btn btn-success flex-1 md:flex-none"
-				>
-					{saving ? 'Saving...' : 'Save Changes'}
-				</button>
-			</div>
-		</div>
-	{/if}
+			<span class="icon-[ri--download-2-line] shrink-0" aria-hidden="true"></span>
+			<span class="text-xs">Save offline</span>
+		</button>
+	</div>
 </main>
 
 <dialog bind:this={deleteDialog} class="modal">
