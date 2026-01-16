@@ -77,7 +77,7 @@ db.version(8).stores({
 db.on('populate', (tx: Transaction) => {
 	const now = new Date();
 	tx.table('bookmarks').add({
-		id: 'what-is-breader',
+		id: 'bkm-what-is-breader',
 		title: 'What is Breader?',
 		url: 'https://breader.app/help/what-is-breader',
 		tags: [],
@@ -86,7 +86,7 @@ db.on('populate', (tx: Transaction) => {
 		isStarred: true
 	});
 	tx.table('bookmarks').add({
-		id: 'how-to-use',
+		id: 'bkm-how-to-use',
 		title: 'How to use Breader',
 		url: 'https://breader.app/help/how-to-use',
 		tags: [],
@@ -95,7 +95,7 @@ db.on('populate', (tx: Transaction) => {
 		isStarred: false
 	});
 	tx.table('bookmarks').add({
-		id: 'import-bookmarks',
+		id: 'bkm-import-bookmarks',
 		title: 'How to Import Bookmarks',
 		url: 'https://breader.app/help/import-bookmarks',
 		tags: [],
