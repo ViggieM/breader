@@ -1,10 +1,11 @@
+<!-- ABOUTME: Component for importing bookmarks from browser HTML exports -->
+<!-- ABOUTME: Displays file input with DaisyUI styling and import results -->
 <script lang="ts">
 	import { processBookmarkImport, type ImportResult } from '$lib/utils/import';
 	import { toastSuccess, toastError, toastInfo } from '$lib/stores/notifications.svelte';
 
 	let importing = $state(false);
 	let result = $state<ImportResult | null>(null);
-	let fileInput: HTMLInputElement;
 
 	async function handleSelectBookmarksHTML(evt: Event) {
 		const target = evt.target as HTMLInputElement;
@@ -46,22 +47,53 @@
 	}
 </script>
 
-<input
-	bind:this={fileInput}
-	type="file"
-	class="hidden"
-	name="import-bookmarks"
-	id="import-bookmarks"
-	accept=".html"
-	disabled={importing}
-	aria-label="Import bookmarks HTML file"
-	onchange={handleSelectBookmarksHTML}
-/>
+<div class="my-8 p-6 bg-base-200 rounded-box not-prose">
+	<h2 class="text-lg font-bold mb-4">Import your bookmarks file</h2>
+	<p class="text-sm opacity-70 mb-4">
+		Once you have exported your bookmarks as an HTML file, select it below.
+	</p>
 
-<label for="import-bookmarks" class="flex justify-between cursor-pointer">
+	<label class="form-control w-full max-w-xs">
+		<div class="label">
+			<span class="label-text">Select bookmarks HTML file</span>
+		</div>
+		<input
+			type="file"
+			class="file-input file-input-bordered w-full max-w-xs"
+			accept=".html"
+			disabled={importing}
+			aria-label="Import bookmarks HTML file"
+			onchange={handleSelectBookmarksHTML}
+		/>
+	</label>
+
 	{#if importing}
-		<span class="text-sm">Importing bookmarks...</span>
-	{:else}
-		Import Bookmarks <span class="icon-[ri--download-2-line]"></span>
+		<div class="mt-4 flex items-center gap-2">
+			<span class="loading loading-spinner loading-sm"></span>
+			<span>Importing bookmarks...</span>
+		</div>
 	{/if}
-</label>
+
+	{#if result}
+		<div class="mt-4 space-y-2">
+			{#if result.successCount > 0}
+				<div class="alert alert-success">
+					<span class="icon-[ri--check-line]"></span>
+					<span>Successfully imported {result.successCount} bookmark(s)</span>
+				</div>
+			{/if}
+			{#if result.skippedCount > 0}
+				<div class="alert alert-info">
+					<span class="icon-[ri--information-line]"></span>
+					<span>Skipped {result.skippedCount} duplicate(s)</span>
+				</div>
+			{/if}
+			{#if result.errors.length > 0}
+				<div class="alert alert-error">
+					<span class="icon-[ri--error-warning-line]"></span>
+					<span>Failed to import {result.errors.length} bookmark(s)</span>
+				</div>
+			{/if}
+		</div>
+	{/if}
+</div>

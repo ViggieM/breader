@@ -4,7 +4,6 @@
 	import { page } from '$app/state';
 	import { installPWA, canInstall } from '$lib/stores/installPWA.svelte.js';
 	import ThemeSelector from '$lib/components/ThemeSelector.svelte';
-	import ImportBookmarks from './ImportBookmarks.svelte';
 
 	let props = $props();
 	let session = $derived(page.data.session);
@@ -48,9 +47,6 @@
 				<a href={resolve('/help')} class="flex justify-between"
 					>Help <span class="icon-[ri--question-line]"></span></a
 				>
-			</li>
-			<li>
-				<ImportBookmarks />
 			</li>
 			{#if !session}
 				<li>

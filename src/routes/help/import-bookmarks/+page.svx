@@ -2,13 +2,17 @@
 title: How to Import Bookmarks
 ---
 
+<script>
+	import ImportBookmarks from '$lib/components/ImportBookmarks.svelte';
+</script>
+
 # { title }
 
 You can import your existing bookmarks from your browser into Breader.
 For this, you need to export them first.
 This depends on your browser (see below).
 
-As soon as you have the exported html with your bookmarks, you can import it using the Import Bookmarks function in the navigation menu.
+<ImportBookmarks />
 
 ## How to export your existing bookmarks
 
