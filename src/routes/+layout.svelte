@@ -11,7 +11,8 @@
 	import { resolve } from '$app/paths';
 
 	let { children, data } = $props();
-	let { session, supabase } = data;
+	let session = $derived(data.session);
+	let supabase = $derived(data.supabase);
 
 	$effect(() => {
 		initializeTheme();

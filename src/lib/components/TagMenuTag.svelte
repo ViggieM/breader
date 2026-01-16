@@ -43,7 +43,7 @@
 		hideTagsWithoutBookmarks = $bindable()
 	}: Props = $props();
 
-	// Persistent expand/collapse state
+	// Persistent expand/collapse state (intentional one-time capture for localStorage key)
 	const storageKey = `navigation-expanded-${node.tag.id}`;
 	let isOpen = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();

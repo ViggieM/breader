@@ -15,7 +15,7 @@
 	// Props
 	let { bookmarkId }: BookmarkNotesProps = $props();
 
-	// Store initialization
+	// Store initialization (intentional one-time capture for store creation)
 	const notesStore = createBookmarkNotesStore(bookmarkId);
 	let notes = $derived($notesStore);
 	let sortedNotes = $derived([...notes].sort((a, b) => b.created.localeCompare(a.created)));

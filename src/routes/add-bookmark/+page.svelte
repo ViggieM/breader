@@ -12,6 +12,7 @@
 
 	const { data }: PageProps = $props();
 
+	// Initialize form state from props (intentional one-time capture)
 	let url = $state(data.articleData.url || '');
 	let selectedTags = $state([]) as ObjectOption[];
 	let saving = $state(false);

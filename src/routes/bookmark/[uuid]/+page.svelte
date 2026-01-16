@@ -25,10 +25,11 @@
 
 	const { data } = $props();
 
-	// Live updates from Dexie
+	// Live updates from Dexie (intentional one-time store initialization)
 	const liveData = getBookmark(data.uuid);
 
-	// Start with loaded data, then update from live query
+	// Start with loaded data, then update from live query (synced via $effect below)
+	// Initial values captured from props, kept in sync via $effect
 	let bookmark = $state(data.bookmark) as Bookmark;
 	let status = $state(data.bookmark.status);
 	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];

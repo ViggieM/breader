@@ -13,7 +13,7 @@
 
 	let { note, onSave, onDelete }: NoteProps = $props();
 
-	// Local reactive state for editing - this makes text and title changes reactive!
+	// Local reactive state for editing (intentional one-time capture, synced via $effect below)
 	let text = $state(note.text);
 	let originalText = $state(note.text);
 	let title = $state(note.title || '');

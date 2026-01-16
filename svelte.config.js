@@ -14,7 +14,14 @@ const config = {
 			register: false
 		}
 	},
-	extensions: ['.svelte', '.svx']
+	extensions: ['.svelte', '.svx'],
+	// Filter out informational warnings for intentional one-time prop captures
+	onwarn: (warning, handler) => {
+		// Suppress state_referenced_locally warnings - these are intentional patterns
+		// for form initialization where we capture initial prop values
+		if (warning.code === 'state_referenced_locally') return;
+		handler(warning);
+	}
 };
 
 export default config;

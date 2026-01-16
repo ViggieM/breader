@@ -4,7 +4,7 @@
 	import { enhance } from '$app/forms';
 
 	let { data } = $props();
-	let { session } = data;
+	let session = $derived(data.session);
 
 	let loading = $state(false);
 

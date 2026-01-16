@@ -16,5 +16,6 @@
 @plugin "@iconify/tailwind4";
 @plugin "daisyui" {
 	themes: all;
+	exclude: properties; /* https://github.com/saadeghi/daisyui/issues/3882#issuecomment-3382480890 */
 }
 @plugin "@tailwindcss/typography";

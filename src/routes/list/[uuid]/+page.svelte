@@ -18,7 +18,7 @@
 	import TagMenu from '$lib/components/TagMenu.svelte';
 
 	const { data } = $props();
-	let tag: Tag = $state(data.tag);
+	let tag: Tag = $derived(data.tag);
 
 	// Filter bookmarks by tag and descendants
 	const tagBookmarks = derived([bookmarksData, descendantMap], ([$bookmarks, $descendantMap]) => {
