@@ -73,6 +73,6 @@
 	/>
 </main>
 
-<div class="fixed right-4 bottom-4 md:hidden">
-	<QuickActions class="btn btn-primary rounded-full size-12" />
+<div class="fixed right-6 bottom-6 md:hidden">
+	<QuickActions class="btn btn-primary rounded-full size-12  shadow-xl" />
 </div>
