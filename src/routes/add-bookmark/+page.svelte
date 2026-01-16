@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { createBookmark } from '$lib/db/bookmarks';
@@ -13,7 +14,7 @@
 	const { data }: PageProps = $props();
 
 	// Initialize form state from props (intentional one-time capture)
-	let url = $state(data.articleData.url || '');
+	let url = $state(untrack(() => data.articleData.url || ''));
 	let selectedTags = $state([]) as ObjectOption[];
 	let saving = $state(false);
 	let status = $state(BookmarkStatus.WANT_TO_READ) as BookmarkStatus;

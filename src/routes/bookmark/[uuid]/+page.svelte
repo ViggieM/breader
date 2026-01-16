@@ -21,19 +21,21 @@
 	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 	import { parseYouTubeUrl } from '$lib/utils/youtube';
 	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte';
-	import { tick } from 'svelte';
+	import { tick, untrack } from 'svelte';
 
 	const { data } = $props();
 
 	// Live updates from Dexie (intentional one-time store initialization)
-	const liveData = getBookmark(data.uuid);
+	const liveData = getBookmark(untrack(() => data.uuid));
 
 	// Start with loaded data, then update from live query (synced via $effect below)
 	// Initial values captured from props, kept in sync via $effect
-	let bookmark = $state(data.bookmark) as Bookmark;
-	let status = $state(data.bookmark.status);
-	let selectedTags = $state(tagIdsToOptions(data.bookmark.tags, $tagMap)) as ObjectOption[];
-	let url = $state(data.bookmark.url);
+	let bookmark = $state(untrack(() => data.bookmark)) as Bookmark;
+	let status = $state(untrack(() => data.bookmark.status));
+	let selectedTags = $state(
+		untrack(() => tagIdsToOptions(data.bookmark.tags, $tagMap))
+	) as ObjectOption[];
+	let url = $state(untrack(() => data.bookmark.url));
 
 	// Edit title dialog state
 	let editTitleDialog = $state() as HTMLDialogElement;

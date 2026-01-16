@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import type { PageProps } from './$types';
 	import { createBookmark } from '$lib/db/bookmarks';
 	import { getFavicon } from '$lib/utils/favicon';
@@ -14,8 +15,8 @@
 	let selectedTags = $state([]) as ObjectOption[];
 	let saving = $state(false);
 	// Initialize form state from props (intentional one-time capture)
-	let title = $state(data.articleData.title || '');
-	let url = $state(data.articleData.url || '');
+	let title = $state(untrack(() => data.articleData.title || ''));
+	let url = $state(untrack(() => data.articleData.url || ''));
 	let status = $state(BookmarkStatus.WANT_TO_READ) as BookmarkStatus;
 	let disabled = $derived(saving || !url);
 

@@ -1,6 +1,7 @@
 <!-- ABOUTME: Individual note component with local reactive state for editing -->
 <!-- ABOUTME: Handles save/cancel/delete operations with proper reactivity tracking -->
 <script lang="ts">
+	import { untrack } from 'svelte';
 	import { formatDateAndTime } from '$lib';
 	import type { Note } from '$lib/types';
 	import OvertypeEditor from './OvertypeEditor.svelte';
@@ -14,10 +15,10 @@
 	let { note, onSave, onDelete }: NoteProps = $props();
 
 	// Local reactive state for editing (intentional one-time capture, synced via $effect below)
-	let text = $state(note.text);
-	let originalText = $state(note.text);
-	let title = $state(note.title || '');
-	let originalTitle = $state(note.title || '');
+	let text = $state(untrack(() => note.text));
+	let originalText = $state(untrack(() => note.text));
+	let title = $state(untrack(() => note.title || ''));
+	let originalTitle = $state(untrack(() => note.title || ''));
 
 	// Derived: has the note been edited?
 	let hasChanges = $derived(text !== originalText || title !== originalTitle);

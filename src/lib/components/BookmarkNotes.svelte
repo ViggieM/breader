@@ -1,7 +1,7 @@
 <!-- ABOUTME: Component for managing notes associated with a specific bookmark -->
 <!-- ABOUTME: Uses Dexie liveQuery and derived stores for reactive database access -->
 <script lang="ts">
-	import { tick } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import Note from '$lib/components/Note.svelte';
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
@@ -16,7 +16,7 @@
 	let { bookmarkId }: BookmarkNotesProps = $props();
 
 	// Store initialization (intentional one-time capture for store creation)
-	const notesStore = createBookmarkNotesStore(bookmarkId);
+	const notesStore = createBookmarkNotesStore(untrack(() => bookmarkId));
 	let notes = $derived($notesStore);
 	let sortedNotes = $derived([...notes].sort((a, b) => b.created.localeCompare(a.created)));
 

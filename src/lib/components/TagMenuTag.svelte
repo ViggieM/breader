@@ -4,7 +4,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import type { TagNode } from '$lib/stores/tags.svelte';
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import TagMenuTag from './TagMenuTag.svelte';
 	import TagMenuBookmark from './TagMenuBookmark.svelte';
 	import { db } from '$lib/db';
@@ -44,7 +44,7 @@
 	}: Props = $props();
 
 	// Persistent expand/collapse state (intentional one-time capture for localStorage key)
-	const storageKey = `navigation-expanded-${node.tag.id}`;
+	const storageKey = untrack(() => `navigation-expanded-${node.tag.id}`);
 	let isOpen = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
 
