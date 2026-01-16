@@ -1,4 +1,4 @@
-import Dexie, { type EntityTable } from 'dexie';
+import Dexie, { type EntityTable, type Transaction } from 'dexie';
 import type { BookmarkData, TagData } from '$lib/types';
 import dexieCloud from 'dexie-cloud-addon';
 import { PUBLIC_DEXIE_CLOUD_DB_URL } from '$env/static/public';
@@ -73,3 +73,35 @@ db.version(8).stores({
 	tags: '@id, parentId, name, order',
 	notes: '@id, *bookmarks, created, modified, title' // Add title field to notes
 });
+
+db.on('populate', (tx: Transaction) => {
+	const now = new Date();
+	tx.table('bookmarks').add({
+		id: 'what-is-breader',
+		title: 'What is Breader?',
+		url: 'https://breader.app/pages/what-is-breader',
+		tags: [],
+		created: new Date(now).toISOString(),
+		status: 3, // WANT_TO_READ
+		isStarred: true
+	});
+	tx.table('bookmarks').add({
+		id: 'how-to-use',
+		title: 'How to use Breader',
+		url: 'https://breader.app/pages/how-to-use',
+		tags: [],
+		created: new Date(Number(now) - 1).toISOString(),
+		status: 3, // WANT_TO_READ
+		isStarred: false
+	});
+	tx.table('bookmarks').add({
+		id: 'import-bookmarks',
+		title: 'How to Import Bookmarks',
+		url: 'https://breader.app/pages/import-bookmarks',
+		tags: [],
+		created: new Date(Number(now) - 2).toISOString(),
+		status: 3, // WANT_TO_READ
+		isStarred: false
+	});
+});
+db.open();

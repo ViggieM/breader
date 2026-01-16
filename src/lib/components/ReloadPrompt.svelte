@@ -47,14 +47,16 @@
 					<span>New content available, click on reload button to update.</span>
 				{/if}
 				<div class="mt-2 text-right">
-					<button
-						class="btn btn-sm btn-warning"
-						onclick={() => {
-							updateServiceWorker(true);
-						}}
-					>
-						Reload
-					</button>
+					{#if !$offlineReady}
+						<button
+							class="btn btn-sm btn-warning"
+							onclick={() => {
+								updateServiceWorker(true);
+							}}
+						>
+							Reload
+						</button>
+					{/if}
 					<button class="btn btn-sm btn-warning" onclick={close}> Close </button>
 				</div>
 			</div>

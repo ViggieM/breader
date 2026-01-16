@@ -1,0 +1,61 @@
+---
+title: What is Breader?
+---
+
+# { title }
+
+"Breader" stands for "Web Reader", as "Blog" stands for "Web Log".
+Breader is basically a **bookmarking app**, slim and without big cards for each bookmark, like other bookmarking apps.
+It is meant to easily add something to your reading list, while browsing the web, to read later, either via the extension, or by sending it to the installed mobile application.
+
+## Philosophy
+
+Bookmarks are like files that can be placed in folders, where the folders are the tags.
+A bookmark can have multiple tags, so it will appear under every tag.
+Tags have a hierarchy, and you can create nested structures by dragging a tag onto another tag.
+
+As long as you don't sync across devices, your data stays private and is stored locally in your browser (in the IndexDB to be precise).
+With the web extension you can add bookmarks to your reading list while browsing.
+On your phone, you can install it as a progressive web app (PWA), and share URLs you would like to save to the app.
+
+## Key Features
+
+- **Organize with tags**: Create a hierarchical tag structure by dragging tags onto other tags. Each bookmark can have multiple tags.
+- **Reading statuses**: Mark bookmarks as "Want to Read", "Reading", "Read", or "Archived" to track your progress.
+- **Notes**: Attach notes to your bookmarks to remember key insights or add context.
+- **Search**: Use fuzzy search (Ctrl+K or Cmd+K) to quickly find bookmarks by title, tags, or keywords.
+- **Star favorites**: Mark important bookmarks as favorites for quick access.
+- **Browser extension**: Save bookmarks while browsing with Ctrl+. or right-click menu.
+
+## Sync across devices
+
+Breader uses DexieCloud for sync across devices.
+To enable sync, you need to log in with an email adress.
+You will get a **30 days trial** period, which only counts for days when you are actively using Breader.
+To upgrade to a full version you need to contact [info@breader.app](mailto:info@breader.app)
+
+
+
+## FAQs
+
+### Where is the data stored?
+
+All your data is stored locally on your computer (in the IndexDB).
+Since it is stored locally, it is also subject to deletion when clearing your browser cache data.
+
+### What happens if I clear my browser cache?
+
+If you clear your browser cache and specifically clear site data, your bookmarks will be deleted.
+To prevent data loss, you can either:
+- Enable sync with DexieCloud to back up your data across devices
+- Export your bookmarks regularly
+
+### Which browsers are supported?
+
+Breader works in all modern browsers that support IndexedDB and service workers (Chrome, Firefox, Safari, Edge).
+The browser extension is available for Chrome and Firefox.
+
+### Can I use Breader on mobile?
+
+Yes! You can install Breader as a Progressive Web App (PWA) on your phone.
+Once installed, you can share links from your mobile browser directly to Breader.

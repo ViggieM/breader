@@ -1,0 +1,78 @@
+---
+title: How to use Breader
+---
+
+# { title }
+
+Bookmarks can be added to Breader in three ways:
+- With the "+" button next to the search bar or at the bottom right corner (on mobile)
+- With the web extension
+- By sharing links to it on your mobile phone
+
+You can also import your existing bookmarks from your browser. For more information, see [How to Import Bookmarks](/pages/import-bookmarks).
+
+## Web extension
+
+<p>
+    With
+    <span class="flex-inline gap-1 items-center">
+    <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">.</kbd>
+    </span>
+    you can save bookmarks while browsing any website.
+</p>
+
+You can also right-click on any page and select "Save to Breader" from the context menu.
+
+The extension is available for Chrome and Firefox browsers.
+
+## PWA (Mobile)
+
+You can install Breader as a Progressive Web App on your mobile device:
+
+1. Open Breader in your mobile browser
+2. Look for the "Install" or "Add to Home Screen" option in your browser menu
+3. Follow the prompts to install
+
+Once installed, you can share links from any mobile app directly to Breader using your phone's share menu.
+
+## Organizing Bookmarks
+
+**Tags**: Click on a bookmark to add tags or drag and drop it on a tag. Tags help you organize your bookmarks into categories.
+
+**Tag Hierarchy**: Drag and drop a tag onto another tag to create nested structures (like folders within folders).
+
+**Multiple Tags**: Each bookmark can have multiple tags and will appear under all of them.
+
+## Reading Statuses
+
+Each bookmark can have one of four statuses:
+
+- **Want to Read**: Bookmarks you plan to read later (default for new bookmarks)
+- **Reading**: Bookmarks you're currently reading
+- **Read**: Bookmarks you've finished reading
+- **Archived**: Bookmarks you want to keep but remove from active lists
+
+Click on a bookmark to change its status.
+
+## Search
+
+Press <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">K</kbd> (or <kbd class="kbd">Cmd</kbd> + <kbd class="kbd">K</kbd> on Mac) to focus the search bar.
+
+The search finds bookmarks by title, tags, and keywords using fuzzy matching - so you don't need to type the exact words.
+
+## Notes
+
+You can attach notes to any bookmark to save your thoughts, key insights, or context:
+
+1. Click on a bookmark to open its details
+2. Find the notes section
+3. Add or edit your notes
+4. Notes are saved automatically
+
+A single note can be attached to multiple bookmarks.
+
+## Starring
+
+Click the star icon on any bookmark to mark it as a favorite.
+
+Starred bookmarks can be quickly filtered in your library for easy access to your most important items.

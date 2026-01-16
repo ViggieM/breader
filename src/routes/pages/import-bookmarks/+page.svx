@@ -1,0 +1,36 @@
+---
+title: How to Import Bookmarks
+---
+
+# { title }
+
+You can import your existing bookmarks from your browser into Breader.
+For this, you need to export them first.
+This depends on your browser (see below).
+
+As soon as you have the exported html with your bookmarks, you can import it using the Import Bookmarks function in the navigation menu.
+
+## How to export your existing bookmarks
+
+### Chrome
+
+1. Open Chrome and click the three-dot menu (⋮) in the top right corner
+2. Go to **Bookmarks** → **Bookmark Manager**
+3. Click the three-dot menu (⋮) in the Bookmark Manager
+4. Select **Export bookmarks**
+5. Save the HTML file to your computer
+
+### Firefox
+
+1. Click the menu button (☰) and select **Bookmarks**
+2. Click **Manage bookmarks** at the bottom (or press Ctrl+Shift+O)
+3. In the Library window, click **Import and Backup**
+4. Select **Export Bookmarks to HTML**
+5. Save the HTML file to your computer
+
+### Safari
+
+1. Open Safari and click **File** in the menu bar
+2. Select **Export** → **Bookmarks**
+3. Choose a location to save the HTML file
+4. Click **Save**
