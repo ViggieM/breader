@@ -9,10 +9,12 @@
 		updateBookmarkUrl,
 		deleteBookmark
 	} from '$lib/db/bookmarks';
+	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
-	import BookmarkNotes from '$lib/components/BookmarkNotes.svelte';
+	import Note from '$lib/components/Note.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
+	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
 	import { processTagsForSave, tagIdsToOptions } from '$lib/utils/tags';
 	import { formatDate, formatDateAndTime } from '$lib';
@@ -36,6 +38,14 @@
 		untrack(() => tagIdsToOptions(data.bookmark.tags, $tagMap))
 	) as ObjectOption[];
 	let url = $state(untrack(() => data.bookmark.url));
+
+	// Notes store initialization (intentional one-time capture for store creation)
+	const notesStore = createBookmarkNotesStore(untrack(() => data.uuid));
+	let notes = $derived($notesStore);
+	let sortedNotes = $derived([...notes].sort((a, b) => b.created.localeCompare(a.created)));
+
+	// Track newly created notes for auto-opening and focusing
+	let newlyCreatedNoteId = $state<string | null>(null);
 
 	// Edit title dialog state
 	let editTitleDialog = $state() as HTMLDialogElement;
@@ -227,6 +237,65 @@
 	function handleInfo(): void {
 		infoOpen = !infoOpen;
 	}
+
+	// Note management functions
+	async function addNote() {
+		try {
+			const noteId = await createNote(bookmark.id, '');
+			toastSuccess('Note created');
+			newlyCreatedNoteId = noteId; // Track newly created note
+		} catch (error) {
+			toastError('Failed to create note');
+			console.error('Failed to create note:', error);
+		}
+	}
+
+	async function saveNote(noteId: string, newText: string, newTitle: string | null) {
+		try {
+			await updateNote(noteId, newText, newTitle);
+			toastSuccess('Note updated');
+		} catch (error) {
+			toastError('Failed to update note');
+			console.error('Failed to save note:', error);
+			throw error; // Re-throw so Note component can handle it
+		}
+	}
+
+	async function deleteNote(noteId: string) {
+		try {
+			await deleteNoteFromDb(noteId);
+			toastSuccess('Note deleted');
+		} catch (error) {
+			toastError('Failed to delete note');
+			console.error('Failed to delete note:', error);
+			throw error; // Re-throw so Note component can handle it
+		}
+	}
+
+	// Auto-open and focus newly created notes
+	$effect(() => {
+		// Check if we have a newly created note and it's been rendered
+		if (newlyCreatedNoteId && sortedNotes.some((n) => n.id === newlyCreatedNoteId)) {
+			tick().then(() => {
+				// Find the note's details element
+				const noteElement = document.getElementById(
+					`note-${newlyCreatedNoteId}`
+				) as HTMLDetailsElement;
+				if (noteElement) {
+					// Open the details element
+					noteElement.open = true;
+
+					// Focus the editor inside - try multiple selectors for the overtype editor
+					const editorDiv = noteElement.querySelector('[contenteditable], textarea, .ot-editor');
+					if (editorDiv instanceof HTMLElement) {
+						editorDiv.focus();
+					}
+				}
+				// Clear tracking to prevent repeated focus attempts
+				newlyCreatedNoteId = null;
+			});
+		}
+	});
 </script>
 
 <svelte:head>
@@ -324,7 +393,7 @@
 		</dl>
 
 		<div role="menu" class="mt-2 grid grid-cols-5 gap-2 text-base-content">
-			<button role="menuitem" class="btn btn-sm" onclick={handleShare} draggable="false">
+			<button role="menuitem" class="btn btn-sm" onclick={addNote} draggable="false">
 				<span class="icon-[ri--add-fill]" aria-hidden="true"></span>
 				<span class="text-xs">Add Note</span>
 			</button>
@@ -385,24 +454,39 @@
 							><label class="input input-xs input-ghost w-full p-0">
 								<input type="text" bind:value={url} class="flex-1 input-sm" />
 							</label>
-
-							{#if url !== bookmark.url}
-								<button
-									class="btn btn-xs btn-success mt-3"
-									type="button"
-									onclick={async () => {
-										await updateBookmarkUrl(bookmark.id, url);
-									}}>Save</button
-								>
-							{/if}
 						</td>
 					</tr>
 				</tbody>
 			</table>
+			{#if url !== bookmark.url}
+				<div class="flex gap-2 pb-2">
+					<button
+						class="btn btn-sm grow btn-success mt-3"
+						type="button"
+						onclick={async () => {
+							await updateBookmarkUrl(bookmark.id, url);
+						}}>Save</button
+					>
+					<button
+						class="btn btn-sm grow btn-error mt-3"
+						type="button"
+						onclick={() => {
+							url = bookmark.url;
+						}}>Cancel</button
+					>
+				</div>
+			{/if}
 		</div>
 	</div>
 
-	<BookmarkNotes bookmarkId={bookmark.id} />
+	<!-- Notes section -->
+	<section class="mt-8">
+		<ul class="space-y-1">
+			{#each sortedNotes as note (note.id)}
+				<li><Note {note} onSave={saveNote} onDelete={deleteNote} /></li>
+			{/each}
+		</ul>
+	</section>
 
 	{#if hasUnsavedChanges}
 		<div
@@ -530,10 +614,3 @@
 		</div>
 	</div>
 </dialog>
-
-<style>
-	.collapse-title:after {
-		left: 4rem;
-		top: 0.7rem;
-	}
-</style>

@@ -96,13 +96,13 @@ IMPORTANT: The dev server might already be running on port 3000. Use that one in
 - `src/lib/types/bookmark.ts` - Bookmark class and BookmarkData type definitions
 - `src/lib/stores/search.svelte.ts` - Search functionality with Fuse.js integration
 - `src/lib/stores/bookmarkNotes.svelte.ts` - Reactive store for bookmark notes
-- `src/lib/components/BookmarkNotes.svelte` - UI component for managing notes
+- `src/routes/bookmark/[uuid]/+page.svelte` - Bookmark detail page with notes management
 
 **Critical Architecture Notes**:
 
 - Dexie liveQuery observables must be converted to Svelte readable stores using `readable()` wrapper for compatibility with `derived()` stores
 - Search store uses derived stores pattern to automatically rebuild search index when bookmark data changes
-- BookmarkNotes component uses liveQuery wrapped in readable store for reactivity (see `bookmarkNotes.svelte.ts`)
+- Bookmark page uses liveQuery wrapped in readable store for notes reactivity (see `bookmarkNotes.svelte.ts`)
 - Notes are persisted to database immediately on save (no local state management)
 - Dexie auto-generates note IDs; temporary UUIDs are not persisted
 - Theme switching happens immediately via localStorage and DOM data-theme attribute

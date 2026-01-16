@@ -1,6 +1,6 @@
 html {
 	@apply scroll-smooth;
-	scrollbar-gutter: stable; /* Prevent layout shift */
+	scrollbar-gutter: stable !important; /* Prevent layout shift */
 
 	::selection {
 		@apply bg-secondary/50;
