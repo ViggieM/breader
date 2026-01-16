@@ -2,6 +2,6 @@
 	let { children } = $props();
 </script>
 
-<main class="settings">
+<main class="settings prose">
 	{@render children?.()}
 </main>

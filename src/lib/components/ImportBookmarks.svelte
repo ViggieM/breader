@@ -53,10 +53,8 @@
 		Once you have exported your bookmarks as an HTML file, select it below.
 	</p>
 
-	<label class="form-control w-full max-w-xs">
-		<div class="label">
-			<span class="label-text">Select bookmarks HTML file</span>
-		</div>
+	<fieldset class="fieldset">
+		<legend class="fieldset-legend">Select bookmarks HTML file</legend>
 		<input
 			type="file"
 			class="file-input file-input-bordered w-full max-w-xs"
@@ -65,7 +63,7 @@
 			aria-label="Import bookmarks HTML file"
 			onchange={handleSelectBookmarksHTML}
 		/>
-	</label>
+	</fieldset>
 
 	{#if importing}
 		<div class="mt-4 flex items-center gap-2">

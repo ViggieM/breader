@@ -20,7 +20,7 @@
 <h2>Account Details</h2>
 
 <p class="my-2">
-	Email: {session.user.email}
+	Logged in as <b>{session.user.email}</b>
 </p>
 
 <div class="flex gap-2">
@@ -29,8 +29,6 @@
 	</form>
 </div>
 
-<h2 class="mt-8">Settings</h2>
-
-<div class="mt-4">
+<div class="mt-8">
 	<a class="link link-accent text-sm" href={resolve('/')}>&larr; Back to your bookmarks</a>
 </div>
