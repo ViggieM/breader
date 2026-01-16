@@ -3,14 +3,17 @@
 	"name": "Breader",
 	"version": "1.0",
 	"description": "Save your bookmarks for reading later",
+	"homepage_url": "https://breader.app",
 	"icons": {
 		"16": "icon.png",
-		"48": "icon.png",
-		"128": "icon.png"
+		"48": "icons/icon-48.png",
+		"128": "icons/icon-128.png"
 	},
 	"background": {
-		"service_worker": "background.js"
+		"service_worker": "background.js",
+		"scripts": ["background.js"]
 	},
+	"options_page": "privacy.html",
 	"commands": {
 		"save-bookmark": {
 			"suggested_key": {
@@ -21,5 +24,13 @@
 		}
 	},
 	"permissions": ["activeTab", "contextMenus"],
-	"host_permissions": ["http://localhost:3000/*", "https://breader.app/*"]
+	"host_permissions": ["http://localhost:3000/*", "https://breader.app/*"],
+	"browser_specific_settings": {
+		"gecko": {
+			"data_collection_permissions": {
+				"required": ["none"],
+				"optional": []
+			}
+		}
+	}
 }

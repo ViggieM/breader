@@ -1,0 +1,631 @@
+<!doctype html>
+<!-- ABOUTME: Privacy policy page for the Breader browser extension -->
+<!-- ABOUTME: Accessible from browser extension settings (options_page) -->
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Privacy Policy - Breader</title>
+		<style>
+			:root {
+				--primary: #6366f1;
+				--text: #1f2937;
+				--text-muted: #6b7280;
+				--bg: #ffffff;
+				--bg-alt: #f9fafb;
+				--border: #e5e7eb;
+			}
+
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--primary: #818cf8;
+					--text: #f3f4f6;
+					--text-muted: #9ca3af;
+					--bg: #111827;
+					--bg-alt: #1f2937;
+					--border: #374151;
+				}
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family:
+					-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+				line-height: 1.6;
+				color: var(--text);
+				background-color: var(--bg);
+				padding: 2rem;
+				max-width: 800px;
+				margin: 0 auto;
+			}
+
+			h1 {
+				color: var(--primary);
+				font-size: 2rem;
+				margin-bottom: 0.5rem;
+			}
+
+			h2 {
+				color: var(--text);
+				font-size: 1.5rem;
+				margin-top: 2rem;
+				margin-bottom: 1rem;
+				padding-bottom: 0.5rem;
+				border-bottom: 1px solid var(--border);
+			}
+
+			h3 {
+				color: var(--text);
+				font-size: 1.1rem;
+				margin-top: 1.5rem;
+				margin-bottom: 0.5rem;
+			}
+
+			h4 {
+				color: var(--text-muted);
+				font-size: 1rem;
+				margin-top: 1rem;
+				margin-bottom: 0.5rem;
+			}
+
+			p {
+				margin-bottom: 1rem;
+			}
+
+			.subtitle {
+				color: var(--text-muted);
+				font-size: 0.9rem;
+				margin-bottom: 2rem;
+			}
+
+			a {
+				color: var(--primary);
+				text-decoration: none;
+			}
+
+			a:hover {
+				text-decoration: underline;
+			}
+
+			ul,
+			ol {
+				margin-bottom: 1rem;
+				padding-left: 1.5rem;
+			}
+
+			li {
+				margin-bottom: 0.5rem;
+			}
+
+			strong {
+				font-weight: 600;
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				margin: 1rem 0;
+				font-size: 0.9rem;
+			}
+
+			th,
+			td {
+				padding: 0.75rem;
+				text-align: left;
+				border: 1px solid var(--border);
+			}
+
+			th {
+				background-color: var(--bg-alt);
+				font-weight: 600;
+			}
+
+			.highlight {
+				background-color: var(--bg-alt);
+				padding: 1rem;
+				border-radius: 0.5rem;
+				margin: 1rem 0;
+			}
+
+			hr {
+				border: none;
+				border-top: 1px solid var(--border);
+				margin: 2rem 0;
+			}
+
+			.summary {
+				background-color: var(--bg-alt);
+				padding: 1.5rem;
+				border-radius: 0.5rem;
+				border-left: 4px solid var(--primary);
+			}
+
+			.summary ul {
+				margin-bottom: 0;
+			}
+
+			.summary li:last-child {
+				margin-bottom: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Privacy Policy</h1>
+		<p class="subtitle"><strong>Last updated:</strong> 16. January 2026</p>
+
+		<p>
+			This Privacy Policy explains how Breader ("we", "our", or "the app") collects, uses, and
+			protects your personal data in accordance with the General Data Protection Regulation (GDPR).
+		</p>
+
+		<hr />
+
+		<h2>1. Data Controller</h2>
+		<p>
+			<strong>Name:</strong> Victor Movileanu<br />
+			<strong>Email:</strong> <a href="mailto:hello@breader.app">hello@breader.app</a><br />
+			<strong>GitHub:</strong> <a href="https://github.com/ViggieM">https://github.com/ViggieM</a
+			><br />
+			<strong>LinkedIn:</strong>
+			<a href="https://linkedin.com/in/movileanuv">https://linkedin.com/in/movileanuv</a>
+		</p>
+
+		<hr />
+
+		<h2>2. Overview of Data Processing</h2>
+		<p>
+			Breader is a Progressive Web App (PWA) for managing bookmarks and reading materials. The app
+			prioritizes privacy and operates with an "offline-first" approach, storing most data locally
+			on your device. We process personal data only as necessary to provide the service.
+		</p>
+
+		<hr />
+
+		<h2>3. Data We Collect and Process</h2>
+
+		<h3>3.1 Local Storage (Your Device)</h3>
+		<p>Breader stores data locally on your device using browser storage technologies:</p>
+
+		<h4>IndexedDB (via Dexie)</h4>
+		<ul>
+			<li>
+				<strong>Data stored:</strong> Bookmarks, notes, reading status, tags, keywords, metadata
+			</li>
+			<li><strong>Purpose:</strong> Core app functionality, offline access</li>
+			<li>
+				<strong>Legal basis:</strong> Strictly necessary for service functionality (GDPR Art.
+				6(1)(b))
+			</li>
+			<li><strong>Retention:</strong> Until you clear browser storage or uninstall the app</li>
+		</ul>
+
+		<h4>LocalStorage</h4>
+		<ul>
+			<li><strong>Data stored:</strong> Theme preferences, UI settings, user preferences</li>
+			<li><strong>Purpose:</strong> Personalization, app settings</li>
+			<li>
+				<strong>Legal basis:</strong> Strictly necessary for service functionality (GDPR Art.
+				6(1)(b))
+			</li>
+			<li><strong>Retention:</strong> Until you clear browser storage</li>
+		</ul>
+
+		<h4>Service Worker Cache</h4>
+		<ul>
+			<li>
+				<strong>Data stored:</strong> Cached HTML, CSS, JavaScript, images for offline functionality
+			</li>
+			<li><strong>Purpose:</strong> Enable offline access, improve performance</li>
+			<li>
+				<strong>Legal basis:</strong> Strictly necessary for PWA functionality (GDPR Art. 6(1)(b))
+			</li>
+			<li><strong>Retention:</strong> Automatically managed by browser cache policies</li>
+		</ul>
+
+		<div class="highlight">
+			<strong>Important:</strong> All local storage is essential for the app to function. No consent
+			is required for strictly necessary storage technologies under GDPR.
+		</div>
+
+		<h3>3.2 Account Data (Supabase)</h3>
+		<p>If you create an account for synchronization features:</p>
+		<ul>
+			<li><strong>Email address:</strong> For authentication and account recovery</li>
+			<li><strong>User ID:</strong> Unique identifier for your account</li>
+			<li><strong>Session tokens:</strong> For secure authentication</li>
+			<li><strong>Account timestamps:</strong> Creation date, last login</li>
+			<li><strong>Legal basis:</strong> Contract performance (GDPR Art. 6(1)(b))</li>
+			<li><strong>Retention:</strong> Until account deletion</li>
+		</ul>
+
+		<h3>3.3 Synchronized Data (Dexie Cloud)</h3>
+		<p>If you enable cloud synchronization:</p>
+		<ul>
+			<li><strong>Bookmarks and notes:</strong> Synchronized across devices</li>
+			<li><strong>User ID and access control metadata:</strong> For data isolation and security</li>
+			<li><strong>Sync timestamps:</strong> Last synchronization times</li>
+			<li><strong>Legal basis:</strong> Contract performance (GDPR Art. 6(1)(b))</li>
+			<li>
+				<strong>Data protection:</strong> All data is encrypted in transit (HTTPS/TLS) and at rest
+			</li>
+			<li>
+				<strong>Privacy model:</strong> Private by default - your data is isolated and not
+				accessible to other users
+			</li>
+			<li><strong>Retention:</strong> Until account deletion or manual data removal</li>
+		</ul>
+
+		<div class="highlight">
+			<strong>Dexie Cloud Privacy Features:</strong>
+			<ul>
+				<li>Data is private by default with fine-grained access control</li>
+				<li>End-to-end encryption for sensitive data</li>
+				<li>GDPR-compliant user deletion (erases all associated data)</li>
+				<li>No data selling or sharing for marketing purposes</li>
+			</ul>
+			<p>
+				For more information:
+				<a href="https://dexie.org/cloud/privacy">Dexie Cloud Privacy Policy</a>
+			</p>
+		</div>
+
+		<h3>3.4 Hosting and Performance Data (Cloudflare Workers)</h3>
+		<p>
+			Breader is hosted on Cloudflare Workers. During your use of the app, Cloudflare may
+			temporarily process:
+		</p>
+		<ul>
+			<li><strong>IP address:</strong> For request routing and security</li>
+			<li><strong>Browser type and version:</strong> For compatibility</li>
+			<li><strong>Access times:</strong> For performance monitoring</li>
+			<li><strong>Referring URLs:</strong> For traffic analysis</li>
+			<li>
+				<strong>Legal basis:</strong> Legitimate interest (GDPR Art. 6(1)(f)) - security,
+				performance optimization, and DDoS protection
+			</li>
+			<li><strong>Data location:</strong> Cloudflare's global network with EU data centers</li>
+		</ul>
+		<p>
+			For more information:
+			<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>
+		</p>
+
+		<h3>3.5 Embedded Video Data (YouTube)</h3>
+		<p>When you view embedded YouTube videos within the app, YouTube (Google LLC) collects data:</p>
+		<ul>
+			<li><strong>IP address:</strong> For content delivery and regional restrictions</li>
+			<li><strong>Viewing behavior:</strong> Watch time, interactions, playback statistics</li>
+			<li><strong>Device information:</strong> Browser type, screen resolution, device ID</li>
+			<li><strong>Cookies:</strong> Functionality, analytics, and advertising cookies</li>
+			<li>
+				<strong>Legal basis:</strong> Legitimate interest (GDPR Art. 6(1)(f)) - YouTube acts as an
+				independent data controller
+			</li>
+			<li><strong>Data location:</strong> United States (Google servers)</li>
+		</ul>
+		<div class="highlight">
+			<strong>Important Notes:</strong>
+			<ul>
+				<li>YouTube data collection is performed by Google, not by Breader</li>
+				<li>We have no control over YouTube's data processing practices</li>
+				<li>You can choose not to view embedded videos to avoid YouTube data collection</li>
+			</ul>
+			<p>
+				For more information:
+				<a href="https://policies.google.com/privacy">Google Privacy Policy</a>
+			</p>
+		</div>
+
+		<hr />
+
+		<h2>4. Third-Party Data Processors</h2>
+		<p>We work with the following third-party processors who may access your data:</p>
+
+		<h3>Supabase (Backend Services)</h3>
+		<ul>
+			<li><strong>Purpose:</strong> Authentication, database, server-side rendering</li>
+			<li><strong>Data processed:</strong> Account data, authentication tokens</li>
+			<li>
+				<strong>Privacy Policy:</strong>
+				<a href="https://supabase.com/privacy">Supabase Privacy Policy</a>
+			</li>
+		</ul>
+
+		<h3>Dexie Cloud (Synchronization Services)</h3>
+		<ul>
+			<li><strong>Purpose:</strong> Offline-first data synchronization across devices</li>
+			<li><strong>Data processed:</strong> Bookmarks, notes, sync metadata</li>
+			<li>
+				<strong>Data protection:</strong> Encrypted in transit and at rest, private by default
+			</li>
+			<li>
+				<strong>Privacy Policy:</strong>
+				<a href="https://dexie.org/cloud/privacy">Dexie Cloud Privacy Policy</a>
+			</li>
+		</ul>
+
+		<h3>Cloudflare Workers (Hosting and CDN)</h3>
+		<ul>
+			<li><strong>Purpose:</strong> Application hosting, content delivery, security</li>
+			<li><strong>Data processed:</strong> IP addresses, request metadata</li>
+			<li><strong>Data protection:</strong> Standard Contractual Clauses (EU transfers)</li>
+			<li>
+				<strong>Privacy Policy:</strong>
+				<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>
+			</li>
+		</ul>
+
+		<h3>YouTube (Embedded Videos)</h3>
+		<ul>
+			<li><strong>Purpose:</strong> Display video content within the app</li>
+			<li>
+				<strong>Data processed:</strong> IP address, viewing behavior, cookies, device information
+			</li>
+			<li><strong>Data controller:</strong> Google LLC (YouTube is owned by Google)</li>
+			<li>
+				<strong>Privacy Policy:</strong>
+				<a href="https://policies.google.com/privacy">Google Privacy Policy</a>
+			</li>
+		</ul>
+
+		<hr />
+
+		<h2>5. Data Retention</h2>
+		<ul>
+			<li>
+				<strong>Local storage (IndexedDB, localStorage):</strong> Retained on your device until you
+				clear browser storage, uninstall the app, or manually delete data
+			</li>
+			<li>
+				<strong>Synchronized data (Dexie Cloud):</strong> Retained until you delete your account or
+				manually remove specific data
+			</li>
+			<li><strong>Account data (Supabase):</strong> Retained until account deletion</li>
+			<li><strong>Server logs (Cloudflare):</strong> Automatically deleted after 3 days</li>
+		</ul>
+
+		<hr />
+
+		<h2>6. Your Rights Under GDPR</h2>
+		<p>You have the following rights regarding your personal data:</p>
+
+		<h3>Right of Access (Art. 15 GDPR)</h3>
+		<p>Request a copy of all personal data we hold about you.</p>
+
+		<h3>Right to Rectification (Art. 16 GDPR)</h3>
+		<p>Correct inaccurate or incomplete personal data.</p>
+
+		<h3>Right to Erasure / "Right to be Forgotten" (Art. 17 GDPR)</h3>
+		<p>Request deletion of your account and all associated personal data.</p>
+
+		<h3>Right to Data Portability (Art. 20 GDPR)</h3>
+		<p>Export your data in a machine-readable format (JSON).</p>
+
+		<h3>Right to Object (Art. 21 GDPR)</h3>
+		<p>Object to specific processing activities based on legitimate interest.</p>
+
+		<h3>Right to Restrict Processing (Art. 18 GDPR)</h3>
+		<p>Request limitation of processing under certain circumstances.</p>
+
+		<h3>Right to Withdraw Consent (Art. 7(3) GDPR)</h3>
+		<p>Revoke consent at any time (where processing is based on consent).</p>
+
+		<h3>How to Exercise Your Rights</h3>
+		<ul>
+			<li><strong>Data export:</strong> Use the built-in export feature in the app settings</li>
+			<li>
+				<strong>Account deletion:</strong> Email us at
+				<a href="mailto:hello@breader.app">hello@breader.app</a>
+			</li>
+			<li>
+				<strong>Other requests:</strong> Email us at
+				<a href="mailto:hello@breader.app">hello@breader.app</a>
+			</li>
+		</ul>
+		<p>We will respond to your request within 30 days as required by GDPR.</p>
+
+		<hr />
+
+		<h2>7. Data Security</h2>
+		<p>We implement appropriate technical and organizational measures to protect your data:</p>
+		<ul>
+			<li><strong>Encryption in transit:</strong> All connections use HTTPS/TLS</li>
+			<li>
+				<strong>Encryption at rest:</strong> Synchronized data is encrypted on Dexie Cloud servers
+			</li>
+			<li><strong>Access controls:</strong> Fine-grained access control ensures data isolation</li>
+			<li><strong>Authentication:</strong> Secure authentication via Supabase</li>
+			<li>
+				<strong>Regular security updates:</strong> Dependencies and frameworks are regularly updated
+			</li>
+			<li><strong>Privacy by default:</strong> Data is private unless explicitly shared</li>
+		</ul>
+
+		<hr />
+
+		<h2>8. Cookies and Storage Technologies</h2>
+		<p>Breader uses the following browser storage technologies:</p>
+
+		<table>
+			<thead>
+				<tr>
+					<th>Technology</th>
+					<th>Purpose</th>
+					<th>Consent Required?</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>IndexedDB</td>
+					<td>Store bookmarks, notes, app data</td>
+					<td>No (strictly necessary)</td>
+				</tr>
+				<tr>
+					<td>LocalStorage</td>
+					<td>Store theme, UI preferences</td>
+					<td>No (strictly necessary)</td>
+				</tr>
+				<tr>
+					<td>Service Worker</td>
+					<td>Enable offline functionality</td>
+					<td>No (strictly necessary)</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<p><strong>Breader itself does NOT use:</strong></p>
+		<ul>
+			<li>Tracking cookies</li>
+			<li>First-party analytics (e.g., Google Analytics)</li>
+			<li>Advertising cookies</li>
+			<li>Social media tracking pixels</li>
+		</ul>
+
+		<h3>Third-Party Cookies (YouTube)</h3>
+		<p>
+			When you view embedded YouTube videos in the app, YouTube (owned by Google) may set cookies on
+			your device including functionality, analytics, and advertising cookies.
+		</p>
+		<p><strong>Your choices:</strong></p>
+		<ul>
+			<li>YouTube cookies are set by Google, not by Breader</li>
+			<li>You can control YouTube cookies through your browser settings</li>
+			<li>You can choose not to view embedded videos</li>
+			<li>
+				For more information, see
+				<a href="https://policies.google.com/technologies/cookies">Google's Cookie Policy</a>
+			</li>
+		</ul>
+
+		<hr />
+
+		<h2>9. International Data Transfers</h2>
+		<p>
+			Your data may be transferred outside the European Economic Area (EEA) through our third-party
+			processors:
+		</p>
+
+		<h3>Supabase</h3>
+		<ul>
+			<li><strong>Transfer mechanism:</strong> EU hosting (no transfer outside EEA)</li>
+			<li><strong>Data location:</strong> EU (Frankfurt region)</li>
+		</ul>
+
+		<h3>Dexie Cloud</h3>
+		<ul>
+			<li>
+				<strong>Transfer mechanism:</strong> Standard Contractual Clauses for any transfers of
+				personal data to countries outside the EEA
+			</li>
+			<li>
+				<strong>Safeguards:</strong> Data encrypted in transit and at rest, role-based access
+				control and authentication
+			</li>
+		</ul>
+
+		<h3>Cloudflare</h3>
+		<ul>
+			<li>
+				<strong>Transfer mechanism:</strong> EU-U.S. Data Privacy Framework; Standard Contractual
+				Clauses for other restricted transfers
+			</li>
+			<li>
+				<strong>Safeguards:</strong> Technical and organisational measures aligned with EU GDPR
+			</li>
+		</ul>
+
+		<hr />
+
+		<h2>10. Children's Privacy</h2>
+		<p>
+			Breader is not directed at children under the age of 16. We do not knowingly collect personal
+			data from children. If you believe we have inadvertently collected data from a child, please
+			contact us immediately at <a href="mailto:hello@breader.app">hello@breader.app</a>, and we
+			will delete it promptly.
+		</p>
+
+		<hr />
+
+		<h2>11. Changes to This Privacy Policy</h2>
+		<p>
+			We may update this Privacy Policy from time to time to reflect changes in our practices,
+			technologies, or legal requirements. When we make significant changes, we will:
+		</p>
+		<ul>
+			<li>Update the "Last updated" date at the top of this page</li>
+			<li>Notify users through the app (if feasible)</li>
+			<li>Provide a summary of changes</li>
+		</ul>
+
+		<hr />
+
+		<h2>12. Contact Us</h2>
+		<p>
+			If you have questions, concerns, or requests regarding this Privacy Policy or your personal
+			data:
+		</p>
+		<p>
+			<strong>Email:</strong> <a href="mailto:hello@breader.app">hello@breader.app</a><br />
+			<strong>GitHub:</strong> <a href="https://github.com/ViggieM">https://github.com/ViggieM</a
+			><br />
+			<strong>LinkedIn:</strong>
+			<a href="https://linkedin.com/in/movileanuv">https://linkedin.com/in/movileanuv</a>
+		</p>
+
+		<hr />
+
+		<h2>13. Supervisory Authority</h2>
+		<p>
+			If you believe your data protection rights have been violated, you have the right to lodge a
+			complaint with your local data protection supervisory authority:
+		</p>
+		<p>
+			<a href="https://edpb.europa.eu/about-edpb/board/members_en"
+				>EU Data Protection Authorities</a
+			>
+		</p>
+
+		<hr />
+
+		<h2>14. Additional Information for Specific Jurisdictions</h2>
+
+		<h3>For German Users</h3>
+		<p>
+			This Privacy Policy complies with the German Telemedia Act (TMG) and the Federal Data
+			Protection Act (BDSG) in addition to GDPR.
+		</p>
+
+		<h3>For California Users (CCPA)</h3>
+		<p>
+			If you are a California resident, you have additional rights under the California Consumer
+			Privacy Act (CCPA). Please contact us for more information.
+		</p>
+
+		<hr />
+
+		<div class="summary">
+			<strong>Data Processing Summary:</strong>
+			<ul>
+				<li>
+					<strong>We store most data locally on your device</strong> (IndexedDB, localStorage)
+				</li>
+				<li><strong>Cloud sync is optional</strong> and only enabled if you create an account</li>
+				<li><strong>We do NOT sell your data</strong> or use it for advertising</li>
+				<li><strong>Breader does NOT use tracking or analytics cookies</strong> (first-party)</li>
+				<li>
+					<strong>YouTube may set cookies</strong> when you view embedded videos (third-party)
+				</li>
+				<li>
+					<strong>All Breader storage is essential</strong> for the app to function (no consent
+					required)
+				</li>
+				<li><strong>You can delete your account and data at any time</strong></li>
+			</ul>
+		</div>
+	</body>
+</html>
