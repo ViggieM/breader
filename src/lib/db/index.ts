@@ -79,7 +79,7 @@ db.on('populate', (tx: Transaction) => {
 	tx.table('bookmarks').add({
 		id: 'what-is-breader',
 		title: 'What is Breader?',
-		url: 'https://breader.app/pages/what-is-breader',
+		url: 'https://breader.app/help/what-is-breader',
 		tags: [],
 		created: new Date(now).toISOString(),
 		status: 3, // WANT_TO_READ
@@ -88,7 +88,7 @@ db.on('populate', (tx: Transaction) => {
 	tx.table('bookmarks').add({
 		id: 'how-to-use',
 		title: 'How to use Breader',
-		url: 'https://breader.app/pages/how-to-use',
+		url: 'https://breader.app/help/how-to-use',
 		tags: [],
 		created: new Date(Number(now) - 1).toISOString(),
 		status: 3, // WANT_TO_READ
@@ -97,7 +97,7 @@ db.on('populate', (tx: Transaction) => {
 	tx.table('bookmarks').add({
 		id: 'import-bookmarks',
 		title: 'How to Import Bookmarks',
-		url: 'https://breader.app/pages/import-bookmarks',
+		url: 'https://breader.app/help/import-bookmarks',
 		tags: [],
 		created: new Date(Number(now) - 2).toISOString(),
 		status: 3, // WANT_TO_READ

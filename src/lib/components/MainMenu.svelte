@@ -45,6 +45,11 @@
 				>
 			</li>
 			<li>
+				<a href={resolve('/help')} class="flex justify-between"
+					>Help <span class="icon-[ri--question-line]"></span></a
+				>
+			</li>
+			<li>
 				<ImportBookmarks />
 			</li>
 			{#if !session}

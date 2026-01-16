@@ -8,6 +8,7 @@
 	import { handleBeforeInstallPrompt } from '$lib/stores/installPWA.svelte.js';
 	import { initializeTheme } from '$lib/stores/theme.svelte';
 	import { page } from '$app/state';
+	import { resolve } from '$app/paths';
 
 	let { children, data } = $props();
 	let { session, supabase } = data;
@@ -65,7 +66,11 @@
 
 {@render children?.()}
 
-<footer></footer>
+<footer class="flex justify-center gap-4 text-sm p-4 border-t-1 border-base-300">
+	<a href={resolve('/help')} class="link">Help</a>
+	-
+	<a href={resolve('/help/privacy')} class="link">Privacy</a>
+</footer>
 
 {#await import('$lib/components/ReloadPrompt.svelte') then { default: ReloadPrompt }}
 	<ReloadPrompt />

@@ -1,0 +1,330 @@
+---
+title: Privacy Policy
+---
+
+# {title}
+
+**Last updated:** 16. January 2026
+
+This Privacy Policy explains how Breader ("we", "our", or "the app") collects, uses, and protects your personal data in accordance with the General Data Protection Regulation (GDPR).
+
+---
+
+## 1. Data Controller
+
+**Name:** Victor Movileanu <br>
+**Email:** [hello@breader.app](mailto:hello@breader.app) <br>
+**GitHub:** [https://github.com/ViggieM] <br>
+**LinkedIn:** [https://linkedin.com/in/movileanuv]
+
+---
+
+## 2. Overview of Data Processing
+
+Breader is a Progressive Web App (PWA) for managing bookmarks and reading materials. The app prioritizes privacy and operates with an "offline-first" approach, storing most data locally on your device. We process personal data only as necessary to provide the service.
+
+---
+
+## 3. Data We Collect and Process
+
+### 3.1 Local Storage (Your Device)
+
+Breader stores data locally on your device using browser storage technologies:
+
+#### IndexedDB (via Dexie)
+- **Data stored:** Bookmarks, notes, reading status, tags, keywords, metadata
+- **Purpose:** Core app functionality, offline access
+- **Legal basis:** Strictly necessary for service functionality (GDPR Art. 6(1)(b))
+- **Retention:** Until you clear browser storage or uninstall the app
+
+#### LocalStorage
+- **Data stored:** Theme preferences, UI settings, user preferences
+- **Purpose:** Personalization, app settings
+- **Legal basis:** Strictly necessary for service functionality (GDPR Art. 6(1)(b))
+- **Retention:** Until you clear browser storage
+
+#### Service Worker Cache
+- **Data stored:** Cached HTML, CSS, JavaScript, images for offline functionality
+- **Purpose:** Enable offline access, improve performance
+- **Legal basis:** Strictly necessary for PWA functionality (GDPR Art. 6(1)(b))
+- **Retention:** Automatically managed by browser cache policies
+
+**Important:** All local storage is essential for the app to function. No consent is required for strictly necessary storage technologies under GDPR.
+
+### 3.2 Account Data (Supabase)
+
+If you create an account for synchronization features:
+
+- **Email address:** For authentication and account recovery
+- **User ID:** Unique identifier for your account
+- **Session tokens:** For secure authentication
+- **Account timestamps:** Creation date, last login
+- **Legal basis:** Contract performance (GDPR Art. 6(1)(b))
+- **Data location:** [SPECIFY: e.g., EU region (eu-west-1), or leave blank for user to fill]
+- **Retention:** Until account deletion
+
+### 3.3 Synchronized Data (Dexie Cloud)
+
+If you enable cloud synchronization:
+
+- **Bookmarks and notes:** Synchronized across devices
+- **User ID and access control metadata:** For data isolation and security
+- **Sync timestamps:** Last synchronization times
+- **Legal basis:** Contract performance (GDPR Art. 6(1)(b))
+- **Data protection:** All data is encrypted in transit (HTTPS/TLS) and at rest
+- **Privacy model:** Private by default - your data is isolated and not accessible to other users
+- **Retention:** Until account deletion or manual data removal
+
+**Dexie Cloud Privacy Features:**
+- Data is private by default with fine-grained access control
+- End-to-end encryption for sensitive data
+- GDPR-compliant user deletion (erases all associated data)
+- No data selling or sharing for marketing purposes
+
+For more information: [Dexie Cloud Privacy Policy](https://dexie.org/cloud/privacy)
+
+### 3.4 Hosting and Performance Data (Cloudflare Workers)
+
+Breader is hosted on Cloudflare Workers. During your use of the app, Cloudflare may temporarily process:
+
+- **IP address:** For request routing and security
+- **Browser type and version:** For compatibility
+- **Access times:** For performance monitoring
+- **Referring URLs:** For traffic analysis
+- **Legal basis:** Legitimate interest (GDPR Art. 6(1)(f)) - security, performance optimization, and DDoS protection
+- **Data location:** Cloudflare's global network with EU data centers
+- **Retention:** Automatically deleted after [SPECIFY PERIOD, e.g., 30 days]
+
+**Data Protection Measures:**
+- Cloudflare acts as a data processor on our behalf
+- Standard Contractual Clauses (SCCs) are in place for international transfers
+- Cloudflare is certified under the EU-U.S. Data Privacy Framework
+- Cloudflare does NOT sell personal data or use it beyond service delivery
+
+For more information: [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)
+
+### 3.5 Embedded Video Data (YouTube)
+
+When you view embedded YouTube videos within the app, YouTube (Google LLC) collects data:
+
+- **IP address:** For content delivery and regional restrictions
+- **Viewing behavior:** Watch time, interactions, playback statistics
+- **Device information:** Browser type, screen resolution, device ID
+- **Cookies:** Functionality, analytics, and advertising cookies
+- **Legal basis:** Legitimate interest (GDPR Art. 6(1)(f)) - YouTube acts as an independent data controller
+- **Data location:** United States (Google servers)
+- **Retention:** According to Google's data retention policies
+
+**Important Notes:**
+- YouTube data collection is performed by Google, not by Breader
+- We have no control over YouTube's data processing practices
+- You can choose not to view embedded videos to avoid YouTube data collection
+- YouTube may use this data for advertising personalization across Google services
+
+For more information: [Google Privacy Policy](https://policies.google.com/privacy)
+
+---
+
+## 4. Third-Party Data Processors
+
+We work with the following third-party processors who may access your data:
+
+### Supabase (Backend Services)
+- **Purpose:** Authentication, database, server-side rendering
+- **Data processed:** Account data, authentication tokens
+- **Data location:** [SPECIFY: EU region or leave blank]
+- **Data Processing Addendum (DPA):** [In place / Available upon request]
+- **Privacy Policy:** [Supabase Privacy Policy](https://supabase.com/privacy)
+
+### Dexie Cloud (Synchronization Services)
+- **Purpose:** Offline-first data synchronization across devices
+- **Data processed:** Bookmarks, notes, sync metadata
+- **Data protection:** Encrypted in transit and at rest, private by default
+- **Privacy Policy:** [Dexie Cloud Privacy Policy](https://dexie.org/cloud/privacy)
+
+### Cloudflare Workers (Hosting and CDN)
+- **Purpose:** Application hosting, content delivery, security
+- **Data processed:** IP addresses, request metadata
+- **Data protection:** Standard Contractual Clauses (EU transfers)
+- **Privacy Policy:** [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)
+
+### YouTube (Embedded Videos)
+- **Purpose:** Display video content within the app
+- **Data processed:** IP address, viewing behavior, cookies, device information
+- **Data controller:** Google LLC (YouTube is owned by Google)
+- **Legal basis:** Legitimate interest (GDPR Art. 6(1)(f)) for content delivery
+- **Data location:** United States (Google servers)
+- **Data protection:** Standard Contractual Clauses, EU-U.S. Data Privacy Framework
+- **Privacy Policy:** [Google Privacy Policy](https://policies.google.com/privacy)
+- **Important:** When you view embedded YouTube videos, YouTube may set cookies and collect data according to Google's privacy policy. This data collection is performed by Google, not by Breader.
+
+---
+
+## 5. Data Retention
+
+- **Local storage (IndexedDB, localStorage):** Retained on your device until you clear browser storage, uninstall the app, or manually delete data
+- **Synchronized data (Dexie Cloud):** Retained until you delete your account or manually remove specific data
+- **Account data (Supabase):** Retained until account deletion
+- **Server logs (Cloudflare):** Automatically deleted after 3 days
+
+---
+
+## 6. Your Rights Under GDPR
+
+You have the following rights regarding your personal data:
+
+### Right of Access (Art. 15 GDPR)
+Request a copy of all personal data we hold about you.
+
+### Right to Rectification (Art. 16 GDPR)
+Correct inaccurate or incomplete personal data.
+
+### Right to Erasure / "Right to be Forgotten" (Art. 17 GDPR)
+Request deletion of your account and all associated personal data.
+
+### Right to Data Portability (Art. 20 GDPR)
+Export your data in a machine-readable format (JSON).
+
+### Right to Object (Art. 21 GDPR)
+Object to specific processing activities based on legitimate interest.
+
+### Right to Restrict Processing (Art. 18 GDPR)
+Request limitation of processing under certain circumstances.
+
+### Right to Withdraw Consent (Art. 7(3) GDPR)
+Revoke consent at any time (where processing is based on consent).
+
+### How to Exercise Your Rights
+- **Data export:** Use the built-in export feature in the app settings
+- **Account deletion:** Email us at [hello@breader.app](mailto:hello@breader.app)
+- **Other requests:** Email us at [hello@breader.app](mailto:hello@breader.app)
+
+We will respond to your request within 30 days as required by GDPR.
+
+---
+
+## 7. Data Security
+
+We implement appropriate technical and organizational measures to protect your data:
+
+- **Encryption in transit:** All connections use HTTPS/TLS
+- **Encryption at rest:** Synchronized data is encrypted on Dexie Cloud servers
+- **Access controls:** Fine-grained access control ensures data isolation
+- **Authentication:** Secure authentication via Supabase
+- **Regular security updates:** Dependencies and frameworks are regularly updated
+- **Privacy by default:** Data is private unless explicitly shared
+
+---
+
+## 8. Cookies and Storage Technologies
+
+Breader uses the following browser storage technologies:
+
+| Technology | Purpose | Consent Required? |
+|------------|---------|-------------------|
+| IndexedDB | Store bookmarks, notes, app data | No (strictly necessary) |
+| LocalStorage | Store theme, UI preferences | No (strictly necessary) |
+| Service Worker | Enable offline functionality | No (strictly necessary) |
+
+**Breader itself does NOT use:**
+- Tracking cookies
+- First-party analytics (e.g., Google Analytics)
+- Advertising cookies
+- Social media tracking pixels
+
+All storage used by Breader directly is **strictly necessary** for the app to function. Under GDPR and ePrivacy Directive, no consent is required for essential storage technologies.
+
+### Third-Party Cookies (YouTube)
+
+**YouTube Embedded Videos:**
+When you view embedded YouTube videos in the app, YouTube (owned by Google) may set cookies on your device. These cookies may include:
+- **Functionality cookies:** To remember video playback preferences
+- **Analytics cookies:** To track viewing statistics
+- **Advertising cookies:** To personalize ads on YouTube and Google services
+
+**Your choices:**
+- YouTube cookies are set by Google, not by Breader
+- You can control YouTube cookies through your browser settings
+- You can choose not to view embedded videos
+- For more information, see [Google's Cookie Policy](https://policies.google.com/technologies/cookies)
+
+**Legal basis:** Legitimate interest (GDPR Art. 6(1)(f)) - YouTube cookies are set by Google as a third-party data controller when you choose to view video content.
+
+---
+
+## 9. International Data Transfers
+
+Your data may be transferred outside the European Economic Area (EEA) through our third-party processors:
+
+### Supabase
+- **Transfer mechanism:** EU hosting (no transfer outside EEA)
+- **Data location:** EU (Frankfurt region)
+
+### Dexie Cloud
+- **Transfer mechanism:** Standard Contractual Clauses for any transfers of personal data to countries outside the EEA.
+- **Safeguards:** Data encrypted in transit and at rest, role‑based access control and authentication, and GDPR‑aligned deletion and user‑access features to protect stored data.
+
+### Cloudflare
+- **Transfer mechanism:** EU‑U.S. Data Privacy Framework for transfers to the U.S.; Standard Contractual Clauses and supplementary measures for other restricted transfers
+- **Safeguards:** Technical and organisational measures aligned with EU GDPR (e.g. TLS, DDoS protection, access controls, data minimisation)
+
+All international transfers are protected by appropriate safeguards as required by GDPR Chapter V.
+
+---
+
+## 10. Children's Privacy
+
+Breader is not directed at children under the age of 16. We do not knowingly collect personal data from children. If you believe we have inadvertently collected data from a child, please contact us immediately at [hello@breader.app](mailto:hello@breader.app), and we will delete it promptly.
+
+---
+
+## 11. Changes to This Privacy Policy
+
+We may update this Privacy Policy from time to time to reflect changes in our practices, technologies, or legal requirements. When we make significant changes, we will:
+
+- Update the "Last updated" date at the top of this page
+- Notify users through the app (if feasible)
+- Provide a summary of changes
+
+We encourage you to review this Privacy Policy periodically.
+
+---
+
+## 12. Contact Us
+
+If you have questions, concerns, or requests regarding this Privacy Policy or your personal data:
+
+**Email:** [hello@breader.app](mailto:hello@breader.app)
+**GitHub:** [https://github.com/ViggieM]
+**LinkedIn:** [https://linkedin.com/in/movileanuv]
+
+---
+
+## 13. Supervisory Authority
+
+If you believe your data protection rights have been violated, you have the right to lodge a complaint with your local data protection supervisory authority:
+
+**EU Data Protection Authorities:**
+[https://edpb.europa.eu/about-edpb/board/members_en](https://edpb.europa.eu/about-edpb/board/members_en)
+
+---
+
+## 14. Additional Information for Specific Jurisdictions
+
+### For German Users
+This Privacy Policy complies with the German Telemedia Act (TMG) and the Federal Data Protection Act (BDSG) in addition to GDPR.
+
+### For California Users (CCPA)
+If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA). Please contact us for more information.
+
+---
+
+**Data Processing Summary:**
+
+- **We store most data locally on your device** (IndexedDB, localStorage)
+- **Cloud sync is optional** and only enabled if you create an account
+- **We do NOT sell your data** or use it for advertising
+- **Breader does NOT use tracking or analytics cookies** (first-party)
+- **YouTube may set cookies** when you view embedded videos (third-party)
+- **All Breader storage is essential** for the app to function (no consent required)
+- **You can delete your account and data at any time**
