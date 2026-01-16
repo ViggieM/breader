@@ -18,7 +18,7 @@
 	import { formatDate, formatDateAndTime } from '$lib';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
+	import { toastSuccess, toastError, toastWarning } from '$lib/stores/notifications.svelte';
 	import { parseYouTubeUrl } from '$lib/utils/youtube';
 	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte';
 	import { tick, untrack } from 'svelte';
@@ -190,6 +190,43 @@
 			console.error('Failed to delete bookmark:', error);
 		}
 	}
+
+	let shareSuccess = $state(false);
+	async function handleShare(): Promise<void> {
+		try {
+			if (navigator.share) {
+				// Use Web Share API on mobile/supported browsers
+				await navigator.share({
+					title: bookmark.title || 'Untitled',
+					url: bookmark.url
+				});
+			} else {
+				// Fallback to clipboard on desktop
+				await navigator.clipboard.writeText(bookmark.url);
+				toastSuccess('Copied to Clipboard');
+				shareSuccess = true;
+				setTimeout(() => {
+					shareSuccess = false;
+				}, 2000);
+			}
+		} catch (error) {
+			// User canceled share or clipboard failed
+			console.error('Share failed:', error);
+		}
+	}
+
+	function handleOpen(): void {
+		window.open(bookmark.url, '_blank', 'noopener,noreferrer');
+	}
+
+	function handleSaveOffline(): void {
+		toastWarning('This feature is not implemented (yet)');
+	}
+
+	let infoOpen = $state(false);
+	function handleInfo(): void {
+		infoOpen = !infoOpen;
+	}
 </script>
 
 <svelte:head>
@@ -286,52 +323,83 @@
 			</div>
 		</dl>
 
-		<details class="hidden collapse collapse-arrow overflow-visible" bind:this={detailsElement}>
-			<summary class="collapse-title p-0"><h2>Details</h2></summary>
-			<div class="collapse-content space-y-4 p-0 mt-2">
-				<div>
-					<dt class="text-sm font-medium opacity-70 mb-1">URL</dt>
-					<dd class="flex gap-2">
-						<label class="input input-sm input-bordered w-full">
-							<input type="text" bind:value={url} class="flex-1 input-sm" />
-							<button
-								onclick={copyUrl}
-								class="opacity-50 hover:opacity-100 transition-opacity cursor-pointer flex items-center gap-1"
-								class:text-success={copied}
-								>Copy URL
-								<div
-									class="{copied
-										? 'icon-[material-symbols--check] '
-										: 'icon-[material-symbols--content-copy]'} size-4"
-								></div>
-							</button>
-						</label>
-						<!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-						<a href={bookmark.url} target="_blank" class="btn btn-sm btn-primary">Open</a>
-					</dd>
-					{#if url !== bookmark.url}
-						<button
-							class="btn btn-xs btn-success mt-3"
-							type="button"
-							onclick={async () => {
-								await updateBookmarkUrl(bookmark.id, url);
-							}}>Save</button
-						>
-					{/if}
-				</div>
-				<div>
-					<dt class="text-sm font-medium opacity-70 mb-1">Created</dt>
-					<dd class="text-sm">{formatDate(bookmark.created)}</dd>
-				</div>
+		<div role="menu" class="mt-2 grid grid-cols-5 gap-2 text-base-content">
+			<button role="menuitem" class="btn btn-sm" onclick={handleShare} draggable="false">
+				<span class="icon-[ri--add-fill]" aria-hidden="true"></span>
+				<span class="text-xs">Add Note</span>
+			</button>
+			<button
+				role="menuitem"
+				class={['btn btn-sm', infoOpen && 'btn btn-primary btn-sm']}
+				onclick={handleInfo}
+				draggable="false"
+			>
+				<span class="icon-[ri--information-2-line] size-4" aria-hidden="true"></span>
+				<span class="text-xs">Info</span>
+			</button>
+			<button
+				role="menuitem"
+				class="btn btn-sm"
+				onclick={handleShare}
+				draggable="false"
+				class:btn-success={shareSuccess}
+			>
+				<span
+					class={shareSuccess
+						? 'icon-[ri--check-line] size-4'
+						: 'icon-[ri--share-forward-line] size-4'}
+					aria-hidden="true"
+				></span>
+				<span class="text-xs">{shareSuccess ? 'Copied URL' : 'Share'}</span>
+			</button>
+			<button role="menuitem" class="btn btn-sm" onclick={handleOpen} draggable="false">
+				<span class="icon-[ri--external-link-line] size-4" aria-hidden="true"></span>
+				<span class="text-xs">Open</span>
+			</button>
+			<button
+				role="menuitem"
+				class="btn btn-sm"
+				onclick={handleSaveOffline}
+				draggable="false"
+				disabled
+			>
+				<span class="icon-[ri--download-2-line] size-4" aria-hidden="true"></span>
+				<span class="text-xs">Save offline</span>
+			</button>
+		</div>
 
-				{#if bookmark.modified}
-					<div>
-						<dt class="text-sm font-medium opacity-70 mb-1">Modified</dt>
-						<dd class="text-sm">{formatDateAndTime(bookmark.modified)}</dd>
-					</div>
-				{/if}
-			</div>
-		</details>
+		<div class="overflow-x-auto mt-4" class:hidden={!infoOpen}>
+			<table class="table table-sm">
+				<tbody>
+					<tr>
+						<th class="w-1 whitespace-nowrap">Created</th>
+						<td>{formatDateAndTime(bookmark.created)}</td>
+					</tr>
+					<tr>
+						<th class="w-1 whitespace-nowrap">Modified</th>
+						<td>{bookmark.modified ? formatDateAndTime(bookmark.modified) : '-'}</td>
+					</tr>
+					<tr>
+						<th class="w-1 whitespace-nowrap">URL</th>
+						<td
+							><label class="input input-xs input-ghost w-full p-0">
+								<input type="text" bind:value={url} class="flex-1 input-sm" />
+							</label>
+
+							{#if url !== bookmark.url}
+								<button
+									class="btn btn-xs btn-success mt-3"
+									type="button"
+									onclick={async () => {
+										await updateBookmarkUrl(bookmark.id, url);
+									}}>Save</button
+								>
+							{/if}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 	</div>
 
 	<BookmarkNotes bookmarkId={bookmark.id} />
