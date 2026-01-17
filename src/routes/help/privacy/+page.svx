@@ -4,7 +4,7 @@ title: Privacy Policy
 
 # {title}
 
-**Last updated:** 16. January 2026
+**Last updated:** 17. January 2026
 
 This Privacy Policy explains how Breader ("we", "our", or "the app") collects, uses, and protects your personal data in accordance with the General Data Protection Regulation (GDPR).
 
@@ -48,6 +48,15 @@ Breader stores data locally on your device using browser storage technologies:
 - **Purpose:** Enable offline access, improve performance
 - **Legal basis:** Strictly necessary for PWA functionality (GDPR Art. 6(1)(b))
 - **Retention:** Automatically managed by browser cache policies
+
+#### Offline Content (Separate IndexedDB)
+- **Data stored:** Extracted article text and HTML from bookmarked URLs
+- **Purpose:** Enable offline reading of saved articles
+- **How it works:** When you choose to save an article for offline reading, Breader fetches the webpage through our server (acting as a proxy to bypass CORS restrictions), extracts the readable content using Mozilla's Readability library, and stores the result in a separate local IndexedDB database on your device
+- **What is NOT stored on our servers:** The extracted article content is returned to your browser and stored locally only. We do not retain, cache, or store any article content on our servers or any third-party servers. The server-side processing is transient and exists only for the duration of the request.
+- **Legal basis:** Strictly necessary for offline reading functionality (GDPR Art. 6(1)(b))
+- **Retention:** Until you delete the offline content or clear browser storage
+- **Privacy note:** This content is intentionally NOT synchronized to the cloud (Dexie Cloud) to keep third-party article content local to your device and avoid any copyright or data storage concerns
 
 **Important:** All local storage is essential for the app to function. No consent is required for strictly necessary storage technologies under GDPR.
 
