@@ -13,6 +13,7 @@
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
 	import Note from '$lib/components/Note.svelte';
+	import OfflineContent from '$lib/components/OfflineContent.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
@@ -20,7 +21,7 @@
 	import { formatDateAndTime } from '$lib';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
-	import { toastSuccess, toastError, toastWarning } from '$lib/stores/notifications.svelte';
+	import { toastSuccess, toastError } from '$lib/stores/notifications.svelte';
 	import { parseYouTubeUrl } from '$lib/utils/youtube';
 	import YouTubeEmbed from '$lib/components/YouTubeEmbed.svelte';
 	import { tick, untrack } from 'svelte';
@@ -116,16 +117,6 @@
 		// reset tags
 		selectedTags = tagIdsToOptions(bookmark.tags, $tagMap);
 		hasUnsavedChanges = false;
-	}
-
-	async function copyUrl() {
-		try {
-			await navigator.clipboard.writeText(bookmark.url);
-			copied = true;
-			setTimeout(() => (copied = false), 2000);
-		} catch (error) {
-			console.error('Failed to copy URL:', error);
-		}
 	}
 
 	async function handleStatusClick() {
@@ -228,13 +219,14 @@
 		window.open(bookmark.url, '_blank', 'noopener,noreferrer');
 	}
 
-	function handleSaveOffline(): void {
-		toastWarning('This feature is not implemented (yet)');
-	}
-
 	let infoOpen = $state(false);
 	function handleInfo(): void {
 		infoOpen = !infoOpen;
+	}
+
+	let isNotesOpen = $state(false);
+	function handleOpenNotes(): void {
+		isNotesOpen = !isNotesOpen;
 	}
 
 	// Note management functions
@@ -412,7 +404,7 @@
 			</div>
 		</dl>
 
-		<div role="menu" class="mt-8 grid grid-cols-3 gap-2 text-base-content">
+		<div role="menu" class="mt-8 grid grid-cols-4 gap-2 text-base-content">
 			<button
 				role="menuitem"
 				class={['btn btn-sm', infoOpen && 'btn btn-primary btn-sm']}
@@ -421,6 +413,15 @@
 			>
 				<span class="icon-[ri--information-2-line] shrink-0" aria-hidden="true"></span>
 				<span class="text-xs">Info</span>
+			</button>
+			<button
+				role="menuitem"
+				class={['btn btn-sm', isNotesOpen && 'btn btn-primary btn-sm']}
+				onclick={handleOpenNotes}
+				draggable="false"
+			>
+				<span class="icon-[ri--sticky-note-line] shrink-0" aria-hidden="true"></span>
+				<span class="text-xs">Notes</span>
 			</button>
 			<button
 				role="menuitem"
@@ -486,10 +487,8 @@
 	</div>
 
 	<!-- Notes section -->
-	<section class="mt-6">
-		{#if sortedNotes.length == 0}
-			<p class="p-2 bg-base-200 text-sm italic text-center">No notes</p>
-		{:else}
+	<section class="mt-6" class:hidden={!isNotesOpen}>
+		{#if sortedNotes.length > 0}
 			<ul class="space-y-1">
 				{#each sortedNotes as note (note.id)}
 					<li><Note {note} onSave={saveNote} onDelete={deleteNote} /></li>
@@ -497,26 +496,17 @@
 			</ul>
 		{/if}
 
-		<div class="mt-2">
-			<button role="menuitem" class="btn btn-sm btn-ghost" onclick={addNote} draggable="false">
+		<div class="mt-4">
+			<button role="menuitem" class="btn btn-sm btn-secondary" onclick={addNote} draggable="false">
 				<span class="icon-[ri--add-fill]" aria-hidden="true"></span>
-				<span class="text-xs">Note</span>
+				<span class="text-xs">Add Note</span>
 			</button>
 		</div>
 	</section>
 
 	<!-- Offline -->
-	<div class="h-full flex items-end py-4">
-		<button
-			role="menuitem"
-			class="btn btn-sm w-full"
-			onclick={handleSaveOffline}
-			draggable="false"
-			disabled
-		>
-			<span class="icon-[ri--download-2-line] shrink-0" aria-hidden="true"></span>
-			<span class="text-xs">Save offline</span>
-		</button>
+	<div class="mt-8 mb-12">
+		<OfflineContent bookmarkId={bookmark.id} url={bookmark.url} />
 	</div>
 </main>
 

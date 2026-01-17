@@ -63,12 +63,14 @@
 		]
 	},
 	"dependencies": {
+		"@mozilla/readability": "^0.6.0",
 		"@oddbird/css-anchor-positioning": "^0.8.0",
 		"@supabase/ssr": "^0.7.0",
 		"@supabase/supabase-js": "^2.89.0",
 		"dexie": "^4.2.1",
 		"dexie-cloud-addon": "^4.2.4",
 		"fuse.js": "^7.1.0",
+		"linkedom": "^0.18.12",
 		"overtype": "^2.1.1",
 		"workbox-background-sync": "^7.4.0",
 		"workbox-core": "^7.4.0",
