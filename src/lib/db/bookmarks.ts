@@ -192,3 +192,24 @@ export async function updateBookmarkMetadata(
 	}
 	await updateBookmark(id, updates);
 }
+
+/**
+ * Set the metadata status to error with a reason message.
+ *
+ * @param id - The ID of the bookmark to update
+ * @param reason - The error reason message
+ * @returns Promise that resolves when the update is complete
+ */
+export async function updateBookmarkMetadataError(id: string, reason: string): Promise<void> {
+	await updateBookmark(id, { meta: { error: true, reason } });
+}
+
+/**
+ * Set the metadata status to pending (fetching in progress).
+ *
+ * @param id - The ID of the bookmark to update
+ * @returns Promise that resolves when the update is complete
+ */
+export async function setBookmarkMetadataPending(id: string): Promise<void> {
+	await updateBookmark(id, { meta: { pending: true } });
+}

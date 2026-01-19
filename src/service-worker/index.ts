@@ -5,7 +5,7 @@
 import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 import { clientsClaim } from 'workbox-core';
 import { Queue } from 'workbox-background-sync';
-import { updateBookmarkMetadata } from '../lib/db/bookmarks';
+import { updateBookmarkMetadata, updateBookmarkMetadataError } from '../lib/db/bookmarks';
 
 // This gives `self` the correct types
 declare let self: ServiceWorkerGlobalScope;
@@ -35,21 +35,50 @@ self.addEventListener('fetch', (event) => {
 	}
 
 	const bgFetchMeta = async () => {
+		// Clone and parse request body to get bookmarkId early for error handling
+		let bookmarkId: string | undefined;
+		try {
+			const requestBody = await event.request.clone().json();
+			bookmarkId = requestBody.id;
+		} catch {
+			// Couldn't parse request body, continue without bookmarkId
+		}
+
 		try {
 			const controller = new AbortController();
 			setTimeout(() => controller.abort(), 40000); // 40s timeout (30s API + buffer)
 			const response = await fetch(event.request.clone(), { signal: controller.signal });
+
+			if (!response.ok) {
+				const errorText = await response.text();
+				if (bookmarkId) {
+					await updateBookmarkMetadataError(
+						bookmarkId,
+						`Server error: ${response.status} ${errorText || response.statusText}`
+					);
+				}
+				await queue.pushRequest({ request: event.request });
+				return response;
+			}
+
 			const meta = await response.clone().json();
-			const { bookmarkId, ...data } = meta;
-			await updateBookmarkMetadata(bookmarkId, data, data.title);
+			const { bookmarkId: id, ...data } = meta;
+			await updateBookmarkMetadata(id, data, data.title);
 			return response;
 		} catch (error) {
-			if (error.name === 'AbortError') {
+			const err = error as Error;
+			let reason: string;
+			if (err.name === 'AbortError') {
 				console.log('FetchMetadata Request Aborted');
-				// todo: think about how to handle repeated timeouts and unnecessary Queue pollution
+				reason = 'Request timed out';
+			} else {
+				reason = err.message || 'Network error';
+			}
+			if (bookmarkId) {
+				await updateBookmarkMetadataError(bookmarkId, reason);
 			}
 			await queue.pushRequest({ request: event.request });
-			return error;
+			return err;
 		}
 	};
 

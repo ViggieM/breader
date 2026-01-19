@@ -17,6 +17,24 @@ export type BookmarkMetaData = {
 	dateModified?: string | null;
 };
 
+// Metadata fetch status types (discriminated union)
+export type MetadataPending = { pending: true };
+export type MetadataError = { error: true; reason: string };
+export type BookmarkMeta = BookmarkMetaData | MetadataError | MetadataPending | null;
+
+// Type guards for metadata status
+export function isMetadataPending(meta: BookmarkMeta | undefined): meta is MetadataPending {
+	return meta !== null && meta !== undefined && typeof meta === 'object' && 'pending' in meta;
+}
+
+export function isMetadataError(meta: BookmarkMeta | undefined): meta is MetadataError {
+	return meta !== null && meta !== undefined && typeof meta === 'object' && 'error' in meta;
+}
+
+export function isMetadataSuccess(meta: BookmarkMeta | undefined): meta is BookmarkMetaData {
+	return meta !== null && meta !== undefined && typeof meta === 'object' && 'title' in meta;
+}
+
 export const BookmarkStatus = {
 	ARCHIVED: 0,
 	READING: 1,
@@ -32,7 +50,7 @@ export class Bookmark {
 	created: string;
 	modified: string | null;
 	keywords: string[]; // used for search
-	meta?: BookmarkMetaData | null;
+	meta?: BookmarkMeta;
 
 	// editable
 	title?: string | null; // used for search, can be null while metadata was not fetched

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Bookmark } from '$lib/types';
+	import { Bookmark, isMetadataPending, isMetadataError } from '$lib/types';
 	import {
 		getBookmark,
 		updateBookmarkTags,
@@ -7,7 +7,8 @@
 		updateBookmarkTitle,
 		updateBookmarkStar,
 		updateBookmarkUrl,
-		deleteBookmark
+		deleteBookmark,
+		setBookmarkMetadataPending
 	} from '$lib/db/bookmarks';
 	import { createNote, updateNote, deleteNote as deleteNoteFromDb } from '$lib/db/notes';
 	import TagMultiselect from '$lib/components/TagMultiselect.svelte';
@@ -64,6 +65,7 @@
 
 	let hasUnsavedChanges = $state(false);
 	let saving = $state(false);
+	let isRefetching = $state(false);
 	let detailsElement = $state<HTMLDetailsElement>();
 	let disabled = $derived(saving);
 	let deleteDialog = $state() as HTMLDialogElement;
@@ -219,6 +221,24 @@
 		window.open(bookmark.url, '_blank', 'noopener,noreferrer');
 	}
 
+	async function handleRefetchMetadata() {
+		isRefetching = true;
+		try {
+			await setBookmarkMetadataPending(bookmark.id);
+			fetch(`/api/fetch-metadata`, {
+				method: 'POST',
+				body: JSON.stringify({ id: bookmark.id, url: bookmark.url }),
+				headers: { 'Content-Type': 'application/json' }
+			});
+			toastSuccess('Refetching metadata...');
+		} catch (error) {
+			toastError('Failed to start refetch');
+			console.error('Failed to refetch metadata:', error);
+		} finally {
+			isRefetching = false;
+		}
+	}
+
 	let infoOpen = $state(false);
 	function handleInfo(): void {
 		infoOpen = !infoOpen;
@@ -290,7 +310,7 @@
 </script>
 
 <svelte:head>
-	<title>{bookmark.title} | Breader</title>
+	<title>{bookmark.title || 'Loading...'} | Breader</title>
 </svelte:head>
 
 <main class="flex flex-col">
@@ -309,7 +329,14 @@
 		<header class="flex items-center">
 			<img src={bookmark.faviconUrl} class="size-4 mr-3" alt="Favicon" />
 			<h1 class="text-lg font-medium flex-1 mt-0">
-				{bookmark.title}{#if bookmark.isStarred}
+				{#if isMetadataPending(bookmark.meta)}
+					<span class="text-base-content/60 italic">Fetching metadata...</span>
+				{:else if isMetadataError(bookmark.meta)}
+					<span class="text-error">Failed to fetch metadata</span>
+				{:else}
+					{bookmark.title || bookmark.url}
+				{/if}
+				{#if bookmark.isStarred}
 					<span class="icon-[ri--star-s-fill] text-amber-500 relative top-0.5 ml-2 shrink-0"></span>
 				{/if}
 			</h1>
@@ -463,6 +490,34 @@
 							</label>
 						</td>
 					</tr>
+					{#if isMetadataError(bookmark.meta)}
+						<tr>
+							<th class="w-1 whitespace-nowrap text-error">Metadata</th>
+							<td>
+								<span class="text-error text-sm">{bookmark.meta.reason}</span>
+								<button
+									class="btn btn-xs btn-primary ml-2"
+									onclick={handleRefetchMetadata}
+									disabled={isRefetching}
+								>
+									{#if isRefetching}
+										<span class="loading loading-spinner loading-xs"></span>
+									{:else}
+										<span class="icon-[ri--refresh-line]"></span>
+									{/if}
+									Retry
+								</button>
+							</td>
+						</tr>
+					{:else if isMetadataPending(bookmark.meta)}
+						<tr>
+							<th class="w-1 whitespace-nowrap">Metadata</th>
+							<td>
+								<span class="loading loading-spinner loading-xs"></span>
+								<span class="text-sm text-base-content/60 ml-2">Fetching...</span>
+							</td>
+						</tr>
+					{/if}
 				</tbody>
 			</table>
 			{#if url !== bookmark.url}

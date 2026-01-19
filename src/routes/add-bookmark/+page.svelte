@@ -35,12 +35,13 @@
 			// Process tags: create new ones and get all tag IDs
 			const { allTagIds } = await processTagsForSave(selectedTags);
 
-			// Create bookmark with all tag IDs
+			// Create bookmark with all tag IDs and pending metadata status
 			const id = await createBookmark({
 				url,
 				tags: allTagIds,
 				status,
-				isStarred
+				isStarred,
+				meta: { pending: true }
 			});
 
 			toastSuccess('Bookmark created');
