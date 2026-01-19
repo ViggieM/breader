@@ -8,6 +8,13 @@ export interface UrlMetadata {
 	description: string;
 	keywords: string[];
 	url: string;
+	// Optional fields from external metadata API
+	image?: string | null;
+	favicon?: string | null;
+	author?: string | null;
+	publisher?: string | null;
+	datePublished?: string | null;
+	dateModified?: string | null;
 }
 
 export class MetadataFetchError extends Error {
@@ -45,7 +52,7 @@ export async function fetchUrlMetadata(bookmarkId: string, url: string): Promise
 	}
 
 	const controller = new AbortController();
-	const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+	const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout for JS-heavy pages
 
 	try {
 		const response = await fetch(`/api/fetch-metadata`, {

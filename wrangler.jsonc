@@ -44,6 +44,9 @@
 	/**
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
+	 *
+	 * Required secrets (set via `wrangler secret put <SECRET_NAME>`):
+	 * - METADATA_API_KEY: API key for metadata.breader.app
 	 */
 	/**
 	 * Static Assets

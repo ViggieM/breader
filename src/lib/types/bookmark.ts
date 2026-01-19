@@ -3,10 +3,18 @@ import { getFavicon } from '$lib/utils/favicon';
 // Type for data stored in the database (excludes computed properties)
 export type BookmarkData = Omit<Bookmark, 'faviconUrl' | 'localUrl' | 'hasBody'>;
 
-// crawled information
+// crawled information from external metadata API
 export type BookmarkMetaData = {
 	title: string; // original title
 	description: string; // meta description
+	// Optional fields from metadata API
+	keywords?: string[];
+	image?: string | null;
+	favicon?: string | null;
+	author?: string | null;
+	publisher?: string | null;
+	datePublished?: string | null;
+	dateModified?: string | null;
 };
 
 export const BookmarkStatus = {

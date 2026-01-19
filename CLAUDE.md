@@ -74,6 +74,12 @@ IMPORTANT: The dev server might already be running on port 3000. Use that one in
     - `src/lib/db/notes.ts` - Notes operations
     - Components should use these utilities instead of direct `db.bookmarks` or `db.notes` access
 
+**Metadata Extraction**:
+
+- External API: `https://metadata.breader.app/process` extracts title, description, keywords, image, etc.
+- Requires `METADATA_API_KEY` environment variable (set via `wrangler secret put METADATA_API_KEY`)
+- Flow: add-bookmark pages → `/api/fetch-metadata` → external API → service worker → IndexedDB
+
 **Core Stores**:
 
 - `src/lib/stores/search.svelte.ts` - Search engine and filters using derived stores

@@ -1,108 +1,27 @@
-//ABOUTME: SvelteKit API route that provides CORS proxy for metadata extraction
-//ABOUTME: Enables PWA to fetch content from external URLs without CORS restrictions
+//ABOUTME: SvelteKit API route that proxies metadata extraction requests to external API
+//ABOUTME: Enables PWA to fetch metadata from external URLs via metadata.breader.app
 
 import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import type { UrlMetadata } from '$lib/utils/metadata';
 import { isValidHttpUrl } from '$lib/utils/url-validation';
 
-const MAX_RESPONSE_SIZE = 20 * 1024 * 1024; // 20MB limit
-
-function extractMetadata(html: string, url: string): UrlMetadata {
-	// Limit HTML size for regex processing to prevent ReDoS
-	const maxHtmlSize = 50000; // 50KB should be enough for meta tags
-	const processableHtml = html.length > maxHtmlSize ? html.substring(0, maxHtmlSize) : html;
-
-	// More secure regex patterns with length limits
-	const titleMatch = processableHtml.match(/<title[^>]{0,200}>([^<]{1,500})<\/title>/i);
-	const ogTitleMatch = processableHtml.match(
-		/<meta[^>]{0,200}property=["']og:title["'][^>]{0,200}content=["']([^"']{1,500})["']/i
-	);
-	const twitterTitleMatch = processableHtml.match(
-		/<meta[^>]{0,200}name=["']twitter:title["'][^>]{0,200}content=["']([^"']{1,500})["']/i
-	);
-
-	const descriptionMatch = processableHtml.match(
-		/<meta[^>]{0,200}name=["']description["'][^>]{0,200}content=["']([^"']{1,1000})["']/i
-	);
-	const ogDescriptionMatch = processableHtml.match(
-		/<meta[^>]{0,200}property=["']og:description["'][^>]{0,200}content=["']([^"']{1,1000})["']/i
-	);
-	const twitterDescriptionMatch = processableHtml.match(
-		/<meta[^>]{0,200}name=["']twitter:description["'][^>]{0,200}content=["']([^"']{1,1000})["']/i
-	);
-
-	const keywordsMatch = processableHtml.match(
-		/<meta[^>]{0,200}name=["']keywords["'][^>]{0,200}content=["']([^"']{1,500})["']/i
-	);
-
-	const title = (titleMatch?.[1] || ogTitleMatch?.[1] || twitterTitleMatch?.[1] || '').trim();
-	const description = (
-		descriptionMatch?.[1] ||
-		ogDescriptionMatch?.[1] ||
-		twitterDescriptionMatch?.[1] ||
-		''
-	).trim();
-	const keywordsString = keywordsMatch?.[1] || '';
-	const keywords = keywordsString
-		.split(',')
-		.map((k) => k.trim())
-		.filter((k) => k.length > 0 && k.length < 50); // Limit individual keyword length
-
-	return {
-		title: decodeHtmlEntities(title).substring(0, 500), // Limit title length
-		description: decodeHtmlEntities(description).substring(0, 1000), // Limit description length
-		keywords: keywords.slice(0, 20), // Limit number of keywords
-		url
-	};
+interface MetadataApiResponse {
+	title: string;
+	description: string;
+	keywords: string[];
+	image: string | null;
+	favicon: string | null;
+	author: string | null;
+	publisher: string | null;
+	datePublished: string | null;
+	dateModified: string | null;
+	url: string;
+	statusCode: number;
 }
 
-function decodeHtmlEntities(text: string): string {
-	// Common named entities
-	const namedEntities: Record<string, string> = {
-		'&amp;': '&',
-		'&lt;': '<',
-		'&gt;': '>',
-		'&quot;': '"',
-		'&#39;': "'",
-		'&apos;': "'",
-		'&nbsp;': ' ',
-		'&copy;': '©',
-		'&reg;': '®',
-		'&trade;': '™',
-		'&hellip;': '…',
-		'&ndash;': '–',
-		'&mdash;': '—',
-		'&lsquo;': '\u2018',
-		'&rsquo;': '\u2019',
-		'&ldquo;': '\u201C',
-		'&rdquo;': '\u201D'
-	};
-
-	return (
-		text
-			// Replace named entities
-			.replace(/&[a-zA-Z][a-zA-Z0-9]*;/g, (entity) => namedEntities[entity] || entity)
-			// Replace numeric entities (&#123;)
-			.replace(/&#(\d+);/g, (match, num) => {
-				const code = parseInt(num, 10);
-				// Validate reasonable character codes to prevent issues
-				if (code > 0 && code < 1114112) {
-					return String.fromCharCode(code);
-				}
-				return match;
-			})
-			// Replace hex entities (&#xAB;)
-			.replace(/&#x([0-9A-Fa-f]+);/g, (match, hex) => {
-				const code = parseInt(hex, 16);
-				// Validate reasonable character codes to prevent issues
-				if (code > 0 && code < 1114112) {
-					return String.fromCharCode(code);
-				}
-				return match;
-			})
-	);
-}
+const METADATA_API_URL = 'https://metadata.breader.app/process';
+const API_TIMEOUT_MS = 30000; // 30 seconds for JS-heavy pages like YouTube
 
 const CORS_HEADERS = {
 	'Access-Control-Allow-Origin': '*',
@@ -118,7 +37,7 @@ export const OPTIONS: RequestHandler = async () => {
 	});
 };
 
-export const POST: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request, platform }) => {
 	const body = (await request.json()) as { id?: string; url?: string };
 	const { id: bookmarkId, url: targetUrl } = body;
 
@@ -130,65 +49,54 @@ export const POST: RequestHandler = async ({ request }) => {
 		return error(400, 'URL parameter is required');
 	}
 
-	// Validate URL and check for SSRF vulnerabilities
+	// Validate URL before sending to external API
 	if (!isValidHttpUrl(targetUrl)) {
 		return error(400, 'Invalid or unsafe URL');
 	}
 
+	const apiKey = platform?.env?.METADATA_API_KEY;
+	if (!apiKey) {
+		console.error('METADATA_API_KEY is not configured');
+		return error(500, 'Metadata service is not configured');
+	}
+
 	try {
-		const response = await fetch(targetUrl, {
+		const response = await fetch(METADATA_API_URL, {
+			method: 'POST',
 			headers: {
-				'User-Agent': 'Breader/1.0 (Bookmark Reader)'
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${apiKey}`
 			},
-			signal: AbortSignal.timeout(10000) // 10 second timeout
+			body: JSON.stringify({ url: targetUrl, timeout: API_TIMEOUT_MS }),
+			signal: AbortSignal.timeout(API_TIMEOUT_MS + 5000) // Add 5s buffer for network overhead
 		});
 
 		if (!response.ok) {
-			// Sanitize error messages to prevent information leakage
+			const errorText = await response.text().catch(() => 'Unknown error');
+			console.error(`Metadata API error (${response.status}): ${errorText}`);
+
 			if (response.status >= 400 && response.status < 500) {
-				return error(400, 'Unable to access the requested URL');
+				return error(400, 'Unable to fetch metadata for the requested URL');
 			} else {
-				return error(500, 'External server error occurred');
+				return error(500, 'Metadata service error occurred');
 			}
 		}
 
-		const contentType = response.headers.get('content-type');
-		if (!contentType?.includes('text/html')) {
-			return error(400, 'URL must return HTML content');
-		}
+		const apiResponse = (await response.json()) as MetadataApiResponse;
 
-		// Check response size to prevent DoS
-		const contentLength = response.headers.get('content-length');
-		if (contentLength && parseInt(contentLength, 10) > MAX_RESPONSE_SIZE) {
-			return error(400, 'Response too large');
-		}
-
-		// Read response with size limit
-		let html = '';
-		const reader = response.body?.getReader();
-		if (!reader) {
-			return error(500, 'Unable to read response');
-		}
-
-		let totalSize = 0;
-		try {
-			while (true) {
-				const { done, value } = await reader.read();
-				if (done) break;
-
-				totalSize += value.length;
-				if (totalSize > MAX_RESPONSE_SIZE) {
-					reader.releaseLock();
-					return error(400, 'Response too large');
-				}
-
-				html += new TextDecoder().decode(value);
-			}
-		} finally {
-			reader.releaseLock();
-		}
-
-		const metadata = extractMetadata(html, targetUrl);
+		// Map API response to UrlMetadata interface (excluding statusCode)
+		const metadata: UrlMetadata = {
+			title: apiResponse.title || '',
+			description: apiResponse.description || '',
+			keywords: apiResponse.keywords || [],
+			url: apiResponse.url || targetUrl,
+			image: apiResponse.image,
+			favicon: apiResponse.favicon,
+			author: apiResponse.author,
+			publisher: apiResponse.publisher,
+			datePublished: apiResponse.datePublished,
+			dateModified: apiResponse.dateModified
+		};
 
 		return json(
 			{ bookmarkId, ...metadata },
@@ -200,8 +108,10 @@ export const POST: RequestHandler = async ({ request }) => {
 			}
 		);
 	} catch (err) {
-		console.error('Fetch error:', err);
-		// Don't expose internal error details
+		console.error('Metadata fetch error:', err);
+		if (err instanceof Error && err.name === 'TimeoutError') {
+			return error(500, 'Metadata service timeout');
+		}
 		return error(500, 'Unable to fetch metadata');
 	}
 };

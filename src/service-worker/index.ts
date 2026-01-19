@@ -37,7 +37,7 @@ self.addEventListener('fetch', (event) => {
 	const bgFetchMeta = async () => {
 		try {
 			const controller = new AbortController();
-			setTimeout(() => controller.abort(), 10000); // 10 second timeout
+			setTimeout(() => controller.abort(), 40000); // 40s timeout (30s API + buffer)
 			const response = await fetch(event.request.clone(), { signal: controller.signal });
 			const meta = await response.clone().json();
 			const { bookmarkId, ...data } = meta;
