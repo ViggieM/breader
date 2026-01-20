@@ -227,12 +227,39 @@
 			<li><strong>Retention:</strong> Automatically managed by browser cache policies</li>
 		</ul>
 
+		<h3>3.2 Metadata Extraction Service</h3>
+		<p>
+			When you save a bookmark, Breader automatically fetches metadata (title, description,
+			keywords, favicon, etc.) from the URL using our self-hosted metadata extraction service.
+		</p>
+		<ul>
+			<li>
+				<strong>Service:</strong>
+				<a href="https://github.com/ViggieM/metadata-extractor">Metadata Extractor</a> (open source)
+			</li>
+			<li><strong>Data sent:</strong> The bookmarked URL only</li>
+			<li><strong>Data returned:</strong> Title, description, keywords, favicon, author, dates</li>
+			<li>
+				<strong>No data persistence:</strong> The service is stateless — it doesn't store fetched
+				content, extracted metadata, or user requests
+			</li>
+			<li>
+				<strong>Isolated processing:</strong> Each page fetch creates an isolated browser context
+				that is closed immediately after use
+			</li>
+			<li>
+				<strong>Security:</strong> SSRF protection, rate limiting, content sanitization via
+				DOMPurify
+			</li>
+			<li><strong>Legal basis:</strong> Contract performance (GDPR Art. 6(1)(b))</li>
+		</ul>
+
 		<div class="highlight">
 			<strong>Important:</strong> All local storage is essential for the app to function. No consent
 			is required for strictly necessary storage technologies under GDPR.
 		</div>
 
-		<h3>3.2 Account Data (Supabase)</h3>
+		<h3>3.3 Account Data (Supabase)</h3>
 		<p>If you create an account for synchronization features:</p>
 		<ul>
 			<li><strong>Email address:</strong> For authentication and account recovery</li>
@@ -243,7 +270,7 @@
 			<li><strong>Retention:</strong> Until account deletion</li>
 		</ul>
 
-		<h3>3.3 Synchronized Data (Dexie Cloud)</h3>
+		<h3>3.4 Synchronized Data (Dexie Cloud)</h3>
 		<p>If you enable cloud synchronization:</p>
 		<ul>
 			<li><strong>Bookmarks and notes:</strong> Synchronized across devices</li>
@@ -274,7 +301,7 @@
 			</p>
 		</div>
 
-		<h3>3.4 Hosting and Performance Data (Cloudflare Workers)</h3>
+		<h3>3.5 Hosting and Performance Data (Cloudflare Workers)</h3>
 		<p>
 			Breader is hosted on Cloudflare Workers. During your use of the app, Cloudflare may
 			temporarily process:
@@ -295,7 +322,7 @@
 			<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>
 		</p>
 
-		<h3>3.5 Embedded Video Data (YouTube)</h3>
+		<h3>3.6 Embedded Video Data (YouTube)</h3>
 		<p>When you view embedded YouTube videos within the app, YouTube (Google LLC) collects data:</p>
 		<ul>
 			<li><strong>IP address:</strong> For content delivery and regional restrictions</li>
@@ -325,6 +352,22 @@
 
 		<h2>4. Third-Party Data Processors</h2>
 		<p>We work with the following third-party processors who may access your data:</p>
+
+		<h3>Metadata Extractor (Self-hosted)</h3>
+		<ul>
+			<li>
+				<strong>Purpose:</strong> Extract metadata (title, description, keywords) from bookmarked
+				URLs
+			</li>
+			<li><strong>Data processed:</strong> Bookmarked URLs only (stateless, no persistence)</li>
+			<li>
+				<strong>Data protection:</strong> SSRF protection, rate limiting, isolated browser contexts
+			</li>
+			<li>
+				<strong>Source Code:</strong>
+				<a href="https://github.com/ViggieM/metadata-extractor">GitHub Repository</a>
+			</li>
+		</ul>
 
 		<h3>Supabase (Backend Services)</h3>
 		<ul>
