@@ -36,11 +36,13 @@ self.addEventListener('fetch', (event) => {
 	}
 
 	const bgFetchMeta = async () => {
-		// Clone and parse request body to get bookmarkId early for error handling
+		// Clone and parse request body to get bookmarkId and original URL early
 		let bookmarkId: string | undefined;
+		let originalUrl: string | undefined;
 		try {
 			const requestBody = await event.request.clone().json();
 			bookmarkId = requestBody.id;
+			originalUrl = requestBody.url; // The original bookmark URL (before redirects)
 		} catch {
 			// Couldn't parse request body, continue without bookmarkId
 		}
@@ -63,12 +65,15 @@ self.addEventListener('fetch', (event) => {
 			}
 
 			const meta = await response.clone().json();
-			const { bookmarkId: id, url: bookmarkUrl, faviconBase64, faviconError, ...data } = meta;
+			const { bookmarkId: id, faviconBase64, faviconError, ...data } = meta;
 			await updateBookmarkMetadata(id, data, data.title);
 
 			// Save favicon to cache if available
-			if (bookmarkUrl) {
-				const domain = extractDomain(bookmarkUrl);
+			// Use the ORIGINAL URL (from request body), not the resolved URL from metadata
+			// This ensures the favicon is cached under the domain the user bookmarked
+			const urlForFavicon = originalUrl || data.url;
+			if (urlForFavicon) {
+				const domain = extractDomain(urlForFavicon);
 				if (domain) {
 					try {
 						if (faviconBase64) {
