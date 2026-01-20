@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable, type Transaction } from 'dexie';
-import type { BookmarkData, TagData } from '$lib/types';
+import type { BookmarkData, TagData, FaviconData } from '$lib/types';
 import dexieCloud from 'dexie-cloud-addon';
 import { PUBLIC_DEXIE_CLOUD_DB_URL } from '$env/static/public';
 import type { NoteData } from '$lib/types/note';
@@ -9,6 +9,7 @@ class Database extends Dexie {
 	bookmarks!: EntityTable<BookmarkData, 'id'>;
 	tags!: EntityTable<TagData, 'id'>;
 	notes!: EntityTable<NoteData, 'id'>;
+	favicons!: EntityTable<FaviconData, 'id'>;
 
 	constructor() {
 		super('BookmarkManager', { addons: [dexieCloud] });
@@ -72,6 +73,13 @@ db.version(8).stores({
 	bookmarks: '@id, title, url, *tags, *keywords, isStarred, created, modified, status',
 	tags: '@id, parentId, name, order',
 	notes: '@id, *bookmarks, created, modified, title' // Add title field to notes
+});
+
+db.version(9).stores({
+	bookmarks: '@id, title, url, *tags, *keywords, isStarred, created, modified, status',
+	tags: '@id, parentId, name, order',
+	notes: '@id, *bookmarks, created, modified, title',
+	favicons: '@id, &domain' // Domain-level favicon caching
 });
 
 db.on('populate', (tx: Transaction) => {

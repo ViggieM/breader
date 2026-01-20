@@ -13,6 +13,7 @@
 	import type { Readable } from 'svelte/store';
 	import { db } from '$lib/db';
 	import { browser } from '$app/environment';
+	import Favicon from './Favicon.svelte';
 
 	interface Props {
 		bookmarksLiveData: Readable<NavigationData>;
@@ -64,7 +65,7 @@
 	let currentBookmark = $state<{
 		id: string;
 		title: string | null;
-		faviconUrl: string;
+		url: string;
 	} | null>(null);
 
 	async function handleEditTag(tag: {
@@ -119,7 +120,7 @@
 	async function handleEditBookmark(bookmark: {
 		id: string;
 		title: string | null;
-		faviconUrl: string;
+		url: string;
 	}): Promise<void> {
 		currentBookmark = bookmark;
 		editBookmarkTitle = bookmark.title || '';
@@ -158,11 +159,7 @@
 		}
 	}
 
-	function handleDeleteBookmark(bookmark: {
-		id: string;
-		title: string | null;
-		faviconUrl: string;
-	}): void {
+	function handleDeleteBookmark(bookmark: { id: string; title: string | null; url: string }): void {
 		currentBookmark = bookmark;
 		deleteBookmarkDialog?.showModal();
 	}
@@ -359,7 +356,7 @@
 				<div class="form-group">
 					<label class="input input-bordered flex items-center gap-2 w-full">
 						{#if currentBookmark}
-							<img src={currentBookmark.faviconUrl} class="size-4 shrink-0" alt="Favicon" />
+							<Favicon url={currentBookmark.url} size="md" />
 						{/if}
 						<input
 							bind:value={editBookmarkTitle}
@@ -408,7 +405,7 @@
 			{#if currentBookmark}
 				<h3 id="delete-bookmark-title">
 					<div class="flex items-center gap-3">
-						<img src={currentBookmark.faviconUrl} class="size-4 shrink-0" alt="Favicon" />
+						<Favicon url={currentBookmark.url} size="md" />
 						<span class="font-medium truncate">{currentBookmark.title || 'Untitled'}</span>
 					</div>
 				</h3>

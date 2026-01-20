@@ -20,8 +20,27 @@ interface MetadataApiResponse {
 	statusCode: number;
 }
 
+/** Extended metadata response with favicon base64 data */
+interface ExtendedUrlMetadata extends UrlMetadata {
+	faviconBase64?: string | null;
+	faviconError?: string | null;
+}
+
 const METADATA_API_URL = 'https://metadata.breader.app/process';
 const API_TIMEOUT_MS = 30000; // 30 seconds for JS-heavy pages like YouTube
+const FAVICON_TIMEOUT_MS = 5000; // 5 seconds for favicon fetch
+const MAX_FAVICON_SIZE = 5 * 1024; // 5KB
+
+/** Valid image MIME types for favicons */
+const VALID_IMAGE_TYPES = [
+	'image/png',
+	'image/jpeg',
+	'image/gif',
+	'image/webp',
+	'image/svg+xml',
+	'image/x-icon',
+	'image/vnd.microsoft.icon'
+];
 
 const CORS_HEADERS = {
 	'Access-Control-Allow-Origin': '*',
@@ -36,6 +55,119 @@ export const OPTIONS: RequestHandler = async () => {
 		headers: CORS_HEADERS
 	});
 };
+
+/**
+ * Get Google S2 favicon URL as fallback.
+ */
+function getGoogleFaviconUrl(targetUrl: string): string {
+	try {
+		const domain = new URL(targetUrl).hostname;
+		return `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+	} catch {
+		return '';
+	}
+}
+
+/**
+ * Determine MIME type from Content-Type header or URL extension.
+ */
+function getMimeType(contentType: string | null, url: string): string | null {
+	// Try Content-Type header first
+	if (contentType) {
+		const mimeType = contentType.split(';')[0].trim().toLowerCase();
+		if (VALID_IMAGE_TYPES.includes(mimeType)) {
+			return mimeType;
+		}
+	}
+
+	// Fallback to URL extension
+	const extension = url.split('.').pop()?.toLowerCase();
+	const extensionMimeMap: Record<string, string> = {
+		png: 'image/png',
+		jpg: 'image/jpeg',
+		jpeg: 'image/jpeg',
+		gif: 'image/gif',
+		webp: 'image/webp',
+		svg: 'image/svg+xml',
+		ico: 'image/x-icon'
+	};
+
+	if (extension && extensionMimeMap[extension]) {
+		return extensionMimeMap[extension];
+	}
+
+	// Default to x-icon for favicon URLs
+	if (url.includes('favicon')) {
+		return 'image/x-icon';
+	}
+
+	return null;
+}
+
+/**
+ * Convert ArrayBuffer to base64 string.
+ */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+	const bytes = new Uint8Array(buffer);
+	let binary = '';
+	for (let i = 0; i < bytes.length; i++) {
+		binary += String.fromCharCode(bytes[i]);
+	}
+	return btoa(binary);
+}
+
+/**
+ * Fetch a favicon URL and convert to base64 data URI.
+ * Returns { data } on success or { error } on failure.
+ */
+async function fetchFaviconAsBase64(
+	faviconUrl: string
+): Promise<{ data?: string; error?: string }> {
+	try {
+		const response = await fetch(faviconUrl, {
+			signal: AbortSignal.timeout(FAVICON_TIMEOUT_MS),
+			headers: {
+				Accept: 'image/*',
+				'User-Agent': 'Breader/1.0 (favicon fetcher)'
+			}
+		});
+
+		if (!response.ok) {
+			return { error: 'fetch_error' };
+		}
+
+		// Check Content-Length header first (if available)
+		const contentLength = response.headers.get('Content-Length');
+		if (contentLength && parseInt(contentLength, 10) > MAX_FAVICON_SIZE) {
+			return { error: 'too_large' };
+		}
+
+		// Get the response as ArrayBuffer
+		const buffer = await response.arrayBuffer();
+
+		// Check actual size
+		if (buffer.byteLength > MAX_FAVICON_SIZE) {
+			return { error: 'too_large' };
+		}
+
+		// Determine MIME type
+		const contentType = response.headers.get('Content-Type');
+		const mimeType = getMimeType(contentType, faviconUrl);
+
+		if (!mimeType) {
+			return { error: 'invalid_image' };
+		}
+
+		// Convert to base64 data URI
+		const base64 = arrayBufferToBase64(buffer);
+		return { data: `data:${mimeType};base64,${base64}` };
+	} catch (err) {
+		if (err instanceof Error && err.name === 'TimeoutError') {
+			return { error: 'fetch_error' };
+		}
+		return { error: 'fetch_error' };
+	}
+}
 
 export const POST: RequestHandler = async ({ request, platform }) => {
 	const body = (await request.json()) as { id?: string; url?: string };
@@ -85,7 +217,7 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 		const apiResponse = (await response.json()) as MetadataApiResponse;
 
 		// Map API response to UrlMetadata interface (excluding statusCode)
-		const metadata: UrlMetadata = {
+		const metadata: ExtendedUrlMetadata = {
 			title: apiResponse.title || '',
 			description: apiResponse.description || '',
 			keywords: apiResponse.keywords || [],
@@ -97,6 +229,17 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			datePublished: apiResponse.datePublished,
 			dateModified: apiResponse.dateModified
 		};
+
+		// Fetch favicon as base64 (don't block if it fails)
+		const faviconUrl = apiResponse.favicon || getGoogleFaviconUrl(targetUrl);
+		if (faviconUrl) {
+			const faviconResult = await fetchFaviconAsBase64(faviconUrl);
+			if (faviconResult.data) {
+				metadata.faviconBase64 = faviconResult.data;
+			} else if (faviconResult.error) {
+				metadata.faviconError = faviconResult.error;
+			}
+		}
 
 		return json(
 			{ bookmarkId, ...metadata },

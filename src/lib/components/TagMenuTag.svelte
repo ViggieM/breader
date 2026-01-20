@@ -28,8 +28,8 @@
 			parentId: string | null;
 			childrenCount: number;
 		}) => void;
-		onEditBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
-		onDeleteBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
+		onEditBookmark?: (bookmark: { id: string; title: string | null; url: string }) => void;
+		onDeleteBookmark?: (bookmark: { id: string; title: string | null; url: string }) => void;
 		hideTagsWithoutBookmarks: boolean;
 	}
 

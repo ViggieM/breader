@@ -93,15 +93,22 @@ IMPORTANT: The dev server might already be running on port 3000. Use that one in
 - `notes` table with indexes on: id, bookmarks (multi-entry), created, modified
   - Many-to-many relationship: notes can be associated with multiple bookmarks via `bookmarks` array
   - Auto-generated IDs via Dexie
+- `favicons` table with indexes on: id, domain (unique), failed, createdAt, modifiedAt
+  - Domain-level caching: multiple bookmarks from same domain share one favicon entry
+  - Stores base64 data URIs (max 5KB) for offline display
+  - Failed fetches tracked with 7-day retry window
 - UUID primary keys generated via custom Dexie plugin
 
 **Key Files**:
 
 - `src/lib/db/index.ts` - Dexie database setup and schema
 - `src/lib/db/notes.ts` - Notes CRUD operations and queries
+- `src/lib/db/favicons.ts` - Favicon caching operations (domain-level)
 - `src/lib/types/bookmark.ts` - Bookmark class and BookmarkData type definitions
 - `src/lib/stores/search.svelte.ts` - Search functionality with Fuse.js integration
 - `src/lib/stores/bookmarkNotes.svelte.ts` - Reactive store for bookmark notes
+- `src/lib/utils/faviconResolver.ts` - Client-side favicon resolution with caching
+- `src/lib/components/Favicon.svelte` - Reusable favicon component with async loading
 - `src/routes/bookmark/[uuid]/+page.svelte` - Bookmark detail page with notes management
 
 **Critical Architecture Notes**:
@@ -114,3 +121,4 @@ IMPORTANT: The dev server might already be running on port 3000. Use that one in
 - Theme switching happens immediately via localStorage and DOM data-theme attribute
 - No need to install new icon sets like '@iconify-json/material-symbols' since '@iconify/json' includes all
 - All types should be defined in `$lib/types` and imported from there, e.g. `import { BookmarkStatus } from '$lib/types';`
+- **Favicon Caching**: Use `<Favicon url={url} />` component instead of `bookmark.faviconUrl` for cached offline favicon display. The resolver checks IndexedDB first, then fetches via `/api/fetch-favicon` on cache miss.

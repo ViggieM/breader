@@ -8,12 +8,13 @@
 	import { updateBookmarkStar } from '$lib/db/bookmarks';
 	import { toastSuccess } from '$lib/stores/notifications.svelte';
 	import { isMetadataPending, isMetadataError } from '$lib/types';
+	import Favicon from './Favicon.svelte';
 
 	interface Props {
 		bookmark: Bookmark;
 		class?: string;
-		onEditBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
-		onDeleteBookmark?: (bookmark: { id: string; title: string | null; faviconUrl: string }) => void;
+		onEditBookmark?: (bookmark: { id: string; title: string | null; url: string }) => void;
+		onDeleteBookmark?: (bookmark: { id: string; title: string | null; url: string }) => void;
 	}
 
 	let { bookmark, class: className, onEditBookmark, onDeleteBookmark }: Props = $props();
@@ -126,13 +127,9 @@
 			onkeydown={handleKeydown}
 			class={['flex items-center gap-2 text-left min-w-0 min-h-0 cursor-pointer self-stretch']}
 		>
-			<img
-				alt=""
-				draggable="false"
-				loading="lazy"
-				class="w-4 h-4 shrink-0 self-start mt-0.5"
-				src={bookmark.faviconUrl}
-			/>
+			<span class="self-start mt-0.5">
+				<Favicon url={bookmark.url} size="md" />
+			</span>
 			{#if isMetadataPending(bookmark.meta)}
 				<span class="text-base-content/50 font-light italic animate-pulse"
 					>Fetching metadata...</span
@@ -214,7 +211,7 @@
 							onEditBookmark?.({
 								id: bookmark.id,
 								title: bookmark.title ?? null,
-								faviconUrl: bookmark.faviconUrl
+								url: bookmark.url
 							})}
 					>
 						<span class="icon-[ri--pencil-line]"></span>
@@ -236,7 +233,7 @@
 							onDeleteBookmark?.({
 								id: bookmark.id,
 								title: bookmark.title ?? null,
-								faviconUrl: bookmark.faviconUrl
+								url: bookmark.url
 							})}
 					>
 						<span class="icon-[ri--delete-bin-line]"></span>

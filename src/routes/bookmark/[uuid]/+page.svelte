@@ -15,6 +15,7 @@
 	import BookmarkStatusSelect from '$lib/components/BookmarkStatusSelect.svelte';
 	import Note from '$lib/components/Note.svelte';
 	import OfflineContent from '$lib/components/OfflineContent.svelte';
+	import Favicon from '$lib/components/Favicon.svelte';
 	import { tagMap } from '$lib/stores/tags.svelte.js';
 	import { createBookmarkNotesStore } from '$lib/stores/bookmarkNotes.svelte.js';
 	import { type ObjectOption } from 'svelte-multiselect';
@@ -327,7 +328,7 @@
 
 		<!-- Header below video -->
 		<header class="flex items-center">
-			<img src={bookmark.faviconUrl} class="size-4 mr-3" alt="Favicon" />
+			<span class="mr-3"><Favicon url={bookmark.url} size="md" /></span>
 			<h1 class="text-lg font-medium flex-1 mt-0">
 				{#if isMetadataPending(bookmark.meta)}
 					<span class="text-base-content/50 font-light text-base italic animate-pulse"
@@ -604,7 +605,7 @@
 			{/if}
 			<div class="form-group">
 				<label class="input input-bordered flex items-center gap-2 w-full">
-					<img src={bookmark.faviconUrl} class="size-4 shrink-0" alt="Favicon" />
+					<Favicon url={bookmark.url} size="md" />
 					<input
 						bind:value={editTitleValue}
 						name="title"

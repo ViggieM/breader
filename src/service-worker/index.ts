@@ -6,6 +6,7 @@ import { precacheAndRoute, cleanupOutdatedCaches } from 'workbox-precaching';
 import { clientsClaim } from 'workbox-core';
 import { Queue } from 'workbox-background-sync';
 import { updateBookmarkMetadata, updateBookmarkMetadataError } from '../lib/db/bookmarks';
+import { saveFavicon, extractDomain } from '../lib/db/favicons';
 
 // This gives `self` the correct types
 declare let self: ServiceWorkerGlobalScope;
@@ -62,8 +63,26 @@ self.addEventListener('fetch', (event) => {
 			}
 
 			const meta = await response.clone().json();
-			const { bookmarkId: id, ...data } = meta;
+			const { bookmarkId: id, url: bookmarkUrl, faviconBase64, faviconError, ...data } = meta;
 			await updateBookmarkMetadata(id, data, data.title);
+
+			// Save favicon to cache if available
+			if (bookmarkUrl) {
+				const domain = extractDomain(bookmarkUrl);
+				if (domain) {
+					try {
+						if (faviconBase64) {
+							await saveFavicon(domain, faviconBase64, false);
+						} else if (faviconError) {
+							await saveFavicon(domain, null, true, faviconError);
+						}
+					} catch (faviconErr) {
+						// Don't fail bookmark update if favicon save fails
+						console.error('Failed to save favicon:', faviconErr);
+					}
+				}
+			}
+
 			return response;
 		} catch (error) {
 			const err = error as Error;
