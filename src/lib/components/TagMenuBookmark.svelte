@@ -7,6 +7,7 @@
 	import type { Bookmark } from '$lib/types';
 	import { updateBookmarkStar } from '$lib/db/bookmarks';
 	import { toastSuccess } from '$lib/stores/notifications.svelte';
+	import { isMetadataPending, isMetadataError } from '$lib/types';
 
 	interface Props {
 		bookmark: Bookmark;
@@ -132,14 +133,23 @@
 				class="w-4 h-4 shrink-0 self-start mt-0.5"
 				src={bookmark.faviconUrl}
 			/>
-			<span
-				class:truncate={!isOpen}
-				class:text-pretty={isOpen}
-				title={!isOpen ? bookmark.title?.trim() || 'Untitled' : undefined}
-				>{bookmark.title?.trim() || 'Untitled'}{#if isOpen && bookmark.isStarred}
-					<span class="icon-[ri--star-s-fill] text-amber-500 relative top-0.5 ml-2 shrink-0"></span>
-				{/if}</span
-			>
+			{#if isMetadataPending(bookmark.meta)}
+				<span class="text-base-content/50 font-light italic animate-pulse"
+					>Fetching metadata...</span
+				>
+			{:else if isMetadataError(bookmark.meta)}
+				<span class="text-error font-light italic">Failed to fetch metadata</span>
+			{:else}
+				<span
+					class:truncate={!isOpen}
+					class:text-pretty={isOpen}
+					title={!isOpen ? bookmark.title?.trim() || bookmark.url.trim() : undefined}
+					>{bookmark.title?.trim() || bookmark.url.trim()}{#if isOpen && bookmark.isStarred}
+						<span class="icon-[ri--star-s-fill] text-amber-500 relative top-0.5 ml-2 shrink-0"
+						></span>
+					{/if}</span
+				>
+			{/if}
 		</button>
 
 		{#if isOpen}

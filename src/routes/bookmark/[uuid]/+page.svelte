@@ -330,9 +330,11 @@
 			<img src={bookmark.faviconUrl} class="size-4 mr-3" alt="Favicon" />
 			<h1 class="text-lg font-medium flex-1 mt-0">
 				{#if isMetadataPending(bookmark.meta)}
-					<span class="text-base-content/60 italic">Fetching metadata...</span>
+					<span class="text-base-content/50 font-light text-base italic animate-pulse"
+						>Fetching metadata...</span
+					>
 				{:else if isMetadataError(bookmark.meta)}
-					<span class="text-error">Failed to fetch metadata</span>
+					<span class="text-error font-light text-base italic">Failed to fetch metadata</span>
 				{:else}
 					{bookmark.title || bookmark.url}
 				{/if}
