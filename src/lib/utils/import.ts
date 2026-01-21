@@ -65,11 +65,12 @@ function parseDL(dl: HTMLDListElement): BookmarkItem[] {
 					items: []
 				};
 
-				// Look for the next sibling that is a DL (folder contents)
+				// Find the DL element containing folder contents
+				// Note: The browser's HTML parser nests the DL inside the DT (not as a sibling)
+				// because <DT> tags don't have explicit closing tags in Netscape bookmark format
 				const items = node.querySelector('DL');
 				if (items) {
 					folder.items = parseDL(items as HTMLDListElement);
-					i++; // Skip the DL element in next iteration since we processed it
 				}
 
 				result.push(folder);
