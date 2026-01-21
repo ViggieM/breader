@@ -2,6 +2,11 @@ import Fuse, { type FuseIndex, type IFuseOptions } from 'fuse.js';
 import { readable } from 'svelte/store';
 import { getAllBookmarks, getArchivedBookmarks, getFavoriteBookmarks } from '$lib/db/bookmarks';
 import type { BookmarkData } from '$lib/types';
+import { trackSearchUsed } from '$lib/analytics/events';
+
+// Debounce search tracking to track once per search session
+let searchTracked = false;
+let searchTimeout: ReturnType<typeof setTimeout>;
 
 export class FuseSearchEngine {
 	public data: BookmarkData[];
@@ -32,6 +37,19 @@ export class FuseSearchEngine {
 		if (!query.trim()) {
 			return this.data;
 		}
+
+		// Track that search feature was used (once per session, debounced)
+		if (query.length >= 2 && !searchTracked) {
+			searchTracked = true;
+			trackSearchUsed();
+
+			// Reset after 30 seconds of no searching
+			clearTimeout(searchTimeout);
+			searchTimeout = setTimeout(() => {
+				searchTracked = false;
+			}, 30000);
+		}
+
 		return this.fuse.search(query).map((result) => result.item);
 	}
 }

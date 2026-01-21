@@ -4,6 +4,13 @@
 import Dexie from 'dexie';
 import { db } from '$lib/db';
 import { BookmarkStatus, type BookmarkData, type BookmarkMetaData } from '$lib/types/bookmark';
+import {
+	trackBookmarkCreated,
+	trackBookmarkDeleted,
+	trackBookmarkStarred,
+	trackBookmarkStatusChanged,
+	trackTagsUpdated
+} from '$lib/analytics/events';
 
 const { liveQuery } = Dexie;
 
@@ -90,6 +97,7 @@ export async function createBookmark(data: Partial<BookmarkData>): Promise<strin
 	};
 
 	const id = await db.bookmarks.add(bookmarkData as BookmarkData);
+	trackBookmarkCreated();
 	return id as string;
 }
 
@@ -116,6 +124,7 @@ export async function updateBookmark(id: string, updates: Partial<BookmarkData>)
  */
 export async function deleteBookmark(id: string): Promise<void> {
 	await db.bookmarks.delete(id);
+	trackBookmarkDeleted();
 }
 
 /**
@@ -149,6 +158,7 @@ export async function updateBookmarkUrl(id: string, url: string): Promise<void> 
  */
 export async function updateBookmarkTags(id: string, tags: string[]): Promise<void> {
 	await updateBookmark(id, { tags });
+	trackTagsUpdated();
 }
 
 /**
@@ -160,6 +170,7 @@ export async function updateBookmarkTags(id: string, tags: string[]): Promise<vo
  */
 export async function updateBookmarkStatus(id: string, status: BookmarkStatus): Promise<void> {
 	await updateBookmark(id, { status });
+	trackBookmarkStatusChanged(status);
 }
 
 /**
@@ -171,6 +182,7 @@ export async function updateBookmarkStatus(id: string, status: BookmarkStatus): 
  */
 export async function updateBookmarkStar(id: string, isStarred: boolean): Promise<void> {
 	await updateBookmark(id, { isStarred });
+	trackBookmarkStarred(isStarred);
 }
 
 /**

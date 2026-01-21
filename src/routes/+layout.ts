@@ -1,10 +1,11 @@
 // ABOUTME: Client layout initialization for browser and server-side Supabase clients
-// ABOUTME: Handles auth dependency tracking and provides unified client access
+// ABOUTME: Handles auth dependency tracking, PostHog analytics init, and provides unified client access
 
 import { createBrowserClient, createServerClient, isBrowser } from '@supabase/ssr';
 import { PUBLIC_SUPABASE_ANON_KEY, PUBLIC_SUPABASE_URL } from '$env/static/public';
 import type { LayoutLoad } from './$types';
 import { db } from '$lib/db';
+import { initPostHog, identifyUser } from '$lib/analytics/posthog';
 
 export const ssr = true;
 
@@ -45,8 +46,15 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 		data: { user }
 	} = await supabase.auth.getUser();
 
-	if (user && isBrowser()) {
-		await db.cloud.login();
+	if (isBrowser()) {
+		// Initialize PostHog analytics
+		initPostHog();
+
+		if (user) {
+			await db.cloud.login();
+			// Identify user for analytics (user ID only, no email)
+			identifyUser(user.id);
+		}
 	}
 
 	return { session, supabase, user };

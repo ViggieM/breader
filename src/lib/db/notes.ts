@@ -4,6 +4,7 @@
 import Dexie from 'dexie';
 import { db } from '$lib/db';
 import type { NoteData } from '$lib/types/note';
+import { trackNoteCreated, trackNoteDeleted } from '$lib/analytics/events';
 
 const { liveQuery } = Dexie;
 
@@ -46,6 +47,7 @@ export async function createNote(
 	};
 
 	const id = await db.notes.add(noteData as NoteData);
+	trackNoteCreated();
 	return id as string;
 }
 
@@ -78,4 +80,5 @@ export async function updateNote(
  */
 export async function deleteNote(noteId: string): Promise<void> {
 	await db.notes.delete(noteId);
+	trackNoteDeleted();
 }

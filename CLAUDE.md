@@ -111,6 +111,14 @@ IMPORTANT: The dev server might already be running on port 3000. Use that one in
 - `src/lib/components/Favicon.svelte` - Reusable favicon component with async loading
 - `src/routes/bookmark/[uuid]/+page.svelte` - Bookmark detail page with notes management
 
+**Analytics**:
+
+- **PostHog**: Privacy-focused analytics tracking feature usage only (no URLs, queries, or personal data)
+- Configure via `PUBLIC_POSTHOG_API_KEY` and `PUBLIC_POSTHOG_HOST` env vars (optional - disabled if not set)
+- Key files: `src/lib/analytics/posthog.ts` (client init), `src/lib/analytics/events.ts` (event functions)
+- Events tracked: bookmark_created, bookmark_deleted, bookmark_starred, bookmark_status_changed, search_used, note_created, note_deleted, tags_updated, bookmarks_imported
+- Tracking is integrated into db utilities - no need to call event functions directly from components
+
 **Critical Architecture Notes**:
 
 - Dexie liveQuery observables must be converted to Svelte readable stores using `readable()` wrapper for compatibility with `derived()` stores

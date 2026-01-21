@@ -9,6 +9,7 @@
 	import { initializeTheme } from '$lib/stores/theme.svelte';
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
+	import { identifyUser, resetUser } from '$lib/analytics/posthog';
 
 	let { children, data } = $props();
 	let session = $derived(data.session);
@@ -16,6 +17,15 @@
 
 	$effect(() => {
 		initializeTheme();
+	});
+
+	// Track auth state changes for analytics
+	$effect(() => {
+		if (session?.user) {
+			identifyUser(session.user.id);
+		} else {
+			resetUser();
+		}
 	});
 
 	onMount(() => {

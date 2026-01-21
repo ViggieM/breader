@@ -39,7 +39,9 @@
 	"vars": {
 		"PUBLIC_DEXIE_CLOUD_DB_URL": "https://z6n1slc6l.dexie.cloud",
 		"PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlsamtmZmNvdXZjZ2VxbGtqbG9yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NTcyNjgsImV4cCI6MjA3MjAzMzI2OH0.bLubDB0JP816gfmYx3l_mXHaIXKq_7CdmVE2rk8Aqo4",
-		"PUBLIC_SUPABASE_URL": "https://iljkffcouvcgeqlkjlor.supabase.co"
+		"PUBLIC_SUPABASE_URL": "https://iljkffcouvcgeqlkjlor.supabase.co",
+		"PUBLIC_POSTHOG_HOST": "https://eu.i.posthog.com",
+		"PUBLIC_POSTHOG_API_KEY": "phc_NR9M5Ths1OHhD96ufDpH1Cu0GFl5KFulPza6X4RFrZT"
 	}
 	/**
 	 * Note: Use secrets to store sensitive data.
