@@ -80,6 +80,12 @@
 					<span>Successfully imported {result.successCount} bookmark(s)</span>
 				</div>
 			{/if}
+			{#if result.faviconsSaved > 0}
+				<div class="alert alert-success">
+					<span class="icon-[ri--image-line]"></span>
+					<span>Saved {result.faviconsSaved} favicon(s)</span>
+				</div>
+			{/if}
 			{#if result.skippedCount > 0}
 				<div class="alert alert-info">
 					<span class="icon-[ri--information-line]"></span>

@@ -3,6 +3,7 @@
 import type { UUID } from 'node:crypto';
 import { db } from '$lib/db';
 import { createBookmark } from '$lib/db/bookmarks';
+import { saveFavicon, extractDomain, getFaviconByDomain } from '$lib/db/favicons';
 import { BookmarkStatus, type TagData, type BookmarkData } from '$lib/types';
 
 interface Bookmark {
@@ -232,7 +233,60 @@ export async function findDuplicateUrls(urls: string[]): Promise<Set<string>> {
 export interface ImportResult {
 	successCount: number;
 	skippedCount: number;
+	faviconsSaved: number;
 	errors: Array<{ url: string; error: string }>;
+}
+
+/**
+ * Saves favicons from imported bookmarks to IndexedDB.
+ * Only saves favicons for domains that don't already have a cached favicon.
+ * Validates that the icon data is a valid data URI before saving.
+ *
+ * @param bookmarks - Array of flattened bookmarks with icon data
+ * @returns Number of favicons saved
+ */
+async function saveFaviconsFromImport(bookmarks: FlattenedBookmark[]): Promise<number> {
+	let savedCount = 0;
+
+	// Group bookmarks by domain to avoid duplicate saves
+	const domainIcons = new Map<string, string>();
+
+	for (const bookmark of bookmarks) {
+		if (!bookmark.icon) continue;
+
+		const domain = extractDomain(bookmark.url);
+		if (!domain) continue;
+
+		// Only keep the first icon we find for each domain
+		if (!domainIcons.has(domain)) {
+			domainIcons.set(domain, bookmark.icon);
+		}
+	}
+
+	// Save each unique domain's favicon
+	for (const [domain, iconData] of domainIcons) {
+		try {
+			// Check if favicon already exists for this domain
+			const existing = await getFaviconByDomain(domain);
+			if (existing && !existing.failed) {
+				// Already have a valid favicon, skip
+				continue;
+			}
+
+			// Validate that it's a data URI (browser exports use data:image/... format)
+			if (!iconData.startsWith('data:image/')) {
+				continue;
+			}
+
+			// Save the favicon
+			await saveFavicon(domain, iconData, false);
+			savedCount++;
+		} catch {
+			// Silently skip failed favicon saves - not critical for import
+		}
+	}
+
+	return savedCount;
 }
 
 /**
@@ -252,8 +306,12 @@ export async function importBookmarksToDatabase(
 	const result: ImportResult = {
 		successCount: 0,
 		skippedCount: 0,
+		faviconsSaved: 0,
 		errors: []
 	};
+
+	// Save favicons from all bookmarks (including duplicates, as they may have new icons)
+	result.faviconsSaved = await saveFaviconsFromImport(bookmarks);
 
 	// Filter out duplicates
 	const bookmarksToImport = bookmarks.filter((bookmark) => {
