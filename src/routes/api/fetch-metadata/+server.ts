@@ -207,10 +207,43 @@ export const POST: RequestHandler = async ({ request, platform }) => {
 			const errorText = await response.text().catch(() => 'Unknown error');
 			console.error(`Metadata API error (${response.status}): ${errorText}`);
 
+			// Pass through 429 rate limit responses so the service worker can handle them
+			if (response.status === 429) {
+				// Try to extract retryAfter from the response body
+				let retryAfter = response.headers.get('Retry-After');
+				if (!retryAfter) {
+					try {
+						const errorJson = JSON.parse(errorText);
+						if (errorJson.retryAfter) {
+							retryAfter = String(errorJson.retryAfter);
+						}
+					} catch {
+						// Couldn't parse error body
+					}
+				}
+
+				return new Response(JSON.stringify({ error: 'Rate limit exceeded' }), {
+					status: 429,
+					headers: {
+						'Content-Type': 'application/json',
+						...(retryAfter ? { 'Retry-After': retryAfter } : {})
+					}
+				});
+			}
+
 			if (response.status >= 400 && response.status < 500) {
-				return error(400, 'Unable to fetch metadata for the requested URL');
+				return new Response(
+					JSON.stringify({ error: 'Unable to fetch metadata for the requested URL' }),
+					{
+						status: response.status,
+						headers: { 'Content-Type': 'application/json' }
+					}
+				);
 			} else {
-				return error(500, 'Metadata service error occurred');
+				return new Response(JSON.stringify({ error: 'Metadata service error occurred' }), {
+					status: 500,
+					headers: { 'Content-Type': 'application/json' }
+				});
 			}
 		}
 
