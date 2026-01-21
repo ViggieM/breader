@@ -2,6 +2,7 @@
 <!-- ABOUTME: Includes welcome section, help topic cards, keyboard shortcuts, and contact information -->
 <script lang="ts">
 	import { resolve } from '$app/paths';
+	import ExportBookmarks from '$lib/components/ExportBookmarks.svelte';
 
 	const helpSections = [
 		{
@@ -90,6 +91,15 @@
 		{/each}
 	</ul>
 </div>
+
+<h2 class="mt-12">Export bookmarks</h2>
+<p>
+	You can export all your Breader bookmarks to an HTML file that can be imported into any browser.
+	Your tags will be converted to folders, and bookmarks with multiple tags will appear in multiple
+	folders.
+</p>
+
+<ExportBookmarks />
 
 <h2 class="mt-12">Need More Help?</h2>
 <p>
