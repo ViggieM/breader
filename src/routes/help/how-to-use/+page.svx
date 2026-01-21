@@ -23,7 +23,18 @@ You can also import your existing bookmarks from your browser. For more informat
 
 You can also right-click on any page and select "Save to Breader" from the context menu.
 
-The extension is available for Chrome and Firefox browsers.
+The extension is available for:
+
+<div class="flex flex-wrap gap-4 my-4">
+  <a href="https://chromewebstore.google.com/detail/janalebddhlafniolhopejdeigbedfic" target="_blank" rel="noopener" class="btn btn-outline gap-2">
+    <span class="icon-[ri--chrome-fill] size-6"></span>
+    Chrome
+  </a>
+  <a href="https://addons.mozilla.org/firefox/addon/breader/" target="_blank" rel="noopener" class="btn btn-outline gap-2">
+    <span class="icon-[ri--firefox-browser-fill] size-6"></span>
+    Firefox
+  </a>
+</div>
 
 ## PWA (Mobile)
 
