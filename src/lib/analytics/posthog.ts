@@ -5,22 +5,12 @@ import posthog from 'posthog-js';
 import { browser } from '$app/environment';
 
 // Use dynamic import to handle optional env vars gracefully
-let apiKey: string | undefined;
-let apiHost: string | undefined;
-
-try {
-	// These may not exist if user hasn't configured PostHog
-	const env = import.meta.env;
-	apiKey = env.PUBLIC_POSTHOG_API_KEY;
-	apiHost = env.PUBLIC_POSTHOG_HOST;
-} catch {
-	// Env vars not available, PostHog will be disabled
-}
+import { PUBLIC_POSTHOG_API_KEY, PUBLIC_POSTHOG_HOST } from '$env/static/public';
 
 export function initPostHog() {
-	if (browser && apiKey) {
-		posthog.init(apiKey, {
-			api_host: apiHost || 'https://eu.i.posthog.com',
+	if (browser && PUBLIC_POSTHOG_API_KEY) {
+		posthog.init(PUBLIC_POSTHOG_API_KEY, {
+			api_host: PUBLIC_POSTHOG_HOST || 'https://eu.i.posthog.com',
 			capture_pageview: true,
 			capture_performance: true,
 			persistence: 'localStorage',
