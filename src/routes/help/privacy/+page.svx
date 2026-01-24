@@ -4,7 +4,7 @@ title: Privacy Policy
 
 # {title}
 
-**Last updated:** 17. January 2026
+**Last updated:** 24. January 2026
 
 This Privacy Policy explains how Breader ("we", "our", or "the app") collects, uses, and protects your personal data in accordance with the General Data Protection Regulation (GDPR).
 
@@ -124,7 +124,45 @@ Breader is hosted on Cloudflare Workers. During your use of the app, Cloudflare 
 
 For more information: [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)
 
-### 3.6 Embedded Video Data (YouTube)
+### 3.6 Analytics (PostHog)
+
+Breader uses PostHog for privacy-focused analytics to understand how features are used and improve the app. We have configured PostHog with strong privacy protections:
+
+**What we track:**
+- Feature usage events only (e.g., "bookmark created", "search used")
+- No URLs, search queries, or personal content is ever captured
+- No form data or text content is captured
+
+**Events tracked:**
+
+| Event | Data Sent |
+|-------|-----------|
+| bookmark_created | None |
+| bookmark_deleted | None |
+| bookmark_starred | starred: true/false |
+| bookmark_status_changed | status: number (0-3) |
+| search_used | None |
+| note_created | None |
+| note_deleted | None |
+| tags_updated | None |
+| bookmarks_imported | None |
+
+**Privacy configuration:**
+- **Autocapture disabled:** We do not automatically capture clicks, form inputs, or page views beyond basic navigation
+- **Text masking enabled:** All text content is masked in any captured data
+- **Attribute masking enabled:** HTML attributes are masked
+- **No cookies:** Uses localStorage instead of cookies
+- **User identification:** Only your anonymous user ID (if logged in) — no email or personal information
+
+**Data details:**
+- **Legal basis:** Legitimate interest (GDPR Art. 6(1)(f)) — improving the app based on aggregate usage patterns
+- **Data location:** EU (PostHog EU servers at eu.i.posthog.com)
+- **Retention:** According to PostHog's data retention policies
+- **Optional:** Analytics is completely disabled if the PostHog API key is not configured
+
+For more information: [PostHog Privacy Policy](https://posthog.com/privacy)
+
+### 3.7 Embedded Video Data (YouTube)
 
 When you view embedded YouTube videos within the app, YouTube (Google LLC) collects data:
 
@@ -174,6 +212,13 @@ We work with the following third-party processors who may access your data:
 - **Data processed:** IP addresses, request metadata
 - **Data protection:** Standard Contractual Clauses (EU transfers)
 - **Privacy Policy:** [Cloudflare Privacy Policy](https://www.cloudflare.com/privacypolicy/)
+
+### PostHog (Analytics)
+- **Purpose:** Privacy-focused product analytics to improve the app
+- **Data processed:** Feature usage events (no URLs, queries, or personal content)
+- **Data location:** EU (eu.i.posthog.com)
+- **Data protection:** Text and attribute masking, autocapture disabled, no cookies
+- **Privacy Policy:** [PostHog Privacy Policy](https://posthog.com/privacy)
 
 ### YouTube (Embedded Videos)
 - **Purpose:** Display video content within the app
@@ -250,12 +295,12 @@ Breader uses the following browser storage technologies:
 | Technology | Purpose | Consent Required? |
 |------------|---------|-------------------|
 | IndexedDB | Store bookmarks, notes, app data | No (strictly necessary) |
-| LocalStorage | Store theme, UI preferences | No (strictly necessary) |
+| LocalStorage | Store theme, UI preferences, analytics ID | No (strictly necessary / legitimate interest) |
 | Service Worker | Enable offline functionality | No (strictly necessary) |
 
-**Breader itself does NOT use:**
-- Tracking cookies
-- First-party analytics (e.g., Google Analytics)
+**Breader does NOT use:**
+- Tracking cookies (PostHog uses localStorage, not cookies)
+- Invasive analytics (e.g., Google Analytics) — we use privacy-focused PostHog with no URL or content tracking
 - Advertising cookies
 - Social media tracking pixels
 
@@ -351,7 +396,8 @@ If you are a California resident, you have additional rights under the Californi
 - **We store most data locally on your device** (IndexedDB, localStorage)
 - **Cloud sync is optional** and only enabled if you create an account
 - **We do NOT sell your data** or use it for advertising
-- **Breader does NOT use tracking or analytics cookies** (first-party)
+- **Privacy-focused analytics:** We use PostHog to track feature usage only (no URLs, search queries, or personal content)
+- **No tracking cookies:** PostHog uses localStorage, not cookies
 - **YouTube may set cookies** when you view embedded videos (third-party)
 - **All Breader storage is essential** for the app to function (no consent required)
 - **You can delete your account and data at any time**

@@ -156,7 +156,7 @@
 	</head>
 	<body>
 		<h1>Privacy Policy</h1>
-		<p class="subtitle"><strong>Last updated:</strong> 16. January 2026</p>
+		<p class="subtitle"><strong>Last updated:</strong> 24. January 2026</p>
 
 		<p>
 			This Privacy Policy explains how Breader ("we", "our", or "the app") collects, uses, and
@@ -322,7 +322,103 @@
 			<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>
 		</p>
 
-		<h3>3.6 Embedded Video Data (YouTube)</h3>
+		<h3>3.6 Analytics (PostHog)</h3>
+		<p>
+			Breader uses PostHog for privacy-focused analytics to understand how features are used and
+			improve the app. We have configured PostHog with strong privacy protections:
+		</p>
+
+		<h4>What we track:</h4>
+		<ul>
+			<li>Feature usage events only (e.g., "bookmark created", "search used")</li>
+			<li>No URLs, search queries, or personal content is ever captured</li>
+			<li>No form data or text content is captured</li>
+		</ul>
+
+		<h4>Events tracked:</h4>
+		<table>
+			<thead>
+				<tr>
+					<th>Event</th>
+					<th>Data Sent</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>bookmark_created</td>
+					<td>None</td>
+				</tr>
+				<tr>
+					<td>bookmark_deleted</td>
+					<td>None</td>
+				</tr>
+				<tr>
+					<td>bookmark_starred</td>
+					<td>starred: true/false</td>
+				</tr>
+				<tr>
+					<td>bookmark_status_changed</td>
+					<td>status: number (0-3)</td>
+				</tr>
+				<tr>
+					<td>search_used</td>
+					<td>None</td>
+				</tr>
+				<tr>
+					<td>note_created</td>
+					<td>None</td>
+				</tr>
+				<tr>
+					<td>note_deleted</td>
+					<td>None</td>
+				</tr>
+				<tr>
+					<td>tags_updated</td>
+					<td>None</td>
+				</tr>
+				<tr>
+					<td>bookmarks_imported</td>
+					<td>None</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<h4>Privacy configuration:</h4>
+		<ul>
+			<li>
+				<strong>Autocapture disabled:</strong> We do not automatically capture clicks, form inputs,
+				or page views beyond basic navigation
+			</li>
+			<li>
+				<strong>Text masking enabled:</strong> All text content is masked in any captured data
+			</li>
+			<li><strong>Attribute masking enabled:</strong> HTML attributes are masked</li>
+			<li><strong>No cookies:</strong> Uses localStorage instead of cookies</li>
+			<li>
+				<strong>User identification:</strong> Only your anonymous user ID (if logged in) — no email
+				or personal information
+			</li>
+		</ul>
+
+		<ul>
+			<li>
+				<strong>Legal basis:</strong> Legitimate interest (GDPR Art. 6(1)(f)) — improving the app
+				based on aggregate usage patterns
+			</li>
+			<li><strong>Data location:</strong> EU (PostHog EU servers at eu.i.posthog.com)</li>
+			<li><strong>Retention:</strong> According to PostHog's data retention policies</li>
+			<li>
+				<strong>Optional:</strong> Analytics is completely disabled if the PostHog API key is not
+				configured
+			</li>
+		</ul>
+
+		<p>
+			For more information:
+			<a href="https://posthog.com/privacy">PostHog Privacy Policy</a>
+		</p>
+
+		<h3>3.7 Embedded Video Data (YouTube)</h3>
 		<p>When you view embedded YouTube videos within the app, YouTube (Google LLC) collects data:</p>
 		<ul>
 			<li><strong>IP address:</strong> For content delivery and regional restrictions</li>
@@ -400,6 +496,24 @@
 			<li>
 				<strong>Privacy Policy:</strong>
 				<a href="https://www.cloudflare.com/privacypolicy/">Cloudflare Privacy Policy</a>
+			</li>
+		</ul>
+
+		<h3>PostHog (Analytics)</h3>
+		<ul>
+			<li><strong>Purpose:</strong> Privacy-focused product analytics to improve the app</li>
+			<li>
+				<strong>Data processed:</strong> Feature usage events (no URLs, queries, or personal
+				content)
+			</li>
+			<li><strong>Data location:</strong> EU (eu.i.posthog.com)</li>
+			<li>
+				<strong>Data protection:</strong> Text and attribute masking, autocapture disabled, no
+				cookies
+			</li>
+			<li>
+				<strong>Privacy Policy:</strong>
+				<a href="https://posthog.com/privacy">PostHog Privacy Policy</a>
 			</li>
 		</ul>
 
@@ -510,8 +624,8 @@
 				</tr>
 				<tr>
 					<td>LocalStorage</td>
-					<td>Store theme, UI preferences</td>
-					<td>No (strictly necessary)</td>
+					<td>Store theme, UI preferences, analytics ID</td>
+					<td>No (strictly necessary / legitimate interest)</td>
 				</tr>
 				<tr>
 					<td>Service Worker</td>
@@ -521,10 +635,13 @@
 			</tbody>
 		</table>
 
-		<p><strong>Breader itself does NOT use:</strong></p>
+		<p><strong>Breader does NOT use:</strong></p>
 		<ul>
-			<li>Tracking cookies</li>
-			<li>First-party analytics (e.g., Google Analytics)</li>
+			<li>Tracking cookies (PostHog uses localStorage, not cookies)</li>
+			<li>
+				Invasive analytics (e.g., Google Analytics) — we use privacy-focused PostHog with no URL or
+				content tracking
+			</li>
 			<li>Advertising cookies</li>
 			<li>Social media tracking pixels</li>
 		</ul>
@@ -659,7 +776,11 @@
 				</li>
 				<li><strong>Cloud sync is optional</strong> and only enabled if you create an account</li>
 				<li><strong>We do NOT sell your data</strong> or use it for advertising</li>
-				<li><strong>Breader does NOT use tracking or analytics cookies</strong> (first-party)</li>
+				<li>
+					<strong>Privacy-focused analytics:</strong> We use PostHog to track feature usage only (no
+					URLs, search queries, or personal content)
+				</li>
+				<li><strong>No tracking cookies:</strong> PostHog uses localStorage, not cookies</li>
 				<li>
 					<strong>YouTube may set cookies</strong> when you view embedded videos (third-party)
 				</li>
