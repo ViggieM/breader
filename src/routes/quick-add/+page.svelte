@@ -1,4 +1,6 @@
 <script lang="ts">
+	// ABOUTME: Quick-add page for creating bookmarks from browser extension popup
+	// ABOUTME: Minimal form UI that saves bookmark, triggers metadata fetch, and closes window
 	import { untrack } from 'svelte';
 	import type { PageProps } from './$types';
 	import { createBookmark } from '$lib/db/bookmarks';
@@ -27,23 +29,26 @@
 			// Process tags: create new ones and get all tag IDs
 			const { allTagIds } = await processTagsForSave(selectedTags);
 
-			// Create bookmark with all tag IDs
+			// Create bookmark with all tag IDs and pending metadata status
 			const id = await createBookmark({
 				title,
 				url,
 				description: '',
 				tags: allTagIds,
 				status,
-				isStarred: false
+				isStarred: false,
+				meta: { pending: true }
 			});
 
 			toastSuccess('Bookmark created');
 
-			// trigger a fetch of the metadata.
-			// This request is intercepted and handled by the service worker
-			await fetch(`/api/fetch-metadata`, {
+			// Queue metadata fetch for later processing by the service worker.
+			// The queueOnly flag tells the service worker to queue immediately without
+			// trying to process now, ensuring it runs when the user visits the main page.
+			// Don't await - fire and close the window.
+			fetch(`/api/fetch-metadata`, {
 				method: 'POST',
-				body: JSON.stringify({ id, url }),
+				body: JSON.stringify({ id, url, queueOnly: true }),
 				headers: {
 					'Content-Type': 'application/json'
 				}

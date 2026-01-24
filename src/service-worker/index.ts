@@ -162,13 +162,25 @@ self.addEventListener('fetch', (event) => {
 	}
 
 	const bgFetchMeta = async () => {
-		// Clone and parse request body to get bookmarkId early
+		// Clone and parse request body to get bookmarkId and flags
 		let bookmarkId: string | undefined;
+		let queueOnly = false;
 		try {
 			const requestBody = await event.request.clone().json();
 			bookmarkId = requestBody.id;
+			queueOnly = requestBody.queueOnly === true;
 		} catch {
 			// Couldn't parse request body, continue without bookmarkId
+		}
+
+		// If queueOnly flag is set, queue immediately without trying to process.
+		// This is used by quick-add to defer processing until the user visits the main page.
+		if (queueOnly) {
+			console.log('[SW] Queuing metadata request for later (queueOnly)');
+			await queue.pushRequest({ request: event.request });
+			return new Response(JSON.stringify({ queued: true }), {
+				headers: { 'Content-Type': 'application/json' }
+			});
 		}
 
 		try {
