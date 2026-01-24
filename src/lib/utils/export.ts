@@ -2,7 +2,7 @@
 // ABOUTME: Converts tags to folders, with bookmarks appearing in multiple folders if multi-tagged
 
 import { db } from '$lib/db';
-import { getFaviconByDomain, extractDomain } from '$lib/db/favicons';
+import { extractDomain } from '$lib/db/favicons';
 import type { BookmarkData, TagData } from '$lib/types';
 
 /**
