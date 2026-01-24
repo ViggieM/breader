@@ -37,7 +37,7 @@
 			alt=""
 			draggable="false"
 			loading="lazy"
-			class="{sizeClass} {className} shrink-0"
+			class="{sizeClass} {className}"
 		/>
 	{:else}
 		<!-- No favicon available, show empty placeholder -->

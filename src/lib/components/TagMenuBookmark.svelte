@@ -127,7 +127,7 @@
 			onkeydown={handleKeydown}
 			class={['flex items-center gap-2 text-left min-w-0 min-h-0 cursor-pointer self-stretch']}
 		>
-			<span class="self-start mt-0.5">
+			<span class="self-start mt-0.5 shrink-0">
 				<Favicon url={bookmark.url} size="md" />
 			</span>
 			{#if isMetadataPending(bookmark.meta)}
